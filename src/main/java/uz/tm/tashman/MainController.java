@@ -14,6 +14,7 @@ public class MainController {
     @GetMapping
     public void swagger(HttpServletResponse response) throws IOException {
         response.sendRedirect("swagger-ui.html");
+
     }
 
 }
