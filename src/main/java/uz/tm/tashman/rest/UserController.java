@@ -3,9 +3,9 @@ package uz.tm.tashman.rest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import uz.tm.tashman.models.SignInModel;
+import uz.tm.tashman.models.SignUpModel;
 import uz.tm.tashman.services.UserService;
 
 import java.util.List;
@@ -29,14 +29,14 @@ public class UserController {
         return userService.products();
     }
 
-    @GetMapping("/sign-in")
-    public List<Map<String, Object>> signIn() {
-        return userService.sign_in();
+    @PostMapping("/sign-in")
+    public List<Map<String, Object>> signIn(@RequestBody SignInModel signInModel) {
+        return userService.sign_in(signInModel);
     }
 
-    @GetMapping("/sign-up")
-    public List<Map<String, Object>> signUp() {
-        return userService.sign_up();
+    @PostMapping("/sign-up")
+    public List<Map<String, Object>> signUp(@RequestBody SignUpModel signUpModel) {
+        return userService.sign_up(signUpModel);
     }
 
     @GetMapping("/place_order")
