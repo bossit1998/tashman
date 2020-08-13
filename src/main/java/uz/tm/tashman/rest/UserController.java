@@ -1,9 +1,9 @@
 package uz.tm.tashman.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uz.tm.tashman.models.ResponseData;
 import uz.tm.tashman.models.SignInModel;
 import uz.tm.tashman.models.SignUpModel;
 import uz.tm.tashman.services.UserService;
@@ -35,7 +35,7 @@ public class UserController {
     }
 
     @PostMapping("/sign-up")
-    public List<Map<String, Object>> signUp(@RequestBody SignUpModel signUpModel) {
+    public ResponseEntity<?> signUp(@RequestBody SignUpModel signUpModel) {
         return userService.sign_up(signUpModel);
     }
 

@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SignUpModel extends SignInModel{
-    private String fullName;
+    private String name;
+    private String surName;
     private String email;
     private String phoneNumber;
     private String region;
