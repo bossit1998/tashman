@@ -24,12 +24,12 @@ public class UserRegisterResponse {
     private Long id;
     private String profileImageUrl;
 
-    private String street1;
-    private String street2;
+    private String street;
+    private String district;
     private String city;
-    private String state;
-    private String zipCode;
+    private String region;
     private String country;
+    private String zipCode;
     private Double latitude;
     private Double longitude;
 
