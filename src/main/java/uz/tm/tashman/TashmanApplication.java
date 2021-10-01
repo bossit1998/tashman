@@ -8,6 +8,8 @@ import uz.tm.tashman.entity.Role;
 import uz.tm.tashman.enums.ERole;
 
 import javax.annotation.PostConstruct;
+import java.util.HashSet;
+import java.util.Set;
 
 @SpringBootApplication
 public class TashmanApplication {
@@ -23,13 +25,12 @@ public class TashmanApplication {
     public void initializeDatabaseTables() {
         //initialize user roles
         if (roleRepository.findAll().isEmpty()) {
+            ERole[] roles = ERole.values();
             for (int i = 0; i < ERole.values().length; i++) {
                 Role role = new Role();
-                role.setId(ERole.getById(i).getId());
-                role.setName(ERole.getById(i).getCode());
+                role.setName(roles[i]);
                 roleRepository.save(role);
             }
         }
-
     }
 }

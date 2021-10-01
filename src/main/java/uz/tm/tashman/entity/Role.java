@@ -1,6 +1,7 @@
 package uz.tm.tashman.entity;
 
 import lombok.Data;
+import uz.tm.tashman.enums.ERole;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -16,7 +17,7 @@ public class Role implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-//	@Enumerated(EnumType.STRING)
-//	@Column(length = 20)
-    private String name;
+	@Enumerated(EnumType.STRING)
+	@Column(length = 20)
+    private ERole name;
 }

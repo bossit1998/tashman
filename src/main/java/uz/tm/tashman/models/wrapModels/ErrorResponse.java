@@ -1,4 +1,4 @@
-package uz.tm.tashman.models;
+package uz.tm.tashman.models.wrapModels;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class ErrorResponseModel {
+public class ErrorResponse {
     private Integer status;
     private String message;
 }

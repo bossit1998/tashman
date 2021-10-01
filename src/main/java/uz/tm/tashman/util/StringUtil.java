@@ -5,7 +5,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import uz.tm.tashman.exception.BadRequestException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -21,12 +20,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
+
 public class StringUtil {
 
     private static final String ABC = "abcdefghijklmnopqrstuvwxyz6352810974";
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
     private static final NumberFormat qtyNumberFormat = NumberFormat.getInstance();
-    public static SimpleDateFormat dateFormat1 = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    public static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
     public static PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     static {
@@ -82,7 +82,19 @@ public class StringUtil {
         return n.toString();
     }
 
-    private static boolean isBlank(String string) {
+//    public static ResponseEntity<?> check(Object object, String objectName) {
+//        if (object == null) {
+//            return BadRequestResponse(objectName + " not entered");
+//        } else {
+//            return null;
+//        }
+//    }
+
+    public static boolean isBlank(Object object) {
+        return (object == null);
+    }
+
+    public static boolean isBlankString(String string) {
         return (string == null || string.trim().equals(""));
     }
 
@@ -110,29 +122,6 @@ public class StringUtil {
         }
         return phoneNumber;
     }
-
-//    public static String maskCardNumber(String cardNumber) {
-//        cardNumber = cleanNumber(cardNumber);
-//        if (StringUtils.isNotEmpty(cardNumber) && cardNumber.replaceAll(" ", "").length() == 16) {
-//            String part1 = cardNumber.substring(0, 4);
-//            String part2 = cardNumber.substring(4, 6);
-//            String part4 = cardNumber.substring(12, 16);
-//            cardNumber = part1 + " " + part2 + "** **** " + part4;
-//        }
-//        return cardNumber;
-//    }
-//
-//    public static String maskCardNumber1(String cardNumber) {
-//        if (StringUtils.isNotEmpty(cardNumber) && cardNumber.replaceAll(" ", "").length() == 16) {
-//            cardNumber = cardNumber.replaceAll(" ", "");
-//            String part1 = cardNumber.substring(0, 4);
-//            String part2 = cardNumber.substring(4, 8);
-//            String part3 = cardNumber.substring(8, 12);
-//            String part4 = cardNumber.substring(12, 16);
-//            cardNumber = part1 + " " + part2 + " " + part3 + " " + part4;
-//        }
-//        return cardNumber;
-//    }
 
     public static String getLanguageCode(Integer languageId) {
         if (languageId != null) {
@@ -201,60 +190,6 @@ public class StringUtil {
         }
         return "";
     }
-
-//    public static Long parseDate(String dateStr) {
-//        SimpleDateFormat dateFormat1 = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
-//        SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-//        SimpleDateFormat dateFormat3 = new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH);
-//        if (StringUtils.isNotEmpty(dateStr) && !"null".equals(dateStr)) {
-//            Date date;
-//            try {
-//                date = dateFormat1.parse(dateStr);
-//                return date.getTime();
-//            } catch (ParseException e1) {
-//                try {
-//                    date = dateFormat2.parse(dateStr);
-//                    return date.getTime();
-//                } catch (ParseException e2) {
-//                    try {
-//                        date = dateFormat3.parse(dateStr);
-//                        return date.getTime();
-//                    } catch (ParseException e3) {
-//                        e3.printStackTrace();
-//                    }
-//                }
-//            }
-//        }
-//        return null;
-//    }
-
-//    public static Date parseToDate(String dateStr) {
-//        SimpleDateFormat dateFormat1 = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
-//        SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-//        SimpleDateFormat dateFormat3 = new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH);
-//        if (StringUtils.isNotEmpty(dateStr) && !"null".equals(dateStr)) {
-//            try {
-//                return dateFormat1.parse(dateStr);
-//            } catch (ParseException e1) {
-//                try {
-//                    return dateFormat2.parse(dateStr);
-//                } catch (ParseException e2) {
-//                    try {
-//                        return dateFormat3.parse(dateStr);
-//                    } catch (ParseException e3) {
-//                        e3.printStackTrace();
-//                    }
-//                }
-//            }
-//        }
-//        return null;
-//    }
-
-//    public static String getCardExpireDate(PlasticCard card) {
-//        String[] split = card.getCardExpireDate().length() != 5 ? AES.decrypt(card.getCardExpireDate()).split("/")
-//                : card.getCardExpireDate().split("/");
-//        return split[1] + split[0];
-//    }
 
     public static String getCardExpireDate(String expireDate) {
         String[] split = expireDate.length() != 5 ? AES.decrypt(expireDate).split("/")

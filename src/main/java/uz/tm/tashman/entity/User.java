@@ -46,7 +46,7 @@ public class User implements UserDetails {
 
     @JsonManagedReference
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
-    private UserDetail userDetail;
+    private Client client;
 
     public User(String username, String password) {
         this.username = username;
@@ -64,35 +64,11 @@ public class User implements UserDetails {
         return false;
     }
 
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    public Set<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
-
-    public List<UserAgent> getUserAgents() {
-        return userAgents;
-    }
-
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> roleAuthorities = new ArrayList<>();
         for (Role role : roles) {
-            roleAuthorities.add(new SimpleGrantedAuthority(role.getName()));
+            roleAuthorities.add(new SimpleGrantedAuthority(role.getName().name()));
         }
         return roleAuthorities;
     }

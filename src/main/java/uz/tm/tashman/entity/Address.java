@@ -11,7 +11,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "address")
+@Table(name = "addresses")
 public class Address implements Serializable {
 
     private static final long serialVersionUID = -466068402240129789L;
@@ -20,21 +20,21 @@ public class Address implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "street1")
-    private String street1;
+    @Column(name = "street")
+    private String street;
 
-    @Column(name = "street2")
-    private String street2;
+    @Column(name = "district")
+    private String district;
 
     @Column(name = "city")
     private String city;
 
-    @Column(name = "state")
-    private String state;
-
-    @Column(name = "zip_code")
-    private String zipCode;
+    @Column(name = "region")
+    private String region;
 
     @Column(name = "country")
     private String country;
+
+    @Column(name = "zip_code")
+    private String zipCode;
 }

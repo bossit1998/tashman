@@ -1,4 +1,4 @@
-package uz.tm.tashman.models;
+package uz.tm.tashman.models.requestModels;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

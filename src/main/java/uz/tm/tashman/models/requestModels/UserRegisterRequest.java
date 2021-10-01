@@ -1,4 +1,4 @@
-package uz.tm.tashman.models;
+package uz.tm.tashman.models.requestModels;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRegisterRequestModel {
+public class UserRegisterRequest {
     private String mobileNumber;
     private String fullName;
     private String dob;
@@ -32,7 +32,7 @@ public class UserRegisterRequestModel {
     private Boolean isActive;
 
 
-    public UserRegisterRequestModel(String mobileNumber, String fullName, String dob, String gender, String email, String password, String faceScan, String fingerPrints, String fcmToken, String platform, String voipToken, Boolean isActive) {
+    public UserRegisterRequest(String mobileNumber, String fullName, String dob, String gender, String email, String password, String faceScan, String fingerPrints, String fcmToken, String platform, String voipToken, Boolean isActive) {
         this.mobileNumber = mobileNumber;
         this.fullName = fullName;
         this.dob = dob;

@@ -11,6 +11,6 @@ import java.util.List;
 public interface UserAgentRepository extends JpaRepository<UserAgent, Long> {
     UserAgent findByUserAndUserAgent(User user, String userAgent);
 
-    List<UserAgent> findAllByUserAndVerifiedTrueAndDeletedStatusFalse(User user);
+    List<UserAgent> findAllByUserAndVerifiedTrueAndDeletedFalse(User user);
 
 }

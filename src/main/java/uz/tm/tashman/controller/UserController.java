@@ -3,37 +3,53 @@ package uz.tm.tashman.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uz.tm.tashman.models.AuthenticationRequest;
-import uz.tm.tashman.models.ErrorResponseModel;
-import uz.tm.tashman.models.UserRegisterRequestModel;
+import uz.tm.tashman.util.HTTPResponses;
+import uz.tm.tashman.models.requestModels.AuthenticationRequest;
+import uz.tm.tashman.models.wrapModels.ErrorResponse;
+import uz.tm.tashman.models.requestModels.UserRegisterRequest;
 import uz.tm.tashman.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static uz.tm.tashman.util.StringUtil.isBlank;
+
+
 @RestController
 @RequestMapping("/user")
 @CrossOrigin(origins = "*")
-public class UserController {
+public class UserController extends HTTPResponses {
 
     @Autowired
     UserService userService;
 
     @PostMapping("/registration")
-    public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequestModel userRegisterRequestModel, HttpServletRequest request) {
-//        if (patientRegisterRequest.getMobileNumber() == null) {
-//			return ResponseEntity.badRequest().body(new UniversalErrorResponseDTO(400, "Mobile number not entered"));
-//		}
-        return userService.registration(userRegisterRequestModel, request);
+    public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest userRegisterRequest, HttpServletRequest request) {
+        if (isBlank(userRegisterRequest.getMobileNumber())) {
+            return BadRequestResponse("Mobile number");
+        }
+        if (isBlank(userRegisterRequest.getFullName())) {
+            return BadRequestResponse("Name");
+        }
+        if (isBlank(userRegisterRequest.getDob())) {
+            return BadRequestResponse("Date of birth");
+        }
+        if (isBlank(userRegisterRequest.getGender())) {
+            return BadRequestResponse("Gender");
+        }
+        if (isBlank(userRegisterRequest.getPassword())) {
+            return BadRequestResponse("Password");
+        }
+        return userService.registration(userRegisterRequest, request);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest,
                                                        HttpServletRequest request) {
         if (authenticationRequest.getMobileNumber() == null) {
-            return ResponseEntity.badRequest().body(new ErrorResponseModel(400, "Mobile number not entered"));
+            return ResponseEntity.badRequest().body(new ErrorResponse(400, "Mobile number not entered"));
         }
         if (authenticationRequest.getPassword() == null) {
-            return ResponseEntity.badRequest().body(new ErrorResponseModel(400, "Password not entered"));
+            return ResponseEntity.badRequest().body(new ErrorResponse(400, "Password not entered"));
         }
         return userService.login(authenticationRequest, request);
     }

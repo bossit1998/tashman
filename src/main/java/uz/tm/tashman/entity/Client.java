@@ -12,10 +12,10 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "user_detail")
+@Table(name = "clients")
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDetail implements Serializable {
+public class Client implements Serializable {
 
     private static final long serialVersionUID = -8723441071526027773L;
 
@@ -55,12 +55,6 @@ public class UserDetail implements Serializable {
 
     @Column(name = "face_scan")
     private String faceScan;
-
-    @Column(name = "created_by")
-    private String createdBy;
-
-    @Column(name = "created_date")
-    private LocalDateTime createdDate;
 
     @Column(name = "qr_code")
     private String qrCode;

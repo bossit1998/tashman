@@ -23,15 +23,21 @@ public class UserAgent implements Serializable {
 
     private String userAgent;
 
-    private boolean isVerified = false;
+    @Column(columnDefinition = "boolean default false")
+    private boolean verified = false;
 
     private LocalDateTime tokenDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    private boolean deletedStatus = false;
+    @Column(columnDefinition = "boolean default false")
+    private boolean deleted = false;
 
     private LocalDateTime deletedDate;
 
+    @Column(columnDefinition = "boolean default false")
+    private boolean blocked = false;
+
+    private LocalDateTime blockedDate;
 }

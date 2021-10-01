@@ -1,4 +1,4 @@
-package uz.tm.tashman.models;
+package uz.tm.tashman.models.responseModels;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
