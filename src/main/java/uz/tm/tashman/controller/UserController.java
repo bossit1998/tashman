@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.tm.tashman.util.HTTPResponses;
 import uz.tm.tashman.models.requestModels.AuthenticationRequest;
-import uz.tm.tashman.models.wrapModels.ErrorResponse;
 import uz.tm.tashman.models.requestModels.UserRegisterRequest;
 import uz.tm.tashman.service.UserService;
 
@@ -23,7 +22,8 @@ public class UserController extends HTTPResponses {
     UserService userService;
 
     @PostMapping("/registration")
-    public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest userRegisterRequest, HttpServletRequest request) {
+    public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest userRegisterRequest,
+                                          HttpServletRequest request) {
         if (isBlank(userRegisterRequest.getMobileNumber())) {
             return BadRequestResponse("Mobile number");
         }
@@ -45,11 +45,11 @@ public class UserController extends HTTPResponses {
     @PostMapping("/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest,
                                                        HttpServletRequest request) {
-        if (authenticationRequest.getMobileNumber() == null) {
-            return ResponseEntity.badRequest().body(new ErrorResponse(400, "Mobile number not entered"));
+        if (isBlank(authenticationRequest.getMobileNumber())) {
+            return BadRequestResponse("Mobile number");
         }
-        if (authenticationRequest.getPassword() == null) {
-            return ResponseEntity.badRequest().body(new ErrorResponse(400, "Password not entered"));
+        if (isBlank(authenticationRequest.getPassword())) {
+            return BadRequestResponse("Password");
         }
         return userService.login(authenticationRequest, request);
     }

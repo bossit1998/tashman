@@ -23,8 +23,12 @@ public class HTTPResponses {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(400, message + " not entered!"));
     }
 
-    public ResponseEntity<?> ForbiddenResponse() {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(403, "You don't have access to this resource"));
+    public ResponseEntity<?> UnauthorizedResponse() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(401, "You don't have access to this resource"));
+    }
+
+    public ResponseEntity<?> ForbiddenResponse(String message) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(403, message));
     }
 
     public ResponseEntity<?> InternalServerErrorResponse(String message) {

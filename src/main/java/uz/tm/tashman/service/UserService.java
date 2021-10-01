@@ -1,6 +1,7 @@
 package uz.tm.tashman.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,7 +20,6 @@ import uz.tm.tashman.models.requestModels.AuthenticationRequest;
 import uz.tm.tashman.models.requestModels.UserRegisterRequest;
 import uz.tm.tashman.models.responseModels.UserRegisterResponse;
 import uz.tm.tashman.models.wrapModels.ErrorResponse;
-import uz.tm.tashman.models.wrapModels.SuccessResponse;
 import uz.tm.tashman.util.StringUtil;
 import uz.tm.tashman.util.Util;
 
@@ -30,10 +30,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import uz.tm.tashman.util.HTTPResponses;
+
 
 
 @Service
-public class UserService {
+public class UserService extends HTTPResponses {
 
     @Autowired
     UserRepository userRepository;
@@ -50,8 +52,8 @@ public class UserService {
     @Autowired
     AuthenticationManager authenticationManager;
 
-//    @Value("${local.file.path}")
-//    String filePath;
+    @Value("${local.file.path}")
+    String filePath;
 
     @Autowired
     UserAgentRepository userAgentRepository;
@@ -62,22 +64,22 @@ public class UserService {
     @Autowired
     UserPlatformRepository userPlatformRepository;
 
-    public ResponseEntity<?> registration(UserRegisterRequest userRegisterRequest,
-                                          HttpServletRequest request) {
-        if (userRepository.existsByUsername(userRegisterRequest.getMobileNumber())) {
-            return ResponseEntity.badRequest().body(new ErrorResponse(400, "User is Already Registered!"));
+    public ResponseEntity<?> registration(UserRegisterRequest userRegisterRequest, HttpServletRequest request) {
+        if (userRepository.existsByUsername(StringUtil.cleanNumber(userRegisterRequest.getMobileNumber()))) {
+            return ForbiddenResponse("User is Already Registered!");
         }
         // Create new user's account
         User user = new User(userRegisterRequest.getMobileNumber(), encoder.encode(userRegisterRequest.getPassword()));
-//        User user = new User(userRegisterRequestModel.getMobileNumber(), StringUtil.encodePassword(userRegisterRequestModel.getPassword()));
 
-        Role patientRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Patient Role is not found."));
+        Role patientRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow(
+                () -> new RuntimeException("Error: Patient Role is not found."));
 
         Set<Role> roles = new HashSet<>();
-
         roles.add(patientRole);
 
+        // todo - should be uncommented to generate otp
 //        String otp = Util.otpGeneration();
+
         String otp = "1234";
         user.setRoles(roles);
         user.setCreatedDate(LocalDateTime.now());
@@ -95,54 +97,53 @@ public class UserService {
         patient.setEmail(userRegisterRequest.getEmail());
         patient.setDob(userRegisterRequest.getDob());
         patient.setGender(userRegisterRequest.getGender());
-
         patient.setIsActive(true);
         patient.setUser(user);
         user.setClient(patient);
         user = userRepository.save(user);
+
+        // todo - implement account
 //        ledgerAccountService.createAccount(user.getId());
+
         userAgent.setUser(user);
         userAgentRepository.save(userAgent);
 
-//        if (!StringUtils.isEmpty(patientRegisternRequest.getPlatform())
-//                && !StringUtils.isEmpty(patientRegisternRequest.getFcmToken())) {
-//            List<UserPlatform> deleteUserPlatformList = userPlatformRepository.findByFcmTokenOrVoipToken(
-//                    patientRegisternRequest.getFcmToken(),
-//                    patientRegisternRequest.getVoipToken() == null ? "" : patientRegisternRequest.getVoipToken());
-//
-//            UserPlatform userPlatform = new UserPlatform();
-//            userPlatform.setFcmToken(patientRegisternRequest.getFcmToken());
-//            userPlatform.setVoipToken(patientRegisternRequest.getVoipToken());
-//            userPlatform.setUserId(user.getId());
-//            if (patientRegisternRequest.getPlatform().equalsIgnoreCase(Platform.ANDROID.name())) {
-//                userPlatform.setPlatform(Platform.ANDROID);
-//            } else if (patientRegisternRequest.getPlatform().equalsIgnoreCase(Platform.WEB.name())) {
-//                userPlatform.setPlatform(Platform.WEB);
-//            } else if (patientRegisternRequest.getPlatform().equalsIgnoreCase(Platform.IOS.name())) {
-//                userPlatform.setPlatform(Platform.IOS);
-//            }
-//            if (userPlatform.getPlatform() != null) {
-//                userPlatformRepository.deleteAll(deleteUserPlatformList);
-//                userPlatformRepository.save(userPlatform);
-//            }
-//        }
+        if (!StringUtils.isEmpty(userRegisterRequest.getPlatform()) &&
+                !StringUtils.isEmpty(userRegisterRequest.getFcmToken())) {
+            List<UserPlatform> deleteUserPlatformList = userPlatformRepository.findByFcmTokenOrVoipToken(
+                    userRegisterRequest.getFcmToken(),
+                    userRegisterRequest.getVoipToken() == null ? "" : userRegisterRequest.getVoipToken());
 
-//        PatientRegisterResponse patientRegisterResponse = new PatientRegisterResponse(
-//                "Registered Successfully. Please Verify your otp.", StringUtil.maskPhoneNumber(user.getUsername()));
-//        smsService.sendOtp(patientRegisternRequest.getMobileNumber(), otp);
-//        patientRegisterResponse.setIsOTPVerified(false);
-        return ResponseEntity.ok(new SuccessResponse<>(200, "Registered Successfully. Please Verify your otp.", StringUtil.maskPhoneNumber(user.getUsername())));
+            UserPlatform userPlatform = new UserPlatform();
+            userPlatform.setFcmToken(userRegisterRequest.getFcmToken());
+            userPlatform.setVoipToken(userRegisterRequest.getVoipToken());
+            userPlatform.setUserId(user.getId());
+            if (userRegisterRequest.getPlatform().equalsIgnoreCase(Platform.ANDROID.name())) {
+                userPlatform.setPlatform(Platform.ANDROID);
+            } else if (userRegisterRequest.getPlatform().equalsIgnoreCase(Platform.WEB.name())) {
+                userPlatform.setPlatform(Platform.WEB);
+            } else if (userRegisterRequest.getPlatform().equalsIgnoreCase(Platform.IOS.name())) {
+                userPlatform.setPlatform(Platform.IOS);
+            }
+            if (userPlatform.getPlatform() != null) {
+                userPlatformRepository.deleteAll(deleteUserPlatformList);
+                userPlatformRepository.save(userPlatform);
+            }
+        }
+
+        return CreatedResponse("Registered Successfully. Please Verify your otp.", StringUtil.maskPhoneNumber(user.getUsername()));
     }
 
     public ResponseEntity<?> login(AuthenticationRequest authenticationRequest, HttpServletRequest request) {
         String jwt;
 
-        Optional<User> optionUser;
+        Optional<User> optionalUser;
 
         try {
-            optionUser = userRepository.findByUsername(authenticationRequest.getMobileNumber());
-            if (!optionUser.isPresent()) {
-                return ResponseEntity.badRequest().body(new ErrorResponse(400, "User doesn't exist"));
+            optionalUser = userRepository.findByUsername(authenticationRequest.getMobileNumber());
+
+            if (!optionalUser.isPresent()) {
+                return EmptyResponse("User");
             }
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     authenticationRequest.getMobileNumber(), authenticationRequest.getPassword()));
@@ -153,7 +154,7 @@ public class UserService {
                     .body(new ErrorResponse(400, "Phone number or password error"));
         }
 
-        User user = optionUser.get();
+        User user = optionalUser.get();
 
         List<ERole> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
 
@@ -231,11 +232,8 @@ public class UserService {
             userRegisterResponse.setProfileImageUrl(user.getProfileImage());
             userRegisterResponse.setIsActive(client.getIsActive());
             if (user.getClient().getAddress() != null) {
-                userRegisterResponse.setStreet1(client.getAddress().getStreet());
-                userRegisterResponse.setStreet2(client.getAddress().getDistrict());
                 userRegisterResponse.setCity(client.getAddress().getCity());
                 userRegisterResponse.setZipCode(client.getAddress().getRegion());
-                userRegisterResponse.setState(client.getAddress().getCountry());
                 userRegisterResponse.setCountry(client.getAddress().getZipCode());
                 userRegisterResponse.setLatitude(user.getClient().getLatitude());
                 userRegisterResponse.setLongitude(user.getClient().getLongitude());
