@@ -1,21 +1,20 @@
 package uz.tm.tashman.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "clients")
-@AllArgsConstructor
-@NoArgsConstructor
-public class Client implements Serializable {
+@Getter
+@Setter
+public class Client extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = -8723441071526027773L;
 
@@ -62,4 +61,8 @@ public class Client implements Serializable {
     @Column(name = "is_active")
     private Boolean isActive = false;
 
+    @Override
+    public Long getId() {
+        return null;
+    }
 }

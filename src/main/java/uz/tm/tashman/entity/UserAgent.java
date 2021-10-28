@@ -2,18 +2,20 @@ package uz.tm.tashman.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "user_agent")
 @Entity
-public class UserAgent implements Serializable {
+public class UserAgent extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 9084968307271779096L;
 
@@ -31,10 +33,10 @@ public class UserAgent implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @Column(columnDefinition = "boolean default false")
-    private boolean deleted = false;
-
-    private LocalDateTime deletedDate;
+//    @Column(columnDefinition = "boolean default false")
+//    private boolean deleted = false;
+//
+//    private LocalDateTime deletedDate;
 
     @Column(columnDefinition = "boolean default false")
     private boolean blocked = false;

@@ -65,7 +65,7 @@ public class UserService extends HTTPResponses {
     UserPlatformRepository userPlatformRepository;
 
     public ResponseEntity<?> registration(UserRegisterRequest userRegisterRequest, HttpServletRequest request) {
-        if (userRepository.existsByUsername(StringUtil.cleanNumber(userRegisterRequest.getMobileNumber()))) {
+        if (userRepository.existsByUsername(userRegisterRequest.getMobileNumber())) {
             return ForbiddenResponse("User is Already Registered!");
         }
         // Create new user's account
@@ -131,7 +131,7 @@ public class UserService extends HTTPResponses {
             }
         }
 
-        return CreatedResponse("Registered Successfully. Please Verify your otp.", StringUtil.maskPhoneNumber(user.getUsername()));
+        return OkResponse("Registered Successfully. Please Verify your otp.", StringUtil.maskPhoneNumber(user.getUsername()));
     }
 
     public ResponseEntity<?> login(AuthenticationRequest authenticationRequest, HttpServletRequest request) {
@@ -194,7 +194,9 @@ public class UserService extends HTTPResponses {
         if (userAgent != null && !userAgent.isDeleted()) {
             if (!userAgent.isVerified()) {
                 userAgent.setTokenDate(LocalDateTime.now());
-                String otp = Util.otpGeneration();
+                //todo otp shpuld be uncommented
+//                String otp = Util.otpGeneration();
+                String otp = "1234";
                 user.setOtp(otp);
                 userRepository.save(user);
                 userAgent.setUser(user);

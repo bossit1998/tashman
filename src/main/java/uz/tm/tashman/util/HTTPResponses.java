@@ -23,6 +23,14 @@ public class HTTPResponses {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(400, message + " not entered!"));
     }
 
+    public ResponseEntity<?> AlreadyExistsResponse(String message) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(400, message + " already exists!"));
+    }
+
+    public ResponseEntity<?> WrongDataResponse(String message) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(400, message + " is wrong!"));
+    }
+
     public ResponseEntity<?> UnauthorizedResponse() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(401, "You don't have access to this resource"));
     }
@@ -31,8 +39,8 @@ public class HTTPResponses {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(403, message));
     }
 
-    public ResponseEntity<?> InternalServerErrorResponse(String message) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(500, message));
+    public ResponseEntity<?> InternalServerErrorResponse(String message, Object error) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(500, message, error));
     }
 
     public ResponseEntity<?> NotImplementedResponse() {

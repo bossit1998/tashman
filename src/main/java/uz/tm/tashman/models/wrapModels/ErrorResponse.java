@@ -14,4 +14,10 @@ import lombok.Setter;
 public class ErrorResponse {
     private Integer status;
     private String message;
+    private Object error;
+
+    public ErrorResponse(Integer status, String message) {
+        this.status=status;
+        this.message=message;
+    }
 }

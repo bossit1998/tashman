@@ -1,4 +1,3 @@
-/*
 package uz.tm.tashman.controller;
 
 import org.slf4j.Logger;
@@ -9,8 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import uz.tm.tashman.util.HTTPResponses;
+
 import uz.tm.tashman.models.*;
+import uz.tm.tashman.models.requestModels.OtpValidationRequest;
 import uz.tm.tashman.service.CommonService;
+import uz.tm.tashman.util.BadRequestException;
+import uz.tm.tashman.util.HTTPResponses;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -18,11 +22,12 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/common")
 @CrossOrigin(origins = "*")
-public class CommonController {
-    private static final Logger logger = LoggerFactory.getLogger(CommonController.class);
+public class CommonController extends HTTPResponses {
+//    private static final Logger logger = LoggerFactory.getLogger(CommonController.class);
     @Autowired
     CommonService commonService;
 
+/*
     @PostMapping("/forgotpassword")
     public ResponseEntity<?> forgotPassword(@RequestBody AuthenticationRequest authenticationRequest) {
         if (authenticationRequest.getMobileNumber() == null) {
@@ -31,7 +36,9 @@ public class CommonController {
         logger.info("Controller - forgotpassword API Called - Start");
         return commonService.forgotPassword(authenticationRequest);
     }
+*/
 
+/*
     @PostMapping(value = "/changepassword")
     public ResponseEntity<?> changePassword(@RequestBody AuthenticationRequest authorizedRequest) {
         if (authorizedRequest.getMobileNumber() == null) {
@@ -46,26 +53,21 @@ public class CommonController {
         logger.info("Controller - changepassword API Called - Start");
         return commonService.changePassword(authorizedRequest);
     }
+*/
 
     @PostMapping(value = "/otp_validation")
     public ResponseEntity<?> otpValidation(@RequestBody OtpValidationRequest authorizedRequest,
                                            HttpServletRequest request) {
         if (authorizedRequest.getMobileNumber() == null) {
-            return ResponseEntity.badRequest().body(new ErrorResponseModel(400, "Phone not entered"));
+            return BadRequestResponse("Phone number");
         }
         if (authorizedRequest.getOtp() == null) {
-            return ResponseEntity.badRequest().body(new ErrorResponseModel(400, "OTP not entered"));
+            return BadRequestResponse("OTP");
         }
-        String language;
-        if (request.getHeader("language") == null) {
-            language = "us";
-        } else {
-            language = request.getHeader("language");
-        }
-        logger.info("Controller - otp_validation API Called - Start");
-        return commonService.otpValidated(authorizedRequest, request, language);
+        return commonService.otpValidated(authorizedRequest, request);
     }
 
+/*
     @PostMapping(value = "/otpResend")
     public ResponseEntity<?> otpResend(@RequestBody OtpValidationRequest otpValidationRequest,
                                        HttpServletRequest request) {
@@ -146,5 +148,6 @@ public class CommonController {
     public ResponseEntity<?> deleteDocument(@PathVariable Long documentId) {
         return commonService.deleteDocument(documentId);
     }
+*/
 
-}*/
+}

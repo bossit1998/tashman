@@ -2,17 +2,19 @@ package uz.tm.tashman.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "addresses")
-public class Address implements Serializable {
+public class Address extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = -466068402240129789L;
 

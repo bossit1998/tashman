@@ -1,0 +1,48 @@
+Users:
+- registration;
+- login;
+- otp validation;
+- otp resend;
+- reset password;
+
+Clients:
+- get profile;
+- update/edit profile
+
+Admin:
+- only selected people;
+- get users list;
+- block users;
+
+Monitoring:
+- add product;
+- get list of products;
+- update/edit product;
+
+Accounting:
+- get list of transactions;
+- various statistics;
+
+
+Products:
+- add product;
+- get product;
+- update/edit product;
+- get list of products;
+- add to cart;
+
+Accounts:
+- balance;
+- cards;
+
+
+Plastic cards:
+- add;
+- update/edit;
+- get list;
+- get one;
+- delete;
+
+Payment:
+- pay;
+- get list;
