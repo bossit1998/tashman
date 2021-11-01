@@ -1,9 +1,10 @@
 Users:
-- registration;
-- login;
-- otp validation;
-- otp resend;
-- reset password;
+- registration; - done;
+- login; - done;
+- otp validation; - done;
+- otp resend; - done;
+- forgot password; - done;
+- change password;
 
 Clients:
 - get profile;

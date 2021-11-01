@@ -1,4 +1,4 @@
-package uz.tm.tashman.models.wrapModels;
+package uz.tm.tashman.models.wraperModels;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

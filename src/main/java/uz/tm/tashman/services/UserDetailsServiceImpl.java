@@ -1,4 +1,4 @@
-package uz.tm.tashman.service;
+package uz.tm.tashman.services;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.tm.tashman.dao.UserRepository;
-import uz.tm.tashman.entity.User;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {

@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import uz.tm.tashman.config.jwt.AuthEntryPointJwt;
 import uz.tm.tashman.config.jwt.AuthTokenFilter;
-import uz.tm.tashman.service.UserDetailsServiceImpl;
+import uz.tm.tashman.services.UserDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity

@@ -1,4 +1,4 @@
-package uz.tm.tashman.service;
+package uz.tm.tashman.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +19,7 @@ import uz.tm.tashman.enums.Platform;
 import uz.tm.tashman.models.requestModels.AuthenticationRequest;
 import uz.tm.tashman.models.requestModels.UserRegisterRequest;
 import uz.tm.tashman.models.responseModels.UserRegisterResponse;
-import uz.tm.tashman.models.wrapModels.ErrorResponse;
+import uz.tm.tashman.models.wraperModels.ErrorResponse;
 import uz.tm.tashman.util.StringUtil;
 import uz.tm.tashman.util.Util;
 
@@ -189,12 +189,16 @@ public class UserService extends HTTPResponses {
         UserRegisterResponse userRegisterResponse = new UserRegisterResponse();
         userRegisterResponse.setIsOTPVerified(true);
 
-        UserAgent userAgent = userAgentRepository.findByUserAndUserAgent(user, request.getHeader("User-Agent"));
+        Optional<UserAgent> optUserAgent = userAgentRepository.findByUserAndUserAgent(user, request.getHeader("User-Agent"));
+        if(!optionalUser.isPresent()) {
+            return EmptyResponse("Device");
+        }
+        UserAgent userAgent = optUserAgent.get();
 
-        if (userAgent != null && !userAgent.isDeleted()) {
+        if (!userAgent.isDeleted()) {
             if (!userAgent.isVerified()) {
                 userAgent.setTokenDate(LocalDateTime.now());
-                //todo otp shpuld be uncommented
+                // todo - should be uncommented to generate otp
 //                String otp = Util.otpGeneration();
                 String otp = "1234";
                 user.setOtp(otp);
@@ -215,6 +219,7 @@ public class UserService extends HTTPResponses {
             userRepository.save(user);
             userAgent.setUser(user);
             userAgentRepository.save(userAgent);
+            // todo - should be uncommented to send sms
 //            smsService.sendOtp(authenticationRequest.getMobileNumber(), otp);
             userRegisterResponse.setIsOTPVerified(false);
             userRegisterResponse.setMobileNumber(StringUtil.maskPhoneNumber(user.getUsername()));

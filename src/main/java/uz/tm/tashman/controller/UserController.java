@@ -3,10 +3,10 @@ package uz.tm.tashman.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uz.tm.tashman.util.HTTPResponses;
 import uz.tm.tashman.models.requestModels.AuthenticationRequest;
 import uz.tm.tashman.models.requestModels.UserRegisterRequest;
-import uz.tm.tashman.service.UserService;
+import uz.tm.tashman.services.UserService;
+import uz.tm.tashman.util.HTTPResponses;
 
 import javax.servlet.http.HttpServletRequest;
 

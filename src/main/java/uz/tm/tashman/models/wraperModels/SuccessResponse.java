@@ -1,4 +1,4 @@
-package uz.tm.tashman.models.wrapModels;
+package uz.tm.tashman.models.wraperModels;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

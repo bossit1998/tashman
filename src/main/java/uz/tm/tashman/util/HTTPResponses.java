@@ -2,8 +2,8 @@ package uz.tm.tashman.util;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import uz.tm.tashman.models.wrapModels.ErrorResponse;
-import uz.tm.tashman.models.wrapModels.SuccessResponse;
+import uz.tm.tashman.models.wraperModels.ErrorResponse;
+import uz.tm.tashman.models.wraperModels.SuccessResponse;
 
 public class HTTPResponses {
 

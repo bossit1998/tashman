@@ -1,49 +1,30 @@
-package uz.tm.tashman.service;
+package uz.tm.tashman.services;
 
-import com.google.common.collect.ImmutableMap;
-import org.apache.commons.io.FileUtils;
-import org.omg.IOP.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
-import org.springframework.web.multipart.MultipartFile;
 import uz.tm.tashman.config.jwt.JwtUtils;
 import uz.tm.tashman.dao.UserAgentRepository;
 import uz.tm.tashman.dao.UserPlatformRepository;
 import uz.tm.tashman.dao.UserRepository;
 import uz.tm.tashman.entity.User;
 import uz.tm.tashman.entity.UserAgent;
-import uz.tm.tashman.entity.UserPlatform;
-import uz.tm.tashman.enums.ERole;
-import uz.tm.tashman.models.*;
+import uz.tm.tashman.models.requestModels.AuthenticationRequest;
 import uz.tm.tashman.models.requestModels.OtpValidationRequest;
 import uz.tm.tashman.models.responseModels.RegisterResponse;
 import uz.tm.tashman.models.responseModels.UserRegisterResponse;
-import uz.tm.tashman.util.BadRequestException;
 import uz.tm.tashman.util.HTTPResponses;
 import uz.tm.tashman.util.StringUtil;
 import uz.tm.tashman.util.Util;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class CommonService extends HTTPResponses {
@@ -79,44 +60,42 @@ public class CommonService extends HTTPResponses {
     String fileLocation;
 
 
-/*
     public ResponseEntity<?> forgotPassword(AuthenticationRequest authenticationRequest) {
         Optional<User> user = userRepository.findByUsername(authenticationRequest.getMobileNumber());
         if (!user.isPresent()) {
-            return ResponseEntity.ok(new DoctorRegisterResponse("User does not exist!"));
+            return EmptyResponse("User");
         }
 
-
-        DoctorRegisterResponse doctorRegisterResponse = new DoctorRegisterResponse();
-        String otp = Util.otpGeneration();
+        UserRegisterResponse userRegisterResponse = new UserRegisterResponse();
+        // todo - should be uncommented to generate otp
+//        String otp = Util.otpGeneration();
+        String otp = "1234";
         user.get().setOtp(otp);
         userRepository.save(user.get());
-        smsService.sendOtp(authenticationRequest.getMobileNumber(), otp);
-        doctorRegisterResponse.setMobileNumber(StringUtil.maskPhoneNumber(authenticationRequest.getMobileNumber()));
-        doctorRegisterResponse.setMessage("OTP sent successfully!");
-        return ResponseEntity.ok(doctorRegisterResponse);
+        // todo - should be uncommented to send sms
+//        smsService.sendOtp(authenticationRequest.getMobileNumber(), otp);
+        userRegisterResponse.setMobileNumber(StringUtil.maskPhoneNumber(authenticationRequest.getMobileNumber()));
+        userRegisterResponse.setMessage("OTP sent successfully!");
+        return OkResponse("success", userRegisterResponse);
     }
 
-*/
 
-/*
-    public ResponseEntity<DoctorRegisterResponse> changePassword(AuthenticationRequest authenticationRequest) {
+    public ResponseEntity<?> changePassword(AuthenticationRequest authenticationRequest) {
         Optional<User> user = userRepository.findByUsername(authenticationRequest.getMobileNumber());
         if (!user.isPresent()) {
-            return ResponseEntity.ok(new DoctorRegisterResponse("User does not exist!"));
+            return EmptyResponse("User");
         }
-        DoctorRegisterResponse doctorRegisterResponse = new DoctorRegisterResponse();
-        doctorRegisterResponse.setIsOTPVerified(false);
-        doctorRegisterResponse.setMessage("Wrong OTP entered!");
+        UserRegisterResponse userRegisterResponse = new UserRegisterResponse();
+        userRegisterResponse.setIsOTPVerified(false);
+        userRegisterResponse.setMessage("Wrong OTP entered!");
         if (authenticationRequest.getOtp().equals((user).get().getOtp())) {
             user.get().setPassword(encoder.encode(authenticationRequest.getPassword()));
             userRepository.save(user.get());
-            doctorRegisterResponse.setIsOTPVerified(true);
-            doctorRegisterResponse.setMessage("Password Changed Successfully!");
+            userRegisterResponse.setIsOTPVerified(true);
+            userRegisterResponse.setMessage("Password Changed Successfully!");
         }
-        return ResponseEntity.ok(doctorRegisterResponse);
+        return OkResponse("success",userRegisterResponse);
     }
-*/
 
 
     public ResponseEntity<?> otpValidated(OtpValidationRequest otpValidationRequest, HttpServletRequest request) {
@@ -134,11 +113,11 @@ public class CommonService extends HTTPResponses {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
 
-            UserAgent userAgent = userAgentRepository.findByUserAndUserAgent(user.get(), request.getHeader("User-Agent"));
-
-            if (userAgent == null) {
+            Optional<UserAgent> optUserAgent = userAgentRepository.findByUserAndUserAgent(user.get(), request.getHeader("User-Agent"));
+            if(!optUserAgent.isPresent()) {
                 return EmptyResponse("Device");
             }
+            UserAgent userAgent = optUserAgent.get();
             if (userAgent.isVerified()) {
                 return AlreadyExistsResponse("Device");
             } // return token and login to system
@@ -305,44 +284,47 @@ public class CommonService extends HTTPResponses {
         return null;
     }
 
-
+*/
     public ResponseEntity<?> otpResend(OtpValidationRequest otpValidationRequest, HttpServletRequest request) {
-        User user = userRepository.findByUsername(otpValidationRequest.getMobileNumber()).get();
         try {
-//            Authentication authentication = authenticationManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken(otpValidationRequest.getMobileNumber(), otpValidationRequest.getPassword())
-//			);
+            Optional<User> optUser = userRepository.findByUsername(otpValidationRequest.getMobileNumber());
+            if(!optUser.isPresent()) {
+                return EmptyResponse("User");
+            }
+            User user = optUser.get();
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null,
                     user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
-//            user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-            UserAgent userAgent = userAgentRepository.findByUserAndUserAgent(user, request.getHeader("User-Agent"));
-
-            if (userAgent == null) {
-                return ResponseEntity.badRequest().body(new PatientRegisterResponse("There is no such device"));
+            Optional<UserAgent> optUserAgent = userAgentRepository.findByUserAndUserAgent(user, request.getHeader("User-Agent"));
+            if(!optUserAgent.isPresent()) {
+                return EmptyResponse("Device");
             }
+            UserAgent userAgent = optUserAgent.get();
             if (userAgent.isVerified()) {
-                return ResponseEntity.badRequest().body(new PatientRegisterResponse("This device is already verified"));
+                return AlreadyExistsResponse("This device");
             } else {
-                String otp = Util.otpGeneration();
-                boolean isOtpSent = smsService.sendOtpSuccess(otpValidationRequest.getMobileNumber(), otp);
+                // todo - should be uncommented to generate otp
+//                String otp = Util.otpGeneration();
+                String otp = "1234";
+                // todo - should be uncommented to send sms
+//                boolean isOtpSent = smsService.sendOtpSuccess(otpValidationRequest.getMobileNumber(), otp);
+                boolean isOtpSent = true;
                 if (isOtpSent) {
                     user.setOtp(otp);
                     userRepository.save(user);
-                    return ResponseEntity.ok(new SuccessResponseModel<>(200, "OTP sent successfully"));
+                    return OkResponse("OTP sent successfully", StringUtil.maskPhoneNumber(user.getUsername()));
                 } else {
-                    return ResponseEntity.status(500).body(new UniversalErrorResponseDTO(400, "Error in sending OTP"));
+                    return InternalServerErrorResponse("Error in sending OTP", null);
                 }
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(new UniversalErrorResponseDTO(400, "User Authentication failed"));
+            return InternalServerErrorResponse("User authentication failed", e.getMessage());
         }
     }
 
+    /*
 
     public ResponseEntity<?> uploadPhoto(MultipartFile imageFile, HttpServletRequest request) {
         try {

@@ -1,6 +1,6 @@
 package uz.tm.tashman.config.jwt;
 
-import uz.tm.tashman.service.UserDetailsServiceImpl;
+import uz.tm.tashman.services.UserDetailsServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
