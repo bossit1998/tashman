@@ -1,133 +1,159 @@
 package uz.tm.tashman.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uz.tm.tashman.models.requestModels.AuthenticationRequest;
-import uz.tm.tashman.models.requestModels.UserRegisterRequest;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
+import uz.tm.tashman.models.AuthenticationModel;
 import uz.tm.tashman.services.UserService;
-import uz.tm.tashman.util.HTTPResponses;
+import uz.tm.tashman.util.HTTPUtil;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static uz.tm.tashman.util.StringUtil.isBlank;
-
+import static uz.tm.tashman.enums.StatusCodes.*;
+import static uz.tm.tashman.util.Util.isBlank;
 
 @RestController
 @RequestMapping("/user")
 @CrossOrigin(origins = "*")
-public class UserController extends HTTPResponses {
+public class UserController extends HTTPUtil {
 
     @Autowired
     UserService userService;
 
-    @PostMapping("/registration")
-    public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest userRegisterRequest,
-                                          HttpServletRequest request) {
-        if (isBlank(userRegisterRequest.getMobileNumber())) {
-            return BadRequestResponse("Mobile number");
+    @PostMapping(value = "/otpVerification")
+    public ResponseEntity<?> otpVerification(@RequestBody AuthenticationModel authenticationModel, HttpServletRequest header) {
+        if (isBlank(authenticationModel.getMobileNumber())) {
+            return BadRequestResponse(USER_PHONE_NOT_ENTERED);
         }
-        if (isBlank(userRegisterRequest.getFullName())) {
-            return BadRequestResponse("Name");
+        if (isBlank(authenticationModel.getOtp())) {
+            return BadRequestResponse(USER_OTP_NOT_ENTERED);
         }
-        if (isBlank(userRegisterRequest.getDob())) {
-            return BadRequestResponse("Date of birth");
+        if (isBlank(authenticationModel.getDeviceId())) {
+            return BadRequestResponse(DEVICE_INFO_MISSING);
         }
-        if (isBlank(userRegisterRequest.getGender())) {
-            return BadRequestResponse("Gender");
-        }
-        if (isBlank(userRegisterRequest.getPassword())) {
-            return BadRequestResponse("Password");
-        }
-        return userService.registration(userRegisterRequest, request);
+        return userService.otpVerification(authenticationModel, header);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest,
-                                                       HttpServletRequest request) {
-        if (isBlank(authenticationRequest.getMobileNumber())) {
-            return BadRequestResponse("Mobile number");
+    @PostMapping(value = "/otpResend")
+    public ResponseEntity<?> otpResend(@RequestBody AuthenticationModel authenticationModel, HttpServletRequest header) {
+        if (isBlank(authenticationModel.getMobileNumber())) {
+            return BadRequestResponse(USER_PHONE_NOT_ENTERED);
         }
-        if (isBlank(authenticationRequest.getPassword())) {
-            return BadRequestResponse("Password");
+        if (isBlank(authenticationModel.getPassword())) {
+            return BadRequestResponse(USER_PASSWORD_NOT_ENTERED);
         }
-        return userService.login(authenticationRequest, request);
+        if (isBlank(authenticationModel.getDeviceId())) {
+            return BadRequestResponse(DEVICE_INFO_MISSING);
+        }
+        return userService.otpResend(authenticationModel, header);
     }
 
-//	@PreAuthorize("hasRole('PATIENT')")
-//	@RequestMapping(value = "/createAndUpdatePatientDocuments", method = RequestMethod.POST)
-//	public ResponseEntity<?> singleFileUpload(@ModelAttribute PatientDocumentRequest patientDocumentRequest)
-//			throws Exception {
-//		if ((patientDocumentRequest.getFile() == null || patientDocumentRequest.getFile().getBytes().length == 0)
-//				&& patientDocumentRequest.getPatientDocumentId() == null) {
-//			return ResponseEntity.badRequest().body(new UniversalErrorResponseDTO(400, "File not selected"));
-//		}
-//		return patientService.uploadPatientDocument(patientDocumentRequest);
-//	}
-//
-//	@PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR')")
-//	@RequestMapping(value = "/getPatientDocument", method = RequestMethod.POST)
-//	public ResponseEntity<?> getPatientDocument(@RequestBody PatientDocumentRequest patientDocumentRequest)
-//			throws Exception {
-//		return patientService.getPatientDocument(patientDocumentRequest);
-//	}
-//
-//	@PreAuthorize("hasRole('PATIENT')")
-//	@RequestMapping(value = "/getPatientDocumentList", method = RequestMethod.GET)
-//	public ResponseEntity<?> getPatientDocumentList() throws Exception {
-//		return patientService.getPatientDocumentList();
-//}
-//
-//	@PreAuthorize("hasRole('PATIENT')")
-//	@RequestMapping(value = "/getOrUpdatePatientInformation", method = RequestMethod.POST)
-//	public ResponseEntity<?> getOrUpdatePatientInformation(@RequestBody PatientRegisterRequest patientRegisterRequest)
-//			throws Exception {
-//		return patientService.getOrUpdatePatientInformation(patientRegisterRequest);
-//	}
+    @PostMapping("/forgotPassword")
+    public ResponseEntity<?> forgotPassword(@RequestBody AuthenticationModel authenticationModel, HttpServletRequest header) {
+        if (isBlank(authenticationModel.getMobileNumber())) {
+            return BadRequestResponse(USER_PHONE_NOT_ENTERED);
+        }
+        if (isBlank(authenticationModel.getDeviceId())) {
+            return BadRequestResponse(DEVICE_INFO_MISSING);
+        }
+        return userService.forgotPassword(authenticationModel, header);
+    }
+
+    @PostMapping(value = "/changePassword")
+    public ResponseEntity<?> changePassword(@RequestBody AuthenticationModel authenticationModel, HttpServletRequest header) {
+        if (isBlank(authenticationModel.getMobileNumber())) {
+            return BadRequestResponse(USER_PHONE_NOT_ENTERED);
+        }
+        if (isBlank(authenticationModel.getPassword())) {
+            return BadRequestResponse(USER_PASSWORD_NOT_ENTERED);
+        }
+        if (isBlank(authenticationModel.getOtp())) {
+            return BadRequestResponse(USER_OTP_NOT_ENTERED);
+        }
+        if (isBlank(authenticationModel.getDeviceId())) {
+            return BadRequestResponse(DEVICE_INFO_MISSING);
+        }
+
+        return userService.changePassword(authenticationModel, header);
+    }
 
 
-//	@PreAuthorize("hasAnyRole('PATIENT', 'MONITORING')")
-//	@GetMapping("")
-//	public ResponseEntity<?> getProfile() {
-//		logger.info("Starting of the Getting Patient Profile method of Patient Controller");
-//		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//		return patientService.getProfile(user.getUsername());
-//	}
 
-//	@PreAuthorize("hasAnyRole('ADMIN', 'MAIN_DOCTOR', 'DOCTOR')")
-//	@GetMapping("/{mobileNumber}")
-//	public ResponseEntity<?> getProfile(@PathVariable String mobileNumber) {
-//		logger.info("Starting of the Patient Profile method of Patient Controller for mobileNumber: {}", mobileNumber);
-//		return patientService.getProfile(mobileNumber);
-//	}
-//
-//	@PreAuthorize("hasAnyRole('ADMIN', 'MAIN_DOCTOR', 'DOCTOR')")
-//	@PutMapping("/{mobileNumber}")
-//	public ResponseEntity<?> updateProfile(@PathVariable String mobileNumber,
-//                                           @RequestBody PatientRegisterRequest patientRegisterRequest) {
-//		logger.info("Starting of the update Patient Profile method of Patient Controller");
-//		return patientService.updateProfile(mobileNumber, patientRegisterRequest);
-//	}
 
-//	@PreAuthorize("hasRole('PATIENT')")
-//	@PostMapping("/leaveFeedback")
-//	public ResponseEntity<?> leaveFeedback(@RequestBody FeedbackDTO feedbackDTO, HttpServletRequest request) {
-//		if (feedbackDTO.getDoctorId() == null) {
-//			return ResponseEntity.badRequest().body(new UniversalErrorResponseDTO(400, "Doctor not chosen"));
-//		}
-//		if (feedbackDTO.getRating() == null) {
-//			return ResponseEntity.badRequest().body(new UniversalErrorResponseDTO(400, "Rating not set"));
-//		}
-//		return patientService.leaveFeedback(feedbackDTO, request);
-//	}
-//
-//	@PreAuthorize("hasRole('PATIENT')")
-//	@PostMapping("/getDoctorFeedbacks")
-//	public ResponseEntity<?> getDoctorFeedbacks(@RequestBody FeedbackDTO feedbackDTO, HttpServletRequest request) {
-//		if (feedbackDTO.getDoctorId() == null) {
-//			return ResponseEntity.badRequest().body(new UniversalErrorResponseDTO(400, "Doctor not chosen"));
-//		}
-//		return patientService.getDoctorFeedbacks(feedbackDTO);
-//	}
 
+
+
+
+
+    /*
+
+    @RequestMapping(value = "/logout", method = RequestMethod.POST)
+    public ResponseEntity<?> logout(@RequestBody AuthenticationRequest authenticationRequest) {
+        return commonService.logout(authenticationRequest);
+    }
+
+
+    @PostMapping("/setPinCode")
+    public ResponseEntity<?> setPinCode(@RequestBody PinCodeRequest pinCodeRequest, HttpServletRequest request) {
+        if (pinCodeRequest.getPinCode() == null) {
+            return ResponseEntity.badRequest().body(new ErrorResponseModel(400, "Pin code not entered"));
+        }
+        return commonService.setPinCode(pinCodeRequest, request);
+    }
+
+    @PostMapping("/loginWithPinCode")
+    public ResponseEntity<?> loginPinCode(@RequestBody PinCodeRequest pinCodeRequest, HttpServletRequest request) {
+        if (pinCodeRequest.getPinCode() == null) {
+            return ResponseEntity.badRequest().body(new ErrorResponseModel(400, "Pin code not entered"));
+        }
+        String language;
+        if (request.getHeader("language") == null) {
+            language = "us";
+        } else {
+            language = request.getHeader("language");
+        }
+        return commonService.loginPinCode(pinCodeRequest, request, language);
+    }
+
+    @PreAuthorize("hasRole('PATIENT') || hasRole('DOCTOR')")
+    @PostMapping(value = "/uploadPhoto", consumes = "multipart/form-data")
+    public ResponseEntity<?> uploadPhoto(@RequestBody MultipartFile imageFile, HttpServletRequest request)
+            throws IOException {
+        if (imageFile == null || imageFile.getBytes().length == 0) {
+            return ResponseEntity.badRequest().body(new ErrorResponseModel(400, "Image not chosen"));
+        }
+        return commonService.uploadPhoto(imageFile, request);
+    }
+
+    @GetMapping("/getBalanceAndTransactions")
+    public HttpEntity<?> getBalanceAndTransactions(@RequestParam int page, @RequestParam int offset) {
+        return ResponseEntity.ok(commonService.getBalanceAndTransactions(page, offset));
+    }
+
+    @GetMapping("/getRefundTransactions")
+    public ResponseEntity<?> getRefundTransactions(@RequestParam int page, @RequestParam int offset) {
+        return commonService.getRefundTransactions(page, offset);
+    }
+
+    @PreAuthorize("hasRole('PATIENT') || hasRole('DOCTOR')")
+    @DeleteMapping("/deleteDocument/{documentId}")
+    public ResponseEntity<?> deleteDocument(@PathVariable Long documentId) {
+        return commonService.deleteDocument(documentId);
+    }
+*/
+
+    @PostMapping("/redirectPostToPost")
+    public ModelAndView redirectPostToPost(HttpServletRequest request) {
+        request.setAttribute(
+                View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.FOUND);
+        return new ModelAndView("redirect:/redirectedPostToPost");
+    }
+
+    @PostMapping("/redirectedPostToPost")
+    public ModelAndView redirectedPostToPost() {
+        return new ModelAndView("redirection");
+    }
 }

@@ -1,42 +1,37 @@
 package uz.tm.tashman.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
-public class Address implements Serializable {
+public class ProductRating {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    private String ratingFor;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
+    private Product product;
 
-    private String street;
-
-    private String district;
-
-    private String city;
-
-    private String region;
-
-    private String country;
-
-    private Double latitude;
-
-    private Double longitude;
+    private String userNickname;
+    private String review;
+    private Double rating;
+    private LocalDateTime createdDate;
 
     @Column(columnDefinition = "boolean default false")
     private Boolean isDeleted = false;
+
+    private Long deletedBy;
 
     private LocalDateTime deletedDate;
 }

@@ -2,10 +2,9 @@ package uz.tm.tashman.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,32 +15,54 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "username")})
-public class User extends BaseEntity implements UserDetails {
+public class User implements UserDetails {
 
-    private static final long serialVersionUID = -486368026849312703L;
-    @JsonBackReference
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    List<UserAgent> userAgents;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    private String encodedId;
+
     private String username;
+
+    private String maskedPhoneNumber;
+
     private String password;
-    @Column(name = "created_by")
-    private String createdBy;
-    @Column(name = "created_date")
+
     private LocalDateTime createdDate;
-    @Column(name = "otp")
-    private String otp;
+
     private String profileImage;
-    @Column(name = "pin_code")
-    private Integer pinCode;
+
+    private String otpForDeletion;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isDeleted = false;
+
+    private Long deletedBy;
+
+    private LocalDateTime deletedDate;
+
+    @Column(columnDefinition = "boolean default true")
+    private Boolean isActive = true;
+
+    private String pinCode;
+    private Integer pinCodeTrials = 0;
+
+    private String language = "ru";
+
+    @JsonBackReference
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private List<UserAgent> userAgents;
+
+    @JsonBackReference
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private List<Address> address;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
@@ -50,19 +71,23 @@ public class User extends BaseEntity implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private Client client;
 
-    public User(String username, String password) {
+    @JsonManagedReference
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+    private Admin admin;
+
+    public User(String username, String password, String maskedPhoneNumber) {
         this.username = username;
         this.password = password;
+        this.maskedPhoneNumber = maskedPhoneNumber;
     }
 
     public boolean hasRole(ERole role) {
         if (role != null) {
-            List<String> roles = getAuthorities().stream().map(GrantedAuthority::getAuthority)
+            List<String> roles = getAuthorities().stream().map(item -> item.getAuthority())
                     .collect(Collectors.toList());
 
-			return roles.contains(role.name());
+            return roles.contains(role.name());
         }
-
         return false;
     }
 
@@ -73,6 +98,11 @@ public class User extends BaseEntity implements UserDetails {
             roleAuthorities.add(new SimpleGrantedAuthority(role.getName().name()));
         }
         return roleAuthorities;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
     }
 
     @Override

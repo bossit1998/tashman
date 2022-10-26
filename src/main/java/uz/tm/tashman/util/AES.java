@@ -9,20 +9,11 @@ import java.util.Arrays;
 import java.util.Base64;
 
 public class AES {
-    private static final String secretKey = "teledocandxmed";
+    private static final String secretKey = "tashman";
     private static final String algorithm = "AES/ECB/PKCS5PADDING";
     private static SecretKeySpec secretKeySpec;
 
     public static void main(String[] args) {
-        String originalString = "9860150101533464";//"10/24";//
-        String encryptedString = uz.tm.tashman.util.AES.encrypt(originalString);
-        String decryptedString = uz.tm.tashman.util.AES.decrypt(encryptedString);
-
-        System.out.println(originalString);
-        assert encryptedString != null;
-        System.out.println(encryptedString + ", length: " + encryptedString.length());
-        System.out.println(decryptedString);
-        System.out.println("3223: " + uz.tm.tashman.util.AES.decrypt("sZnIR7n7+MmlPe6Tuwq6DA=="));
     }
 
     public static void setKey(String myKey) {
@@ -45,7 +36,7 @@ public class AES {
             cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
             return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8)));
         } catch (Exception e) {
-            System.out.println("Error while encrypting: " + e.toString());
+            System.out.println("Error while encrypting: " + e);
         }
         return null;
     }
@@ -57,7 +48,7 @@ public class AES {
             cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
             return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
         } catch (Exception e) {
-            System.out.println("Error while decrypting: " + e.toString());
+            System.out.println("Error while decrypting: " + e);
         }
         return null;
     }
