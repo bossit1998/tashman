@@ -128,7 +128,7 @@ public class ClientService extends HTTPUtil {
         userAgent.setVerified(false);
 
 
-        user.getAdmin().setFullName(userModel.getFullName());
+        user.getClient().setFullName(userModel.getFullName());
 //        user.getAdmin().setFaceScan(userModel.getFaceScan());
 //        user.getAdmin().setFingerPrint(userModel.getFingerPrints());
 //        user.getAdmin().setEmail(userModel.getEmail());
@@ -269,7 +269,7 @@ public class ClientService extends HTTPUtil {
 //            userRegisterResponse.setGender(user.getClient().getGender());
             userRegisterResponse.setMobileNumber(authenticationModel.getMobileNumber());
             userRegisterResponse.setId(user.getId());
-            userRegisterResponse.setProfileImageUrl(user.getProfileImage());
+            userRegisterResponse.setProfileImageUrl(user.getProfileImageUrl());
 //            userRegisterResponse.setIsActive(user.getClient().getIsActive());
 //            if (user.getAddress() != null) {
 //                userRegisterResponse.setCity(user.getAddress().getCity());

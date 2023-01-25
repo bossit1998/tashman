@@ -1,7 +1,6 @@
 package uz.tm.tashman.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -162,8 +161,8 @@ public class UserService extends HTTPUtil {
     public String getProfileImage(User user) {
         String profileImage = BASE_URL + USER_DEFAULT_IMAGE_URL;
         if (user != null) {
-            if (user.getProfileImage() != null) {
-                profileImage = user.getProfileImage().replaceAll(CONTENT, BASE_URL);
+            if (user.getProfileImageUrl() != null) {
+                profileImage = user.getProfileImageUrl().replaceAll(CONTENT, BASE_URL);
             }
         }
         return profileImage;

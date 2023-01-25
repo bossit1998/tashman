@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import uz.tm.tashman.enums.ERole;
+import uz.tm.tashman.enums.Language;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -36,7 +37,7 @@ public class User implements UserDetails {
 
     private LocalDateTime createdDate;
 
-    private String profileImage;
+    private String profileImageUrl;
 
     private String otpForDeletion;
 
@@ -53,7 +54,8 @@ public class User implements UserDetails {
     private String pinCode;
     private Integer pinCodeTrials = 0;
 
-    private String language = "ru";
+    @Enumerated(EnumType.STRING)
+    private Language language = Language.RU;
 
     @JsonBackReference
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")

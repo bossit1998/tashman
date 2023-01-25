@@ -48,7 +48,6 @@ public enum VolumeUnit {
         return null;
     }
 
-
     public static ArrayList<HashMapModel> getAllByLanguage(String language) {
         ArrayList<HashMapModel> volumeUnits = new ArrayList<>();
         switch (language) {
