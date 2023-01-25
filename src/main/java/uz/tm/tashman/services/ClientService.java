@@ -21,10 +21,7 @@ import uz.tm.tashman.enums.StatusCodes;
 import uz.tm.tashman.models.AuthenticationModel;
 import uz.tm.tashman.models.UserModel;
 import uz.tm.tashman.models.wrapperModels.ErrorResponse;
-import uz.tm.tashman.repository.AddressRepository;
-import uz.tm.tashman.repository.RoleRepository;
-import uz.tm.tashman.repository.UserAgentRepository;
-import uz.tm.tashman.repository.UserRepository;
+import uz.tm.tashman.repository.*;
 import uz.tm.tashman.util.AES;
 import uz.tm.tashman.util.HTTPUtil;
 import uz.tm.tashman.util.Util;
@@ -48,6 +45,7 @@ public class ClientService extends HTTPUtil {
 
     @Autowired
     PasswordEncoder encoder;
+
 
     @Autowired
     JwtUtils jwtUtils;
@@ -128,7 +126,12 @@ public class ClientService extends HTTPUtil {
         userAgent.setVerified(false);
 
 
-        user.getClient().setFullName(userModel.getFullName());
+        Client client = new Client();
+        client.setFullName(userModel.getFullName());
+        client.setUser(user);
+
+        user.setClient(client);
+
 //        user.getAdmin().setFaceScan(userModel.getFaceScan());
 //        user.getAdmin().setFingerPrint(userModel.getFingerPrints());
 //        user.getAdmin().setEmail(userModel.getEmail());
