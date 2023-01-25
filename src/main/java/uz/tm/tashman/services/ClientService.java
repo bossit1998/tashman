@@ -46,7 +46,6 @@ public class ClientService extends HTTPUtil {
     @Autowired
     PasswordEncoder encoder;
 
-
     @Autowired
     JwtUtils jwtUtils;
 
