@@ -116,26 +116,26 @@ public enum StatusCodes {
         return null;
     }
 
-    public static String getNameByLanguage(StatusCodes target, String language) {
+    public static String getNameByLanguage(StatusCodes target, Language language) {
         if (language == null) {
-            language = "ru";
+            language = Language.RU;
         }
 
         switch (language) {
-            case "en":
+            case EN:
                 return target.englishName;
-            case "uz":
+            case UZ:
                 return target.uzbekName;
-            case "ru":
+            case RU:
             default:
                 return target.russianName;
         }
     }
 
-    public static ArrayList<HashMapModel> getAllByLanguage(String language) {
+    public static ArrayList<HashMapModel> getAllByLanguage(Language language) {
         ArrayList<HashMapModel> result = new ArrayList<>();
         switch (language) {
-            case "us":
+            case EN:
                 for (StatusCodes target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();
                     hashMapModel.setLabel(target.englishName);
@@ -143,7 +143,7 @@ public enum StatusCodes {
                     result.add(hashMapModel);
                 }
                 return result;
-            case "uz":
+            case UZ:
                 for (StatusCodes target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();
                     hashMapModel.setLabel(target.uzbekName);
@@ -151,7 +151,7 @@ public enum StatusCodes {
                     result.add(hashMapModel);
                 }
                 return result;
-            case "ru":
+            case RU:
             default:
                 for (StatusCodes target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();

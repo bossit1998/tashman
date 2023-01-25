@@ -48,10 +48,10 @@ public enum VolumeUnit {
         return null;
     }
 
-    public static ArrayList<HashMapModel> getAllByLanguage(String language) {
+    public static ArrayList<HashMapModel> getAllByLanguage(Language language) {
         ArrayList<HashMapModel> volumeUnits = new ArrayList<>();
         switch (language) {
-            case "en":
+            case EN:
                 for (VolumeUnit unit : values()) {
                     HashMapModel volumeUnit = new HashMapModel();
                     volumeUnit.setLabel(unit.englishName);
@@ -59,7 +59,7 @@ public enum VolumeUnit {
                     volumeUnits.add(volumeUnit);
                 }
                 return volumeUnits;
-            case "uz":
+            case UZ:
                 for (VolumeUnit unit : values()) {
                     HashMapModel volumeUnit = new HashMapModel();
                     volumeUnit.setLabel(unit.uzbekName);
@@ -67,7 +67,7 @@ public enum VolumeUnit {
                     volumeUnits.add(volumeUnit);
                 }
                 return volumeUnits;
-            case "ru":
+            case RU:
             default:
                 for (VolumeUnit unit : values()) {
                     HashMapModel volumeUnit = new HashMapModel();

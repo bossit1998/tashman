@@ -43,10 +43,10 @@ public enum ProductCategory {
     }
 
 
-    public static ArrayList<HashMapModel> getAllByLanguage(String language) {
+    public static ArrayList<HashMapModel> getAllByLanguage(Language language) {
         ArrayList<HashMapModel> result = new ArrayList<>();
         switch (language) {
-            case "en":
+            case EN:
                 for (ProductCategory target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();
                     hashMapModel.setLabel(target.englishName);
@@ -54,7 +54,7 @@ public enum ProductCategory {
                     result.add(hashMapModel);
                 }
                 return result;
-            case "uz":
+            case UZ:
                 for (ProductCategory target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();
                     hashMapModel.setLabel(target.uzbekName);
@@ -62,7 +62,7 @@ public enum ProductCategory {
                     result.add(hashMapModel);
                 }
                 return result;
-            case "ru":
+            case RU:
             default:
                 for (ProductCategory target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();

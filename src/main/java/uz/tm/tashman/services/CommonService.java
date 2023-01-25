@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import uz.tm.tashman.entity.User;
 import uz.tm.tashman.enums.Gender;
+import uz.tm.tashman.enums.Language;
 import uz.tm.tashman.enums.ProductCategory;
 import uz.tm.tashman.enums.VolumeUnit;
 import uz.tm.tashman.models.BasicModel;
@@ -25,7 +26,7 @@ public class CommonService extends HTTPUtil {
     public ResponseEntity<?> getGenderList(BasicModel basicModel) {
         try {
             if (basicModel.getLanguage()==null) {
-                basicModel.setLanguage("ru");
+                basicModel.setLanguage(Language.RU);
             }
 
             List<HashMapModel> genderList = Gender.getAllByLanguage(basicModel.getLanguage());
