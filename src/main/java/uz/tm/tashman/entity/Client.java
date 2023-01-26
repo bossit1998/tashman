@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class Client implements Serializable {
+public class Client extends User implements Serializable {
 
     @Id
     @OneToOne(cascade = CascadeType.ALL)
@@ -23,7 +23,8 @@ public class Client implements Serializable {
     @JsonBackReference
     private User user;
 
-    private String fullName;
+    private String name;
+    private String surname;
 
     private LocalDate dob;
 
@@ -48,5 +49,9 @@ public class Client implements Serializable {
     @Override
     public int hashCode() {
         return 0;
+    }
+
+    public String getFullName() {
+        return name + " " + surname;
     }
 }

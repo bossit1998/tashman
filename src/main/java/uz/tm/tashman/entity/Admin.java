@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class Admin implements Serializable {
+public class Admin extends User implements Serializable {
 
     @Id
     @OneToOne
@@ -23,7 +23,8 @@ public class Admin implements Serializable {
     @JsonBackReference
     private User user;
 
-    private String fullName;
+    private String name;
+    private String surname;
 
     private LocalDate dob;
 
@@ -40,5 +41,9 @@ public class Admin implements Serializable {
     @Override
     public int hashCode() {
         return 0;
+    }
+
+    public String getFullName() {
+        return name + " " + surname;
     }
 }

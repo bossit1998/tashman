@@ -16,7 +16,10 @@ import uz.tm.tashman.enums.ERole;
 import uz.tm.tashman.enums.Gender;
 import uz.tm.tashman.models.AuthenticationModel;
 import uz.tm.tashman.models.ResponseModel;
+import uz.tm.tashman.models.UserAgentModel;
 import uz.tm.tashman.models.UserModel;
+import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
+import uz.tm.tashman.models.requestModels.UserRequestModel;
 import uz.tm.tashman.repository.RoleRepository;
 import uz.tm.tashman.repository.UserRepository;
 import uz.tm.tashman.util.AES;
@@ -61,7 +64,8 @@ public class AdminService extends HTTPUtil {
     public Admin createAdmin(UserModel userModel, User user) {
         Admin admin = new Admin();
         admin.setUser(user);
-        admin.setFullName(userModel.getFullName());
+        admin.setName(userModel.getName());
+        admin.setSurname(userModel.getSurname());
         admin.setDob(userModel.getDob());
         admin.setGender(Gender.getByCode(userModel.getGender()));
         admin.setCreatedDate(user.getCreatedDate());
@@ -77,8 +81,11 @@ public class AdminService extends HTTPUtil {
         return userModel;
     }
 
-    public ResponseEntity<?> registration(UserModel userModel, HttpServletRequest header) {
+    public ResponseEntity<?> registration(UserRequestModel userRequestModel, HttpServletRequest header) {
         try {
+            UserModel userModel = userRequestModel.getUser();
+            UserAgentModel userAgentModel = userRequestModel.getUserAgent();
+
             if (userRepository.existsByUsername(AES.encrypt(userModel.getMobileNumber()))) {
                 return OkResponse(USER_ALREADY_REGISTERED);
             }
@@ -88,7 +95,7 @@ public class AdminService extends HTTPUtil {
                 return OkResponse(USER_ROLE_NOT_FOUND);
             }
 
-            ResponseModel<User> responseModel = userService.createUser(ERole.ROLE_ADMIN, userModel, header);
+            ResponseModel<User> responseModel = userService.createUser(ERole.ROLE_ADMIN, userModel, userAgentModel, header);
             if (!responseModel.getSuccess()) {
                 return InternalServerErrorResponse(exceptionAsString(responseModel.getException()));
             }
@@ -108,10 +115,13 @@ public class AdminService extends HTTPUtil {
         }
     }
 
-    public ResponseEntity<?> login(AuthenticationModel authenticationModel, HttpServletRequest header) {
+    public ResponseEntity<?> login(AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
         try {
             User admin;
             String jwt;
+
+            AuthenticationModel authenticationModel = authenticationRequestModel.getAuthentication();
+            UserAgentModel userAgentModel = authenticationRequestModel.getUserAgent();
 
             try {
                 admin = userService.getUserByUsername(authenticationModel.getMobileNumber());
@@ -156,7 +166,7 @@ public class AdminService extends HTTPUtil {
                     userModel.setMessage(getNameByLanguage(USER_OTP_NOT_VERIFIED, admin.getLanguage()));
                 }
             } else {
-                UserAgent userAgent = userAgentService.saveUserAgentInfo(admin, authenticationModel.getUserAgentModel(), header);
+                UserAgent userAgent = userAgentService.saveUserAgentInfo(admin, userAgentModel, header);
                 userModel.setIsOTPVerified(false);
                 userModel.setDeviceId(userAgent.getEncodedId());
                 userModel.setMobileNumber(admin.getMaskedPhoneNumber());

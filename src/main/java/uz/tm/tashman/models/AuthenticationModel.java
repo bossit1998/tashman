@@ -19,6 +19,4 @@ public class AuthenticationModel {
     private String fcmToken;
     private String platform;
     private String voipToken;
-
-    private UserAgentModel userAgentModel;
 }

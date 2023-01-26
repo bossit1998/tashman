@@ -16,6 +16,8 @@ import java.time.LocalDate;
 public class UserModel {
     private Long id;
     private String mobileNumber;
+    private String name;
+    private String surname;
     private String fullName;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private LocalDate dob;
@@ -34,9 +36,6 @@ public class UserModel {
     private String faceScan;
     private String profileImageUrl;
     private Language language;
-    //    @JsonBackReference
-    private UserAgentModel userAgentModel;
-    //    private Set<Role> roles;
     private String role;
 
     public void clear() {
@@ -58,7 +57,6 @@ public class UserModel {
         this.faceScan = null;
         this.profileImageUrl = null;
         this.language = null;
-        this.userAgentModel = null;
         this.role = null;
     }
 }

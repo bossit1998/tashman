@@ -14,6 +14,7 @@ import uz.tm.tashman.enums.Gender;
 import uz.tm.tashman.enums.Language;
 import uz.tm.tashman.enums.StatusCodes;
 import uz.tm.tashman.models.*;
+import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
 import uz.tm.tashman.repository.RoleRepository;
 import uz.tm.tashman.repository.UserRepository;
 import uz.tm.tashman.util.AES;
@@ -73,7 +74,7 @@ public class UserService extends HTTPUtil {
         return optUser.orElse(null);
     }
 
-    public ResponseModel<User> createUser(ERole eRole, UserModel userModel, HttpServletRequest header) {
+    public ResponseModel<User> createUser(ERole eRole, UserModel userModel, UserAgentModel userAgentModel, HttpServletRequest header) {
         ResponseModel<User> responseModel = new ResponseModel<>();
 
         try {
@@ -110,7 +111,7 @@ public class UserService extends HTTPUtil {
 
             userRepository.save(user);
 
-            UserAgent userAgent = userAgentService.saveUserAgentInfo(user, userModel.getUserAgentModel(), header);
+            UserAgent userAgent = userAgentService.saveUserAgentInfo(user, userAgentModel, header);
 
             responseModel.setSuccess(true);
             responseModel.setDeviceId(userAgent.getEncodedId());
@@ -173,8 +174,10 @@ public class UserService extends HTTPUtil {
         return profileImage;
     }
 
-    public ResponseEntity<?> otpVerification(AuthenticationModel authenticationModel, HttpServletRequest header) {
+    public ResponseEntity<?> otpVerification(AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
         try {
+            AuthenticationModel authenticationModel = authenticationRequestModel.getAuthentication();
+
             User user = getUserByUsername(authenticationModel.getMobileNumber());
 
             if (user == null) {
@@ -222,8 +225,10 @@ public class UserService extends HTTPUtil {
         }
     }
 
-    public ResponseEntity<?> otpResend(AuthenticationModel authenticationModel, HttpServletRequest header) {
+    public ResponseEntity<?> otpResend(AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
         try {
+            AuthenticationModel authenticationModel = authenticationRequestModel.getAuthentication();
+
             User user = getUserByUsername(authenticationModel.getMobileNumber());
 
             if (user == null) {
@@ -258,8 +263,11 @@ public class UserService extends HTTPUtil {
         }
     }
 
-    public ResponseEntity<?> forgotPassword(AuthenticationModel authenticationModel, HttpServletRequest header) {
+    public ResponseEntity<?> forgotPassword(AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
         try {
+            AuthenticationModel authenticationModel = authenticationRequestModel.getAuthentication();
+            UserAgentModel userAgentModel = authenticationRequestModel.getUserAgent();
+
             User user = getUserByUsername(authenticationModel.getMobileNumber());
 
             if (user == null) {
@@ -281,7 +289,7 @@ public class UserService extends HTTPUtil {
 
                 userModel.setMessage(getNameByLanguage(OTP_SENT, user.getLanguage()));
             } else {
-                userAgent = userAgentService.saveUserAgentInfo(user, authenticationModel.getUserAgentModel(), header);
+                userAgent = userAgentService.saveUserAgentInfo(user, userAgentModel, header);
 
                 userModel.setDeviceId(userAgent.getEncodedId());
                 userModel.setMessage(getNameByLanguage(USER_OTP_NOT_VERIFIED, user.getLanguage()));
@@ -296,8 +304,11 @@ public class UserService extends HTTPUtil {
         }
     }
 
-    public ResponseEntity<?> changePassword(AuthenticationModel authenticationModel, HttpServletRequest header) {
+    public ResponseEntity<?> changePassword(AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
         try {
+            AuthenticationModel authenticationModel = authenticationRequestModel.getAuthentication();
+            UserAgentModel userAgentModel = authenticationRequestModel.getUserAgent();
+
             User user = getUserByUsername(authenticationModel.getMobileNumber());
 
             if (user == null) {
@@ -313,7 +324,7 @@ public class UserService extends HTTPUtil {
             if (userAgentExists) {
                 userAgent = userAgentService.getUserAgentByEncodedIdAndUserAndDeletedFalse(authenticationModel.getDeviceId(), user);
             } else {
-                userAgent = userAgentService.saveUserAgentInfo(user, authenticationModel.getUserAgentModel(), header);
+                userAgent = userAgentService.saveUserAgentInfo(user, userAgentModel, header);
             }
 
             if (authenticationModel.getOtp().equals(userAgent.getOtp())) {

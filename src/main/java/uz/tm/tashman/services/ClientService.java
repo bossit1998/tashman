@@ -63,7 +63,8 @@ public class ClientService extends HTTPUtil {
 
     public Client createClient(UserModel userModel, User user) {
         Client client = new Client();
-        client.setFullName(userModel.getFullName());
+        client.setName(userModel.getName());
+        client.setSurname(userModel.getSurname());
         client.setDob(userModel.getDob());
         client.setGender(Gender.getByCode(userModel.getGender()));
         client.setCreatedDate(user.getCreatedDate());
@@ -117,7 +118,7 @@ public class ClientService extends HTTPUtil {
 
 
         Client client = new Client();
-        client.setFullName(userModel.getFullName());
+        client.setName(userModel.getName());
         client.setUser(user);
 
         user.setClient(client);

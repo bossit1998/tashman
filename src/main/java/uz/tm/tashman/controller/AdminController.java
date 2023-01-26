@@ -2,8 +2,8 @@ package uz.tm.tashman.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uz.tm.tashman.models.AuthenticationModel;
-import uz.tm.tashman.models.UserModel;
+import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
+import uz.tm.tashman.models.requestModels.UserRequestModel;
 import uz.tm.tashman.services.AdminService;
 import uz.tm.tashman.util.HTTPUtil;
 
@@ -24,36 +24,36 @@ public class AdminController extends HTTPUtil {
     }
 
     @PostMapping("/registration")
-    public ResponseEntity<?> registration(@RequestBody UserModel userModel, HttpServletRequest request) {
-        if (isBlank(userModel.getMobileNumber())) {
+    public ResponseEntity<?> registration(@RequestBody UserRequestModel userRequestModel, HttpServletRequest request) {
+        if (isBlank(userRequestModel.getUser().getMobileNumber())) {
             return BadRequestResponse(USER_PHONE_NOT_ENTERED);
         }
-        if (isBlank(userModel.getFullName())) {
+        if (isBlank(userRequestModel.getUser().getFullName())) {
             return BadRequestResponse(USER_NAME_NOT_ENTERED);
         }
-        if (isBlank(userModel.getDob())) {
+        if (isBlank(userRequestModel.getUser().getDob())) {
             return BadRequestResponse(USER_DOB_NOT_ENTERED);
         }
-        if (isBlank(userModel.getGender())) {
+        if (isBlank(userRequestModel.getUser().getGender())) {
             return BadRequestResponse(USER_GENDER_NOT_ENTERED);
         }
-        if (isBlank(userModel.getPassword())) {
+        if (isBlank(userRequestModel.getUser().getPassword())) {
             return BadRequestResponse(USER_PASSWORD_NOT_ENTERED);
         }
-        return adminService.registration(userModel, request);
+        return adminService.registration(userRequestModel, request);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthenticationModel authenticationModel, HttpServletRequest request) {
-        if (isBlank(authenticationModel.getMobileNumber())) {
+    public ResponseEntity<?> login(@RequestBody AuthenticationRequestModel authenticationRequestModel, HttpServletRequest request) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getMobileNumber())) {
             return BadRequestResponse(USER_PHONE_NOT_ENTERED);
         }
-        if (isBlank(authenticationModel.getPassword())) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getPassword())) {
             return BadRequestResponse(USER_PASSWORD_NOT_ENTERED);
         }
-        if (isBlank(authenticationModel.getDeviceId()) && isBlank(authenticationModel.getUserAgentModel())) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getDeviceId()) && isBlank(authenticationRequestModel.getUserAgent())) {
             return BadRequestResponse(DEVICE_INFO_MISSING);
         }
-        return adminService.login(authenticationModel, request);
+        return adminService.login(authenticationRequestModel, request);
     }
 }
