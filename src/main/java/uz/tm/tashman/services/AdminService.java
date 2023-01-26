@@ -14,14 +14,10 @@ import uz.tm.tashman.entity.User;
 import uz.tm.tashman.entity.UserAgent;
 import uz.tm.tashman.enums.ERole;
 import uz.tm.tashman.enums.Gender;
-import uz.tm.tashman.models.AuthenticationModel;
-import uz.tm.tashman.models.ResponseModel;
-import uz.tm.tashman.models.UserAgentModel;
-import uz.tm.tashman.models.UserModel;
+import uz.tm.tashman.models.*;
 import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
 import uz.tm.tashman.models.requestModels.UserRequestModel;
 import uz.tm.tashman.repository.RoleRepository;
-import uz.tm.tashman.repository.UserRepository;
 import uz.tm.tashman.util.AES;
 import uz.tm.tashman.util.HTTPUtil;
 
@@ -37,7 +33,6 @@ public class AdminService extends HTTPUtil {
 
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
-    private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserAgentService userAgentService;
     private final LogService logService;
@@ -49,13 +44,11 @@ public class AdminService extends HTTPUtil {
     public AdminService(
             JwtUtils jwtUtils,
             AuthenticationManager authenticationManager,
-            UserRepository userRepository,
             RoleRepository roleRepository,
             UserAgentService userAgentService,
             LogService logService) {
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userAgentService = userAgentService;
         this.logService = logService;
@@ -86,7 +79,7 @@ public class AdminService extends HTTPUtil {
             UserModel userModel = userRequestModel.getUser();
             UserAgentModel userAgentModel = userRequestModel.getUserAgent();
 
-            if (userRepository.existsByUsername(AES.encrypt(userModel.getMobileNumber()))) {
+            if (userService.existsByUsername(userModel.getMobileNumber())) {
                 return OkResponse(USER_ALREADY_REGISTERED);
             }
 
@@ -97,7 +90,7 @@ public class AdminService extends HTTPUtil {
 
             ResponseModel<User> responseModel = userService.createUser(ERole.ROLE_ADMIN, userModel, userAgentModel, header);
             if (!responseModel.getSuccess()) {
-                return InternalServerErrorResponse(exceptionAsString(responseModel.getException()));
+                return InternalServerErrorResponse(responseModel.getException());
             }
 
             User user = responseModel.getData();
@@ -110,8 +103,7 @@ public class AdminService extends HTTPUtil {
 
             return OkResponse(SUCCESS, userModel);
         } catch (Exception e) {
-            logService.saveToLog(e);
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
     }
 
@@ -174,8 +166,17 @@ public class AdminService extends HTTPUtil {
             }
             return OkResponse(SUCCESS, userModel);
         } catch (Exception e) {
-            logService.saveToLog(e);
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
+        }
+    }
+
+    public ResponseEntity<?> deleteUser(BasicModel basicModel) {
+        try {
+            User user = userService.getUserById(basicModel.getId());
+
+            return OkResponse(SUCCESS);
+        } catch (Exception e) {
+            return InternalServerErrorResponse(e);
         }
     }
 }

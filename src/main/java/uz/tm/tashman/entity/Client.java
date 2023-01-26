@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class Client extends User implements Serializable {
+public class Client implements Serializable {
 
     @Id
     @OneToOne(cascade = CascadeType.ALL)
@@ -40,16 +40,6 @@ public class Client extends User implements Serializable {
     private String qrCode;
 
     private LocalDateTime createdDate;
-
-    @Override
-    public boolean equals(Object o) {
-        return this == o;
-    }
-
-    @Override
-    public int hashCode() {
-        return 0;
-    }
 
     public String getFullName() {
         return name + " " + surname;

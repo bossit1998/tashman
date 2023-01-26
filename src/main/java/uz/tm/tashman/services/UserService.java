@@ -91,7 +91,7 @@ public class UserService extends HTTPUtil {
             }
             user.setRoles(new HashSet<>(Collections.singleton(role)));
 
-            user.setLanguage(Util.getLanguageWithAuth(userModel));
+            user.setLanguage(Util.getLanguageFromAuthentication(userModel));
 
             user.setIsDeleted(false);
             user.setIsActive(false);
@@ -143,6 +143,10 @@ public class UserService extends HTTPUtil {
         Optional<User> optUser = userRepository.findByEncodedId(encodedId);
 
         return optUser.orElse(null);
+    }
+
+    public Boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(AES.encrypt(username));
     }
 
     public UserModel getUserModel(User user) {
@@ -220,8 +224,7 @@ public class UserService extends HTTPUtil {
                 return OkResponse(NO_SUCH_DEVICE);
             }
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
     }
 
@@ -258,8 +261,7 @@ public class UserService extends HTTPUtil {
             }
             return OkResponse(SUCCESS, userModel);
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
     }
 
@@ -299,8 +301,7 @@ public class UserService extends HTTPUtil {
 
             return OkResponse(SUCCESS, userModel);
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
     }
 
@@ -339,8 +340,7 @@ public class UserService extends HTTPUtil {
             }
             return OkResponse(SUCCESS, userModel);
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
     }
 
@@ -354,8 +354,7 @@ public class UserService extends HTTPUtil {
 
             return OkResponse(SUCCESS, genderList);
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
     }
     /*================================================================================================================*/

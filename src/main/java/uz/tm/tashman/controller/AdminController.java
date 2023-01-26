@@ -2,6 +2,7 @@ package uz.tm.tashman.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uz.tm.tashman.models.BasicModel;
 import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
 import uz.tm.tashman.models.requestModels.UserRequestModel;
 import uz.tm.tashman.services.AdminService;
@@ -25,10 +26,20 @@ public class AdminController extends HTTPUtil {
 
     @PostMapping("/registration")
     public ResponseEntity<?> registration(@RequestBody UserRequestModel userRequestModel, HttpServletRequest request) {
+        if (isBlank(userRequestModel.getUser())) {
+            return BadRequestResponse(USER_DETAILS_ARE_MISSING);
+        }
+        if (isBlank(userRequestModel.getUserAgent())) {
+            return BadRequestResponse(USER_AGENT_DETAILS_ARE_MISSING);
+        }
+
         if (isBlank(userRequestModel.getUser().getMobileNumber())) {
             return BadRequestResponse(USER_PHONE_NOT_ENTERED);
         }
-        if (isBlank(userRequestModel.getUser().getFullName())) {
+        if (isBlank(userRequestModel.getUser().getName())) {
+            return BadRequestResponse(USER_NAME_NOT_ENTERED);
+        }
+        if (isBlank(userRequestModel.getUser().getSurname())) {
             return BadRequestResponse(USER_NAME_NOT_ENTERED);
         }
         if (isBlank(userRequestModel.getUser().getDob())) {
@@ -41,6 +52,7 @@ public class AdminController extends HTTPUtil {
             return BadRequestResponse(USER_PASSWORD_NOT_ENTERED);
         }
         return adminService.registration(userRequestModel, request);
+
     }
 
     @PostMapping("/login")
@@ -56,4 +68,9 @@ public class AdminController extends HTTPUtil {
         }
         return adminService.login(authenticationRequestModel, request);
     }
+
+    @PostMapping("/deleteUser")
+        public ResponseEntity<?> deleteUser(@RequestBody BasicModel basicModel) {
+            return adminService.deleteUser(basicModel);
+        }
 }

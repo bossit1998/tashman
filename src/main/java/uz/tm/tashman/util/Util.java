@@ -181,11 +181,11 @@ public class Util {
         return String.valueOf(randomPin);
     }
 
-    public static Language getLanguageWithAuth(UserModel userModel) {
+    public static Language getLanguageFromAuthentication(UserModel userModel) {
         return userModel.getLanguage() == null ? Language.RU : userModel.getLanguage();
     }
 
-    public static Language getLanguageWithAuth() {
+    public static Language getLanguageFromAuthentication() {
         Language language = Language.RU;
         if (!SecurityContextHolder.getContext().getAuthentication().getPrincipal().equals("anonymousUser")) {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

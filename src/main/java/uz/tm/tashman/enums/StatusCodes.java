@@ -82,6 +82,8 @@ public enum StatusCodes {
     PASSWORD_CHANGED_SUCCESSFULLY(7018, "password_changed_successfully", "Password changed successfully", "Пароль успешно изменен", "Parol muvaffaqiyatli o'zgartirildi"),
     UNABLE_TO_ADD_PRODUCT(7020, "unable_to_add_product", "Unable to add product", "Не удалось добавить товар", "Mahsulotni qo'shib bo'lmadi"),
     PRODUCT_ALREADY_REGISTERED(7021, "product_already_registered", "Product already registered", "Продукт уже зарегестрирован", "Mahsulot ro'yxatdan o'tgan"),
+    USER_DETAILS_ARE_MISSING(7022, "user_details_are_missing", "User details are missing", "User details are missing", "User details are missing"),
+    USER_AGENT_DETAILS_ARE_MISSING(7022, "user_agent_details_are_missing", "User agent details are missing", "User agent details are missing", "User agent details are missing"),
     ;
 
     private final int id;

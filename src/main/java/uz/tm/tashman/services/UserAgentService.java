@@ -154,6 +154,7 @@ public class UserAgentService extends HTTPUtil {
 
             return agent;
         } catch (Exception e) {
+            System.out.println(e);
             logService.saveToLog("Error in saving user agent: \n" + exceptionAsString(e));
             return null;
         }
@@ -274,28 +275,21 @@ public class UserAgentService extends HTTPUtil {
 
         //===============Browser===========================
         if (user.contains("msie")) {
-            String substring = browserDetails.substring(browserDetails.indexOf("MSIE")).split(";")[0];
-            browser = substring.split(" ")[0].replace("MSIE", "IE") + "-" + substring.split(" ")[1];
+            String substring = browserDetails.substring(browserDetails.indexOf("MSIE")).split(";")[0];browser = substring.split(" ")[0].replace("MSIE", "IE") + "-" + substring.split(" ")[1];
         } else {
             String[] split = browserDetails.substring(browserDetails.indexOf("Version")).split(" ");
             if (user.contains("safari") && user.contains("version")) {
                 browser = (browserDetails.substring(browserDetails.indexOf("Safari")).split(" ")[0]).split("/")[0] + "-" + (split[0]).split("/")[1];
             } else if (user.contains("opr") || user.contains("opera")) {
-                if (user.contains("opera"))
-                    browser = (browserDetails.substring(browserDetails.indexOf("Opera")).split(" ")[0]).split("/")[0] + "-" + (split[0]).split("/")[1];
+                if (user.contains("opera")) browser = (browserDetails.substring(browserDetails.indexOf("Opera")).split(" ")[0]).split("/")[0] + "-" + (split[0]).split("/")[1];
                 else if (user.contains("opr"))
                     browser = ((browserDetails.substring(browserDetails.indexOf("OPR")).split(" ")[0]).replace("/", "-")).replace("OPR", "Opera");
             } else if (user.contains("chrome")) {
                 browser = (browserDetails.substring(browserDetails.indexOf("Chrome")).split(" ")[0]).replace("/", "-");
-            } else if (
-                    (user.contains("mozilla/7.0"))
-                            || (user.contains("netscape6"))
-                            || (user.contains("mozilla/4.7"))
-                            || (user.contains("mozilla/4.78"))
-                            || (user.contains("mozilla/4.08"))
-                            || (user.contains("mozilla/3"))) {
+            } else if ((user.indexOf("mozilla/7.0") > -1) || (user.indexOf("netscape6") != -1) || (user.indexOf(
+                    "mozilla/4.7") != -1) || (user.indexOf("mozilla/4.78") != -1) || (user.indexOf(
+                    "mozilla/4.08") != -1) || (user.indexOf("mozilla/3") != -1)) {
                 browser = "Netscape-?";
-
             } else if (user.contains("firefox")) {
                 browser = (browserDetails.substring(browserDetails.indexOf("Firefox")).split(" ")[0]).replace("/", "-");
             } else if (user.contains("rv")) {

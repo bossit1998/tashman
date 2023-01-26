@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class Admin extends User implements Serializable {
+public class Admin implements Serializable {
 
     @Id
     @OneToOne

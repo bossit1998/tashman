@@ -203,8 +203,7 @@ public class ProductService extends HTTPUtil {
                 return OkResponse(UNABLE_TO_ADD_PRODUCT);
             }
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
     }
 
@@ -227,8 +226,7 @@ public class ProductService extends HTTPUtil {
 
             return OkResponse(SUCCESSFULLY_FOUND, resPageable);
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
     }
 
@@ -240,8 +238,7 @@ public class ProductService extends HTTPUtil {
 
             return OkResponse(SUCCESS, productCategoryList);
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
     }
 
@@ -253,8 +250,7 @@ public class ProductService extends HTTPUtil {
 
             return OkResponse(SUCCESS, volumeUnitList);
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
     }
 }

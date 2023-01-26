@@ -92,7 +92,7 @@ public class ClientService extends HTTPUtil {
 
 
     public ResponseEntity<?> registration(UserModel userModel, HttpServletRequest request) {
-        if (userRepository.existsByUsername(userModel.getMobileNumber())) {
+        if (userService.existsByUsername(userModel.getMobileNumber())) {
             return OkResponse(StatusCodes.USER_ALREADY_REGISTERED);
         }
 
