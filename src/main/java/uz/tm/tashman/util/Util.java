@@ -176,7 +176,7 @@ public class Util {
         return IS_PRODUCTION ? Util.otpGeneration() : DEFAULT_OTP;
     }
 
-    public static String otpGeneration() {
+    private static String otpGeneration() {
         int randomPin = (int) (Math.random() * 9000) + 1000;
         return String.valueOf(randomPin);
     }

@@ -1,6 +1,5 @@
 package uz.tm.tashman.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,7 +14,6 @@ import uz.tm.tashman.models.AuthenticationModel;
 import uz.tm.tashman.models.ResponseModel;
 import uz.tm.tashman.models.UserModel;
 import uz.tm.tashman.repository.RoleRepository;
-import uz.tm.tashman.repository.UserAgentRepository;
 import uz.tm.tashman.repository.UserRepository;
 import uz.tm.tashman.util.AES;
 import uz.tm.tashman.util.HTTPUtil;
@@ -33,26 +31,32 @@ import static uz.tm.tashman.util.Util.isBlank;
 
 @Service
 public class UserService extends HTTPUtil {
-    @Autowired
-    private PasswordEncoder encoder;
-    @Autowired
-    private JwtUtils jwtUtils;
+    private final PasswordEncoder encoder;
+    private final JwtUtils jwtUtils;
+    private final AdminService adminService;
+    private final ClientService clientService;
+    private final UserAgentService userAgentService;
+    private final LogService logService;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
-    @Autowired
-    private AdminService adminService;
-    @Autowired
-    private ClientService clientService;
-    @Autowired
-    private UserAgentService userAgentService;
-    @Autowired
-    private LogService logService;
-
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private UserAgentRepository userAgentRepository;
+    public UserService(PasswordEncoder encoder,
+                       JwtUtils jwtUtils,
+                       AdminService adminService,
+                       ClientService clientService,
+                       UserAgentService userAgentService,
+                       LogService logService,
+                       UserRepository userRepository,
+                       RoleRepository roleRepository) {
+        this.encoder = encoder;
+        this.jwtUtils = jwtUtils;
+        this.adminService = adminService;
+        this.clientService = clientService;
+        this.userAgentService = userAgentService;
+        this.logService = logService;
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+    }
 
     public User getUserByUsername(String username) {
         if (username == null) {
@@ -311,16 +315,16 @@ public class UserService extends HTTPUtil {
                 userAgent = userAgentService.saveUserAgentInfo(user, authenticationModel.getUserAgentModel(), header);
             }
 
-        if (authenticationModel.getOtp().equals(userAgent.getOtp())) {
-            user.setPassword(encoder.encode(authenticationModel.getPassword()));
-            userRepository.save(user);
+            if (authenticationModel.getOtp().equals(userAgent.getOtp())) {
+                user.setPassword(encoder.encode(authenticationModel.getPassword()));
+                userRepository.save(user);
 
-            userModel.setIsOTPVerified(true);
-            userModel.setMessage(getNameByLanguage(PASSWORD_CHANGED_SUCCESSFULLY, user.getLanguage()));
-        } else {
-            userModel.setIsOTPVerified(false);
-            userModel.setMessage(getNameByLanguage(USER_WRONG_OTP, user.getLanguage()));
-        }
+                userModel.setIsOTPVerified(true);
+                userModel.setMessage(getNameByLanguage(PASSWORD_CHANGED_SUCCESSFULLY, user.getLanguage()));
+            } else {
+                userModel.setIsOTPVerified(false);
+                userModel.setMessage(getNameByLanguage(USER_WRONG_OTP, user.getLanguage()));
+            }
             return OkResponse(SUCCESS, userModel);
         } catch (Exception e) {
             logService.saveToLog(exceptionAsString(e));

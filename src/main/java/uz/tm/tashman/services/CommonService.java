@@ -1,6 +1,5 @@
 package uz.tm.tashman.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -15,17 +14,20 @@ import uz.tm.tashman.util.HTTPUtil;
 
 import java.util.List;
 
-import static uz.tm.tashman.enums.StatusCodes.*;
+import static uz.tm.tashman.enums.StatusCodes.SUCCESS;
 
 @Service
 public class CommonService extends HTTPUtil {
 
-    @Autowired
-    LogService logService;
+    final LogService logService;
+
+    public CommonService(LogService logService) {
+        this.logService = logService;
+    }
 
     public ResponseEntity<?> getGenderList(BasicModel basicModel) {
         try {
-            if (basicModel.getLanguage()==null) {
+            if (basicModel.getLanguage() == null) {
                 basicModel.setLanguage(Language.RU);
             }
 

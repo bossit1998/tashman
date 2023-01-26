@@ -1,6 +1,5 @@
 package uz.tm.tashman.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +20,6 @@ import uz.tm.tashman.repository.RoleRepository;
 import uz.tm.tashman.repository.UserRepository;
 import uz.tm.tashman.util.AES;
 import uz.tm.tashman.util.HTTPUtil;
-import uz.tm.tashman.util.Util;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -33,22 +31,30 @@ import static uz.tm.tashman.enums.StatusCodes.*;
 @Service
 public class AdminService extends HTTPUtil {
 
-    @Autowired
-    private JwtUtils jwtUtils;
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final UserAgentService userAgentService;
+    private final UserService userService;
+    private final LogService logService;
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private UserAgentService userAgentService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private LogService logService;
+    public AdminService(
+            JwtUtils jwtUtils,
+            AuthenticationManager authenticationManager,
+            UserRepository userRepository,
+            RoleRepository roleRepository,
+            UserAgentService userAgentService,
+            UserService userService,
+            LogService logService) {
+        this.jwtUtils = jwtUtils;
+        this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.userAgentService = userAgentService;
+        this.userService = userService;
+        this.logService = logService;
+    }
 
     public Admin createAdmin(UserModel userModel, User user) {
         Admin admin = new Admin();

@@ -1,7 +1,7 @@
 package uz.tm.tashman.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,6 @@ import uz.tm.tashman.util.HTTPUtil;
 import uz.tm.tashman.util.Util;
 
 import javax.servlet.http.HttpServletRequest;
-import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,14 +30,21 @@ import static uz.tm.tashman.util.CONSTANT.*;
 @Service
 public class ProductService extends HTTPUtil {
 
-    @Autowired
-    UserService userService;
-    @Autowired
-    LogService logService;
-    @Autowired
-    ProductRepository productRepository;
-    @Autowired
-    ProductImageRepository productImageRepository;
+    final UserService userService;
+    final LogService logService;
+    final ProductRepository productRepository;
+    final ProductImageRepository productImageRepository;
+
+    public ProductService(
+            UserService userService,
+            LogService logService,
+            ProductRepository productRepository,
+            ProductImageRepository productImageRepository) {
+        this.userService = userService;
+        this.logService = logService;
+        this.productRepository = productRepository;
+        this.productImageRepository = productImageRepository;
+    }
 
     public ResponseModel<Product> createProduct(ProductModel productModel, User user) {
         ResponseModel<Product> responseModel = new ResponseModel<>();
@@ -168,7 +174,7 @@ public class ProductService extends HTTPUtil {
     }
 
     public Product getProductBySlug(String slug) {
-        if (slug==null) {
+        if (slug == null) {
             return null;
         }
 
@@ -207,9 +213,7 @@ public class ProductService extends HTTPUtil {
 
             List<ProductModel> productModelList = new ArrayList<>();
 
-            productPage.getContent().forEach(product -> {
-                productModelList.add(getProductModel(product));
-            });
+            productPage.getContent().forEach(product -> productModelList.add(getProductModel(product)));
 
             ResPageable resPageable = new ResPageable(
                     productModelList,

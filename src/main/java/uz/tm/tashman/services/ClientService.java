@@ -1,6 +1,5 @@
 package uz.tm.tashman.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +20,10 @@ import uz.tm.tashman.enums.StatusCodes;
 import uz.tm.tashman.models.AuthenticationModel;
 import uz.tm.tashman.models.UserModel;
 import uz.tm.tashman.models.wrapperModels.ErrorResponse;
-import uz.tm.tashman.repository.*;
+import uz.tm.tashman.repository.AddressRepository;
+import uz.tm.tashman.repository.RoleRepository;
+import uz.tm.tashman.repository.UserAgentRepository;
+import uz.tm.tashman.repository.UserRepository;
 import uz.tm.tashman.util.AES;
 import uz.tm.tashman.util.HTTPUtil;
 import uz.tm.tashman.util.Util;
@@ -37,32 +39,27 @@ import java.util.stream.Collectors;
 @Service
 public class ClientService extends HTTPUtil {
 
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    RoleRepository roleRepository;
-
-    @Autowired
-    PasswordEncoder encoder;
-
-    @Autowired
-    JwtUtils jwtUtils;
-
-    @Autowired
-    AuthenticationManager authenticationManager;
-
+    final UserRepository userRepository;
+    final RoleRepository roleRepository;
+    final PasswordEncoder encoder;
+    final JwtUtils jwtUtils;
+    final AuthenticationManager authenticationManager;
+    final UserAgentRepository userAgentRepository;
+    final AddressRepository addressRepository;
+    final UserService userService;
     @Value("${local.file.path}")
     String filePath;
 
-    @Autowired
-    UserAgentRepository userAgentRepository;
-
-    @Autowired
-    AddressRepository addressRepository;
-
-    @Autowired
-    UserService userService;
+    public ClientService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder, JwtUtils jwtUtils, AuthenticationManager authenticationManager, UserAgentRepository userAgentRepository, AddressRepository addressRepository, UserService userService) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.encoder = encoder;
+        this.jwtUtils = jwtUtils;
+        this.authenticationManager = authenticationManager;
+        this.userAgentRepository = userAgentRepository;
+        this.addressRepository = addressRepository;
+        this.userService = userService;
+    }
 
     public Client createClient(UserModel userModel, User user) {
         Client client = new Client();
@@ -110,14 +107,8 @@ public class ClientService extends HTTPUtil {
         Set<Role> roles = new HashSet<>();
         roles.add(patientRole);
 
-        // todo - should be uncommented to generate otp
-//        String otp = Util.otpGeneration();
-
-        String otp = "1234";
-
         user.setRoles(roles);
         user.setCreatedDate(LocalDateTime.now());
-//        user.setOtp(otp);
 
         UserAgent userAgent = new UserAgent();
         userAgent.setUserAgent(request.getHeader("User-Agent"));
@@ -250,8 +241,6 @@ public class ClientService extends HTTPUtil {
             userAgent.setUserAgent(request.getHeader("User-Agent"));
             userAgent.setTokenDate(LocalDateTime.now());
             userAgent.setVerified(false);
-            String otp = Util.otpGeneration();
-//            user.setOtp(otp);
             userRepository.save(user);
             userAgent.setUser(user);
             userAgentRepository.save(userAgent);
