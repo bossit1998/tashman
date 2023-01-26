@@ -1,11 +1,7 @@
 package uz.tm.tashman.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.View;
 import uz.tm.tashman.models.AuthenticationModel;
 import uz.tm.tashman.services.UserService;
 import uz.tm.tashman.util.HTTPUtil;
@@ -20,8 +16,11 @@ import static uz.tm.tashman.util.Util.isBlank;
 @CrossOrigin(origins = "*")
 public class UserController extends HTTPUtil {
 
-    @Autowired
-    UserService userService;
+    final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping(value = "/otpVerification")
     public ResponseEntity<?> otpVerification(@RequestBody AuthenticationModel authenticationModel, HttpServletRequest header) {
@@ -144,16 +143,4 @@ public class UserController extends HTTPUtil {
         return commonService.deleteDocument(documentId);
     }
 */
-
-    @PostMapping("/redirectPostToPost")
-    public ModelAndView redirectPostToPost(HttpServletRequest request) {
-        request.setAttribute(
-                View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.FOUND);
-        return new ModelAndView("redirect:/redirectedPostToPost");
-    }
-
-    @PostMapping("/redirectedPostToPost")
-    public ModelAndView redirectedPostToPost() {
-        return new ModelAndView("redirection");
-    }
 }

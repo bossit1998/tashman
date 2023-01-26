@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import static uz.tm.tashman.util.Util.isBlank;
 
-
 @RestController
 @RequestMapping("/client")
 @CrossOrigin(origins = "*")

@@ -1,6 +1,5 @@
 package uz.tm.tashman.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +18,11 @@ import static uz.tm.tashman.util.Util.isBlank;
 @CrossOrigin(origins = "*")
 public class ProductController extends HTTPUtil {
 
-    @Autowired
-    ProductService productService;
+    final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/add", consumes = "multipart/form-data")

@@ -1,6 +1,5 @@
 package uz.tm.tashman.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.tm.tashman.models.AuthenticationModel;
@@ -18,8 +17,11 @@ import static uz.tm.tashman.util.Util.isBlank;
 @CrossOrigin(origins = "*")
 public class AdminController extends HTTPUtil {
 
-    @Autowired
-    AdminService adminService;
+    final AdminService adminService;
+
+    public AdminController(AdminService adminService) {
+        this.adminService = adminService;
+    }
 
     @PostMapping("/registration")
     public ResponseEntity<?> registration(@RequestBody UserModel userModel, HttpServletRequest request) {
