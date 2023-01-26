@@ -9,7 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 import uz.tm.tashman.entity.Product;
 import uz.tm.tashman.entity.ProductImage;
 import uz.tm.tashman.entity.User;
+import uz.tm.tashman.enums.ProductCategory;
+import uz.tm.tashman.enums.VolumeUnit;
 import uz.tm.tashman.models.BasicModel;
+import uz.tm.tashman.models.HashMapModel;
 import uz.tm.tashman.models.ProductModel;
 import uz.tm.tashman.models.ResponseModel;
 import uz.tm.tashman.models.wrapperModels.ResPageable;
@@ -223,6 +226,32 @@ public class ProductService extends HTTPUtil {
                     basicModel.getPageSize());
 
             return OkResponse(SUCCESSFULLY_FOUND, resPageable);
+        } catch (Exception e) {
+            logService.saveToLog(exceptionAsString(e));
+            return InternalServerErrorResponse(exceptionAsString(e));
+        }
+    }
+
+    public ResponseEntity<?> getProductCategoryList(BasicModel basicModel) {
+        try {
+            User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            List<HashMapModel> productCategoryList = ProductCategory.getAllByLanguage(admin.getLanguage());
+
+            return OkResponse(SUCCESS, productCategoryList);
+        } catch (Exception e) {
+            logService.saveToLog(exceptionAsString(e));
+            return InternalServerErrorResponse(exceptionAsString(e));
+        }
+    }
+
+    public ResponseEntity<?> getVolumeUnitList(BasicModel basicModel) {
+        try {
+            User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            List<HashMapModel> volumeUnitList = VolumeUnit.getAllByLanguage(admin.getLanguage());
+
+            return OkResponse(SUCCESS, volumeUnitList);
         } catch (Exception e) {
             logService.saveToLog(exceptionAsString(e));
             return InternalServerErrorResponse(exceptionAsString(e));

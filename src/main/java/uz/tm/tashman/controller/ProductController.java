@@ -82,4 +82,18 @@ public class ProductController extends HTTPUtil {
     public ResponseEntity<?> list(@RequestBody BasicModel basicModel, HttpServletRequest header) {
         return productService.list(basicModel, header);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping(value = "/getProductCategoryList")
+    public ResponseEntity<?> getProductCategoryList(@RequestBody BasicModel basicModel) {
+
+        return productService.getProductCategoryList(basicModel);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping(value = "/getVolumeUnitList")
+    public ResponseEntity<?> getVolumeUnitList(@RequestBody BasicModel basicModel) {
+
+        return productService.getVolumeUnitList(basicModel);
+    }
 }

@@ -3,6 +3,7 @@ package uz.tm.tashman.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.tm.tashman.models.AuthenticationModel;
+import uz.tm.tashman.models.BasicModel;
 import uz.tm.tashman.services.UserService;
 import uz.tm.tashman.util.HTTPUtil;
 
@@ -79,7 +80,11 @@ public class UserController extends HTTPUtil {
         return userService.changePassword(authenticationModel, header);
     }
 
+    @PostMapping(value = "/getGenderList")
+    public ResponseEntity<?> getGenderList(@RequestBody BasicModel basicModel) {
 
+        return userService.getGenderList(basicModel);
+    }
 
 
 

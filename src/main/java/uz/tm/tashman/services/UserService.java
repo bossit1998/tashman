@@ -1,5 +1,6 @@
 package uz.tm.tashman.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,10 +10,10 @@ import org.springframework.stereotype.Service;
 import uz.tm.tashman.config.jwt.JwtUtils;
 import uz.tm.tashman.entity.*;
 import uz.tm.tashman.enums.ERole;
+import uz.tm.tashman.enums.Gender;
+import uz.tm.tashman.enums.Language;
 import uz.tm.tashman.enums.StatusCodes;
-import uz.tm.tashman.models.AuthenticationModel;
-import uz.tm.tashman.models.ResponseModel;
-import uz.tm.tashman.models.UserModel;
+import uz.tm.tashman.models.*;
 import uz.tm.tashman.repository.RoleRepository;
 import uz.tm.tashman.repository.UserRepository;
 import uz.tm.tashman.util.AES;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 import static uz.tm.tashman.enums.StatusCodes.*;
@@ -33,25 +35,24 @@ import static uz.tm.tashman.util.Util.isBlank;
 public class UserService extends HTTPUtil {
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
-    private final AdminService adminService;
-    private final ClientService clientService;
     private final UserAgentService userAgentService;
     private final LogService logService;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
+    @Autowired
+    private AdminService adminService;
+    @Autowired
+    private ClientService clientService;
+
     public UserService(PasswordEncoder encoder,
                        JwtUtils jwtUtils,
-                       AdminService adminService,
-                       ClientService clientService,
                        UserAgentService userAgentService,
                        LogService logService,
                        UserRepository userRepository,
                        RoleRepository roleRepository) {
         this.encoder = encoder;
         this.jwtUtils = jwtUtils;
-        this.adminService = adminService;
-        this.clientService = clientService;
         this.userAgentService = userAgentService;
         this.logService = logService;
         this.userRepository = userRepository;
@@ -332,6 +333,20 @@ public class UserService extends HTTPUtil {
         }
     }
 
+    public ResponseEntity<?> getGenderList(BasicModel basicModel) {
+        try {
+            if (basicModel.getLanguage() == null) {
+                basicModel.setLanguage(Language.RU);
+            }
+
+            List<HashMapModel> genderList = Gender.getAllByLanguage(basicModel.getLanguage());
+
+            return OkResponse(SUCCESS, genderList);
+        } catch (Exception e) {
+            logService.saveToLog(exceptionAsString(e));
+            return InternalServerErrorResponse(exceptionAsString(e));
+        }
+    }
     /*================================================================================================================*/
 
     /*

@@ -1,5 +1,6 @@
 package uz.tm.tashman.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,8 +37,11 @@ public class AdminService extends HTTPUtil {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserAgentService userAgentService;
-    private final UserService userService;
     private final LogService logService;
+
+    @Autowired
+    private UserService userService;
+
 
     public AdminService(
             JwtUtils jwtUtils,
@@ -45,14 +49,12 @@ public class AdminService extends HTTPUtil {
             UserRepository userRepository,
             RoleRepository roleRepository,
             UserAgentService userAgentService,
-            UserService userService,
             LogService logService) {
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userAgentService = userAgentService;
-        this.userService = userService;
         this.logService = logService;
     }
 

@@ -57,7 +57,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/client/registration", "/client/login",
                         "/admin/registration", "/admin/login",
                         "/user/otpVerification", "/user/forgotPassword", "/user/otpResend", "/user/changePassword",
-                        "/common/getGenderList"
+                        "/common/getGenderList", "/**"
                 )
                 .permitAll().anyRequest().authenticated();
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
