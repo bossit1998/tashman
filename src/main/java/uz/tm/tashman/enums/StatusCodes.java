@@ -5,6 +5,8 @@ import uz.tm.tashman.models.HashMapModel;
 
 import java.util.ArrayList;
 
+import static uz.tm.tashman.util.Util.checkLanguage;
+
 @Getter
 public enum StatusCodes {
     SUCCESSFULLY_FOUND(2000, "successfully_found", "Successfully found", "Найдено", "Topildi"),
@@ -84,6 +86,7 @@ public enum StatusCodes {
     PRODUCT_ALREADY_REGISTERED(7021, "product_already_registered", "Product already registered", "Продукт уже зарегестрирован", "Mahsulot ro'yxatdan o'tgan"),
     USER_DETAILS_ARE_MISSING(7022, "user_details_are_missing", "User details are missing", "User details are missing", "User details are missing"),
     USER_AGENT_DETAILS_ARE_MISSING(7022, "user_agent_details_are_missing", "User agent details are missing", "User agent details are missing", "User agent details are missing"),
+    PRODUCT_INFO_MISSING(7023, "product_info_missing", "Product info missing", "Информация о продукте не полная", "Mahsulot ma'lumotlari to'liq emas"),
     ;
 
     private final int id;
@@ -119,9 +122,7 @@ public enum StatusCodes {
     }
 
     public static String getNameByLanguage(StatusCodes target, Language language) {
-        if (language == null) {
-            language = Language.RU;
-        }
+        language = checkLanguage(language);
 
         switch (language) {
             case EN:
@@ -135,6 +136,8 @@ public enum StatusCodes {
     }
 
     public static ArrayList<HashMapModel> getAllByLanguage(Language language) {
+        language = checkLanguage(language);
+
         ArrayList<HashMapModel> result = new ArrayList<>();
         switch (language) {
             case EN:

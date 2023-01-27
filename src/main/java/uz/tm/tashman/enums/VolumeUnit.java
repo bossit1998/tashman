@@ -5,6 +5,8 @@ import uz.tm.tashman.models.HashMapModel;
 
 import java.util.ArrayList;
 
+import static uz.tm.tashman.util.Util.checkLanguage;
+
 @Getter
 public enum VolumeUnit {
     ML(0, "ml", "Milliliter", "Миллилитр", "Millilitr"),
@@ -48,7 +50,23 @@ public enum VolumeUnit {
         return null;
     }
 
+    public String getNameByLanguage(Language language) {
+        language = checkLanguage(language);
+
+        switch (language) {
+            case EN:
+                return englishName;
+            case UZ:
+                return uzbekName;
+            case RU:
+            default:
+                return russianName;
+        }
+    }
+
     public static ArrayList<HashMapModel> getAllByLanguage(Language language) {
+        language = checkLanguage(language);
+
         ArrayList<HashMapModel> volumeUnits = new ArrayList<>();
         switch (language) {
             case EN:

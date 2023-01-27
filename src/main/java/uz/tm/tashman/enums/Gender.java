@@ -4,6 +4,8 @@ import uz.tm.tashman.models.HashMapModel;
 
 import java.util.ArrayList;
 
+import static uz.tm.tashman.util.Util.checkLanguage;
+
 public enum Gender {
     MALE(0, "male", "Male", "Мужчина", "Erkak"),
     FEMALE(0, "female", "Female", "Женшина", "Ayol");
@@ -41,9 +43,7 @@ public enum Gender {
     }
 
     public static String getNameByLanguage(Gender target, Language language) {
-        if (language == null) {
-            language = Language.RU;
-        }
+        language = checkLanguage(language);
 
         switch (language) {
             case EN:
@@ -57,9 +57,7 @@ public enum Gender {
     }
 
     public static ArrayList<HashMapModel> getAllByLanguage(Language language) {
-        if (language==null) {
-            language = Language.RU;
-        }
+        language = checkLanguage(language);
 
         ArrayList<HashMapModel> result = new ArrayList<>();
         switch (language) {

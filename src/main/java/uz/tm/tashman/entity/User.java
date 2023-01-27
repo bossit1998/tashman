@@ -29,6 +29,7 @@ public class User implements UserDetails {
 
     private String encodedId;
 
+    @Column(nullable = false, unique = true)
     private String username;
 
     private String maskedPhoneNumber;

@@ -7,15 +7,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uz.tm.tashman.entity.Product;
+import uz.tm.tashman.entity.ProductCategory;
 import uz.tm.tashman.entity.ProductImage;
 import uz.tm.tashman.entity.User;
-import uz.tm.tashman.enums.ProductCategory;
+import uz.tm.tashman.enums.EProductCategory;
+import uz.tm.tashman.enums.Language;
 import uz.tm.tashman.enums.VolumeUnit;
 import uz.tm.tashman.models.BasicModel;
 import uz.tm.tashman.models.HashMapModel;
 import uz.tm.tashman.models.ProductModel;
 import uz.tm.tashman.models.ResponseModel;
+import uz.tm.tashman.models.requestModels.ProductRequestModel;
 import uz.tm.tashman.models.wrapperModels.ResPageable;
+import uz.tm.tashman.repository.ProductCategoryRepository;
 import uz.tm.tashman.repository.ProductImageRepository;
 import uz.tm.tashman.repository.ProductRepository;
 import uz.tm.tashman.util.HTTPUtil;
@@ -37,36 +41,59 @@ public class ProductService extends HTTPUtil {
     final LogService logService;
     final ProductRepository productRepository;
     final ProductImageRepository productImageRepository;
+    final ProductCategoryRepository productCategoryRepository;
 
     public ProductService(
             UserService userService,
             LogService logService,
             ProductRepository productRepository,
-            ProductImageRepository productImageRepository) {
+            ProductImageRepository productImageRepository,
+            ProductCategoryRepository productCategoryRepository) {
         this.userService = userService;
         this.logService = logService;
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
+        this.productCategoryRepository = productCategoryRepository;
     }
 
-    public ResponseModel<Product> createProduct(ProductModel productModel, User user) {
+    public ResponseModel<Product> createProduct(ProductRequestModel productModel, User user) {
         ResponseModel<Product> responseModel = new ResponseModel<>();
 
         try {
             Product product = new Product();
 
+            Optional<ProductCategory> optProductCategory = productCategoryRepository.findByCode(productModel.getProductCategory());
+            if (!optProductCategory.isPresent()) {
+                responseModel.setSuccess(false);
+                responseModel.setMessage("Product Category not found");
+                return responseModel;
+            }
+
+            ProductCategory productCategory = optProductCategory.get();
+
+            product.setProductCategory(productCategory);
             product.setSlug(productModel.getSlug());
-            product.setMetaTitle(productModel.getMetaTitle());
-            product.setMetaDescription(productModel.getMetaDescription());
-            product.setProductCategory(productModel.getProductCategory());
-            product.setName(productModel.getName());
-            product.setShortDescription(productModel.getShortDescription());
-            product.setFullDescription(productModel.getFullDescription());
+            product.setMetaTitleEn(productModel.getMetaTitleEn());
+            product.setMetaTitleRu(productModel.getMetaTitleRu());
+            product.setMetaTitleUz(productModel.getMetaTitleUz());
+            product.setMetaDescriptionEn(productModel.getMetaDescriptionEn());
+            product.setMetaDescriptionRu(productModel.getMetaDescriptionRu());
+            product.setMetaDescriptionUz(productModel.getMetaDescriptionUz());
+            product.setNameEn(productModel.getNameEn());
+            product.setNameRu(productModel.getNameRu());
+            product.setNameUz(productModel.getNameUz());
+            product.setShortDescriptionEn(productModel.getShortDescriptionEn());
+            product.setShortDescriptionRu(productModel.getShortDescriptionRu());
+            product.setShortDescriptionUz(productModel.getShortDescriptionUz());
+            product.setFullDescriptionEn(productModel.getFullDescriptionEn());
+            product.setFullDescriptionRu(productModel.getFullDescriptionRu());
+            product.setFullDescriptionUz(productModel.getFullDescriptionUz());
             product.setPiecesPerPackage(productModel.getPiecesPerPackage());
             product.setPackageNettoWeight(productModel.getPackageNettoWeight());
             product.setPackageBruttoWeight(productModel.getPackageBruttoWeight());
             product.setPackageDimensions(productModel.getPackageDimensions());
             product.setVolume(productModel.getVolume());
+            product.setExpireDurationUnit(productModel.getExpireDurationUnit());
             product.setExpireDuration(productModel.getExpireDuration());
             product.setPrice(productModel.getPrice());
             product.setVolumeUnit(productModel.getVolumeUnit());
@@ -131,24 +158,25 @@ public class ProductService extends HTTPUtil {
         return responseModel;
     }
 
-    public ProductModel getProductModel(Product product) {
+    public ProductModel getProductModel(Product product, Language language) {
         ProductModel productModel = new ProductModel();
 
         productModel.setSlug(product.getSlug());
-        productModel.setMetaTitle(product.getMetaTitle());
-        productModel.setMetaDescription(product.getMetaDescription());
-        productModel.setProductCategory(product.getProductCategory());
-        productModel.setName(product.getName());
-        productModel.setShortDescription(product.getShortDescription());
-        productModel.setFullDescription(product.getFullDescription());
+        productModel.setMetaTitle(product.getMetaTitleByLanguage(language));
+        productModel.setMetaDescription(product.getMetaDescriptionByLanguage(language));
+        productModel.setProductCategory(product.getProductCategory().getProductCategoryByLanguage(language));
+        productModel.setName(product.getNameByLanguage(language));
+        productModel.setShortDescription(product.getShortDescriptionByLanguage(language));
+        productModel.setFullDescription(product.getFullDescriptionByLanguage(language));
         productModel.setPiecesPerPackage(product.getPiecesPerPackage());
         productModel.setPackageNettoWeight(product.getPackageNettoWeight());
         productModel.setPackageBruttoWeight(product.getPackageBruttoWeight());
         productModel.setPackageDimensions(product.getPackageDimensions());
         productModel.setVolume(product.getVolume());
         productModel.setExpireDuration(product.getExpireDuration());
+        productModel.setExpireDurationUnit(product.getExpireDurationUnit().getNameByLanguage(language));
         productModel.setPrice(product.getPrice());
-        productModel.setVolumeUnit(product.getVolumeUnit());
+        productModel.setVolumeUnit(product.getVolumeUnit().getNameByLanguage(language));
 //        product.setImage(productModel.getImageUrls());
 
         productModel.setIsActive(product.getIsActive());
@@ -186,7 +214,7 @@ public class ProductService extends HTTPUtil {
         return optProduct.orElse(null);
     }
 
-    public ResponseEntity<?> addProduct(ProductModel productModel, HttpServletRequest header) {
+    public ResponseEntity<?> addProduct(ProductRequestModel productModel, HttpServletRequest header) {
         try {
             User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -200,7 +228,7 @@ public class ProductService extends HTTPUtil {
             if (product.getSuccess()) {
                 return OkResponse(SUCCESSFULLY_ADDED);
             } else {
-                return OkResponse(UNABLE_TO_ADD_PRODUCT);
+                return OkResponse(UNABLE_TO_ADD_PRODUCT, product.getMessage());
             }
         } catch (Exception e) {
             return InternalServerErrorResponse(e);
@@ -215,7 +243,7 @@ public class ProductService extends HTTPUtil {
 
             List<ProductModel> productModelList = new ArrayList<>();
 
-            productPage.getContent().forEach(product -> productModelList.add(getProductModel(product)));
+            productPage.getContent().forEach(product -> productModelList.add(getProductModel(product, basicModel.getLanguage())));
 
             ResPageable resPageable = new ResPageable(
                     productModelList,
@@ -234,7 +262,7 @@ public class ProductService extends HTTPUtil {
         try {
             User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-            List<HashMapModel> productCategoryList = ProductCategory.getAllByLanguage(admin.getLanguage());
+            List<HashMapModel> productCategoryList = EProductCategory.getAllByLanguage(admin.getLanguage());
 
             return OkResponse(SUCCESS, productCategoryList);
         } catch (Exception e) {

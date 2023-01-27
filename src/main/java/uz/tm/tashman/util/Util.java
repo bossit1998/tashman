@@ -276,4 +276,12 @@ public class Util {
             throw new IOException("Could not save file: " + fileName, ioe);
         }
     }
+
+    public static Language checkLanguage(Language language) {
+        if (language == null) {
+            language = DEFAULT_SYSTEM_lANGUAGE;
+        }
+
+        return language;
+    }
 }

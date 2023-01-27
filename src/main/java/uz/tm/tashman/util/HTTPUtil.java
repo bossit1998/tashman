@@ -3,7 +3,6 @@ package uz.tm.tashman.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
 import uz.tm.tashman.enums.Language;
 import uz.tm.tashman.enums.StatusCodes;
 import uz.tm.tashman.models.wrapperModels.ErrorResponse;
@@ -42,7 +41,7 @@ public class HTTPUtil {
     }
 
     public ResponseEntity<?> InternalServerErrorResponse(Exception e) {
-        System.out.println(e);
+        System.out.println(exceptionAsString(e));
         logService.saveToLog(e);
         Language language = Util.getLanguageFromAuthentication();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(StatusCodes.INTERNAL_ERROR, language, exceptionAsString(e)));

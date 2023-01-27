@@ -1,5 +1,7 @@
 package uz.tm.tashman.util;
 
+import uz.tm.tashman.enums.Language;
+
 public interface CONSTANT {
     boolean IS_PRODUCTION = false;
 
@@ -26,4 +28,6 @@ public interface CONSTANT {
     String DEFAULT_OTP = "1234";
 
     Integer QR_EXPIRE_TIMEOUT_MILLIS = 5 * 60 * 1000; //5 minut
+
+    Language DEFAULT_SYSTEM_lANGUAGE = Language.RU;
 }
