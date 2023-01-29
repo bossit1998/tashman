@@ -284,4 +284,14 @@ public class Util {
 
         return language;
     }
+
+    public static String getImageUrl(String imageUrl) {
+        if (imageUrl == null) {
+            return null;
+        } else if (imageUrl.contains("/content")) {
+            return imageUrl.replace("/content", BASE_URL);
+        } else {
+            return imageUrl;
+        }
+    }
 }

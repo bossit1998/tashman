@@ -13,10 +13,7 @@ import uz.tm.tashman.entity.User;
 import uz.tm.tashman.enums.EProductCategory;
 import uz.tm.tashman.enums.Language;
 import uz.tm.tashman.enums.VolumeUnit;
-import uz.tm.tashman.models.BasicModel;
-import uz.tm.tashman.models.HashMapModel;
-import uz.tm.tashman.models.ProductModel;
-import uz.tm.tashman.models.ResponseModel;
+import uz.tm.tashman.models.*;
 import uz.tm.tashman.models.requestModels.ProductRequestModel;
 import uz.tm.tashman.models.wrapperModels.ResPageable;
 import uz.tm.tashman.repository.ProductCategoryRepository;
@@ -33,6 +30,8 @@ import java.util.Optional;
 
 import static uz.tm.tashman.enums.StatusCodes.*;
 import static uz.tm.tashman.util.CONSTANT.*;
+import static uz.tm.tashman.util.Util.getImageUrl;
+import static uz.tm.tashman.util.Util.isBlank;
 
 @Service
 public class ProductService extends HTTPUtil {
@@ -177,8 +176,19 @@ public class ProductService extends HTTPUtil {
         productModel.setExpireDurationUnit(product.getExpireDurationUnit().getNameByLanguage(language));
         productModel.setPrice(product.getPrice());
         productModel.setVolumeUnit(product.getVolumeUnit().getNameByLanguage(language));
-//        product.setImage(productModel.getImageUrls());
 
+        List<ProductImage> productImageList = productImageRepository.findAllByProduct(product);
+        if (!isBlank(productImageList)) {
+            List<ProductImageModel> imageModels = new ArrayList<>();
+
+            productImageList.forEach(productImage -> imageModels.add(getProductImageModel(productImage)));
+
+            productModel.setImages(imageModels);
+        }
+
+
+        /* these properties are not necessary in product model */
+/*
         productModel.setIsActive(product.getIsActive());
         productModel.setCreatedDate(product.getCreatedDate());
         productModel.setIsDeleted(product.getIsDeleted());
@@ -200,6 +210,7 @@ public class ProductService extends HTTPUtil {
             }
             productModel.setCreatedBy(adminName);
         }
+*/
 
         return productModel;
     }
@@ -212,6 +223,20 @@ public class ProductService extends HTTPUtil {
         Optional<Product> optProduct = productRepository.findBySlug(slug);
 
         return optProduct.orElse(null);
+    }
+
+    public ProductImageModel getProductImageModel(ProductImage productImage) {
+        ProductImageModel productImageModel = new ProductImageModel();
+        productImageModel.setId(productImage.getId());
+        productImageModel.setSortOrder(productImage.getSortOrder());
+
+        if (productImage.getImageUrl() != null) {
+            productImageModel.setImageUrl(getImageUrl(productImage.getImageUrl()));
+        }
+
+        productImageModel.setThumbnailImageUrl(productImage.getThumbnailImageUrl());
+
+        return productImageModel;
     }
 
     public ResponseEntity<?> addProduct(ProductRequestModel productModel, HttpServletRequest header) {

@@ -33,9 +33,7 @@ public class ProductModel implements Serializable {
     private String volumeUnit;
     private Integer expireDuration;
     private String expireDurationUnit;
-    private List<MultipartFile> images;
-    private List<String> imageUrls;
-    private List<String> thumbnailImageUrls;
+    private List<ProductImageModel> images;
     private Double price;
     private Boolean isActive;
     private LocalDateTime createdDate;
