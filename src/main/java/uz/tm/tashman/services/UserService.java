@@ -97,7 +97,7 @@ public class UserService extends HTTPUtil {
             user.setIsActive(false);
             user.setCreatedDate(LocalDateTime.now());
 
-            if (eRole.equals(ERole.ROLE_USER)) {
+            if (eRole.equals(ERole.ROLE_CLIENT)) {
                 Client client = clientService.createClient(userModel, user);
                 user.setClient(client);
             } else if (eRole.equals(ERole.ROLE_ADMIN)) {

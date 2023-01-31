@@ -32,7 +32,6 @@ public class AdminController extends HTTPUtil {
         if (isBlank(userRequestModel.getUserAgent())) {
             return BadRequestResponse(USER_AGENT_DETAILS_ARE_MISSING);
         }
-
         if (isBlank(userRequestModel.getUser().getMobileNumber())) {
             return BadRequestResponse(USER_PHONE_NOT_ENTERED);
         }
