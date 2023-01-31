@@ -230,11 +230,8 @@ public class ProductService extends HTTPUtil {
         productImageModel.setId(productImage.getId());
         productImageModel.setSortOrder(productImage.getSortOrder());
 
-        if (productImage.getImageUrl() != null) {
-            productImageModel.setImageUrl(getImageUrl(productImage.getImageUrl()));
-        }
-
-        productImageModel.setThumbnailImageUrl(productImage.getThumbnailImageUrl());
+        productImageModel.setImageUrl(getImageUrl(productImage.getImageUrl()));
+        productImageModel.setThumbnailImageUrl(getImageUrl(productImage.getThumbnailImageUrl()));
 
         return productImageModel;
     }
