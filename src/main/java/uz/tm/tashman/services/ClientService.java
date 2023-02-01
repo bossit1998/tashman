@@ -1,5 +1,6 @@
 package uz.tm.tashman.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +18,9 @@ import uz.tm.tashman.entity.UserAgent;
 import uz.tm.tashman.enums.ERole;
 import uz.tm.tashman.enums.Gender;
 import uz.tm.tashman.enums.StatusCodes;
-import uz.tm.tashman.models.AuthenticationModel;
-import uz.tm.tashman.models.UserModel;
+import uz.tm.tashman.models.*;
+import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
+import uz.tm.tashman.models.requestModels.UserRequestModel;
 import uz.tm.tashman.models.wrapperModels.ErrorResponse;
 import uz.tm.tashman.repository.AddressRepository;
 import uz.tm.tashman.repository.RoleRepository;
@@ -36,29 +38,29 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static uz.tm.tashman.enums.StatusCodes.*;
+
 @Service
 public class ClientService extends HTTPUtil {
 
-    final UserRepository userRepository;
-    final RoleRepository roleRepository;
-    final PasswordEncoder encoder;
-    final JwtUtils jwtUtils;
-    final AuthenticationManager authenticationManager;
-    final UserAgentRepository userAgentRepository;
-    final AddressRepository addressRepository;
-    final UserService userService;
+    private final RoleRepository roleRepository;
+    private final JwtUtils jwtUtils;
+    private final AuthenticationManager authenticationManager;
+    private final UserAgentService userAgentService;
+    private final LogService logService;
+    @Autowired
+     UserService userService;
+
     @Value("${local.file.path}")
     String filePath;
 
-    public ClientService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder, JwtUtils jwtUtils, AuthenticationManager authenticationManager, UserAgentRepository userAgentRepository, AddressRepository addressRepository, UserService userService) {
-        this.userRepository = userRepository;
+    public ClientService( RoleRepository roleRepository, JwtUtils jwtUtils, AuthenticationManager authenticationManager, UserService userService, LogService logService,UserAgentService userAgentService) {
         this.roleRepository = roleRepository;
-        this.encoder = encoder;
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
-        this.userAgentRepository = userAgentRepository;
-        this.addressRepository = addressRepository;
         this.userService = userService;
+        this.logService = logService;
+        this.userAgentService = userAgentService;
     }
 
     public Client createClient(UserModel userModel, User user) {
@@ -78,201 +80,111 @@ public class ClientService extends HTTPUtil {
         userModel.setDob(user.getClient().getDob());
         userModel.setEmail(user.getClient().getEmail());
 
-        if (user.getDeletedBy() != null) {
-            User admin = userService.getUserById(user.getDeletedBy());
-            String adminName = "Admin profile not found";
-            if (admin != null) {
-                adminName = admin.getAdmin().getFullName();
-            }
-            userModel.setDeletedBy(adminName);
-        }
+//        if (user.getDeletedBy() != null) {
+//            User admin = userService.getUserById(user.getDeletedBy());
+//            String adminName = "Admin profile not found";
+//            if (admin != null) {
+//                adminName = admin.getAdmin().getFullName();
+//            }
+//            userModel.setDeletedBy(adminName);
+//        }
 
         return userModel;
     }
 
 
-    public ResponseEntity<?> registration(UserModel userModel, HttpServletRequest request) {
-        if (userService.existsByUsername(userModel.getMobileNumber())) {
-            return OkResponse(StatusCodes.USER_ALREADY_REGISTERED);
+    public ResponseEntity<?> registration(UserRequestModel userRequestModel, HttpServletRequest header) {
+        try{
+            UserModel userModel = userRequestModel.getUser();
+            UserAgentModel userAgentModel = userRequestModel.getUserAgent();
+
+            if (userService.existsByUsername(userModel.getMobileNumber())) {
+                return OkResponse(StatusCodes.USER_ALREADY_REGISTERED);
+            }
+
+            Optional<Role> optClientRole = roleRepository.findByName(ERole.ROLE_CLIENT);
+            if (!optClientRole.isPresent()) {
+                return OkResponse(StatusCodes.USER_ROLE_NOT_FOUND);
+            }
+
+            ResponseModel<User> responseModel = userService.createUser(ERole.ROLE_CLIENT, userModel, userAgentModel, header);
+            if (!responseModel.getSuccess()) {
+                return InternalServerErrorResponse(responseModel.getException());
+            }
+
+            User user = responseModel.getData();
+
+            userModel.clear();
+            userModel.setIsOTPVerified(false);
+            userModel.setDeviceId(responseModel.getDeviceId());
+            userModel.setMobileNumber(user.getMaskedPhoneNumber());
+            userModel.setMessage(getNameByLanguage(USER_OTP_NOT_VERIFIED, user.getLanguage()));
+
+            return OkResponse(SUCCESS, userModel);
+        } catch (Exception e){
+            return InternalServerErrorResponse(e);
         }
-
-        User user = new User(AES.encrypt(userModel.getMobileNumber()), encoder.encode(userModel.getPassword()), null);
-
-        Optional<Role> optPatientRole = roleRepository.findByName(ERole.ROLE_USER);
-        if (!optPatientRole.isPresent()) {
-            return OkResponse(StatusCodes.USER_ROLE_NOT_FOUND);
-        }
-
-        Role patientRole = optPatientRole.get();
-
-        Set<Role> roles = new HashSet<>();
-        roles.add(patientRole);
-
-        user.setRoles(roles);
-        user.setCreatedDate(LocalDateTime.now());
-
-        UserAgent userAgent = new UserAgent();
-        userAgent.setUserAgent(request.getHeader("User-Agent"));
-        userAgent.setTokenDate(LocalDateTime.now());
-        userAgent.setVerified(false);
-
-
-        Client client = new Client();
-        client.setName(userModel.getName());
-        client.setUser(user);
-
-        user.setClient(client);
-
-//        user.getAdmin().setFaceScan(userModel.getFaceScan());
-//        user.getAdmin().setFingerPrint(userModel.getFingerPrints());
-//        user.getAdmin().setEmail(userModel.getEmail());
-//        user.getAdmin().setDob(userModel.getDob());
-//        user.getAdmin().setGender(userModel.getGender());
-        user = userRepository.save(user);
-
-        // todo - implement account
-//        ledgerAccountService.createAccount(user.getId());
-
-        userAgent.setUser(user);
-        userAgentRepository.save(userAgent);
-
-//        if (!StringUtils.isEmpty(userModel.getPlatform()) &&
-//                !StringUtils.isEmpty(userModel.getFcmToken())) {
-//            List<UserPlatform> deleteUserPlatformList = userPlatformRepository.findByFcmTokenOrVoipToken(
-//                    userModel.getFcmToken(),
-//                    userModel.getVoipToken() == null ? "" : userModel.getVoipToken());
-//
-//            UserPlatform userPlatform = new UserPlatform();
-//            userPlatform.setFcmToken(userModel.getFcmToken());
-//            userPlatform.setVoipToken(userModel.getVoipToken());
-//            userPlatform.setUserId(user.getId());
-//            if (userModel.getPlatform().equalsIgnoreCase(Platform.ANDROID.name())) {
-//                userPlatform.setPlatform(Platform.ANDROID);
-//            } else if (userModel.getPlatform().equalsIgnoreCase(Platform.WEB.name())) {
-//                userPlatform.setPlatform(Platform.WEB);
-//            } else if (userModel.getPlatform().equalsIgnoreCase(Platform.IOS.name())) {
-//                userPlatform.setPlatform(Platform.IOS);
-//            }
-//            if (userPlatform.getPlatform() != null) {
-//                userPlatformRepository.deleteAll(deleteUserPlatformList);
-//                userPlatformRepository.save(userPlatform);
-//            }
-//        }
-
-        return OkResponse(StatusCodes.SUCCESS, Util.maskPhoneNumber(user.getUsername()));
     }
-
-    public ResponseEntity<?> login(AuthenticationModel authenticationModel, HttpServletRequest request) {
-        String jwt;
-
-        Optional<User> optionalUser;
-
+    public ResponseEntity<?> login(AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
         try {
-            optionalUser = userRepository.findByUsername(authenticationModel.getMobileNumber());
+            String jwt;
+            User client;
 
-            if (!optionalUser.isPresent()) {
-                return OkResponse(StatusCodes.NOT_FOUND);
+            AuthenticationModel authenticationModel = authenticationRequestModel.getAuthentication();
+            UserAgentModel userAgentModel = authenticationRequestModel.getUserAgent();
+
+            try {
+                client = userService.getUserByUsername(authenticationModel.getMobileNumber());
+                if (client == null) {
+                    return OkResponse(StatusCodes.NOT_FOUND);
+                }
+
+                Authentication authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(AES.encrypt(authenticationModel.getMobileNumber()),
+                                authenticationModel.getPassword()));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                jwt = jwtUtils.generateJwtToken(authentication);
+            } catch (Exception e) {
+                logService.saveToLog(e);
+                return BadRequestResponse(USER_PHONE_NUMBER_OR_PASSWORD_ERROR);
             }
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    authenticationModel.getMobileNumber(), authenticationModel.getPassword()));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            jwt = jwtUtils.generateJwtToken(authentication);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse(400, "Phone number or password error"));
-        }
 
-        User user = optionalUser.get();
+            List<ERole> roles = client.getRoles().stream().map(Role::getName).collect(Collectors.toList());
 
-        List<ERole> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
-
-        if (!roles.contains(ERole.ROLE_USER)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse(401, "User is not a Client!"));
-        }
-
-//        if (!StringUtils.isEmpty(authenticationModel.getPlatform())
-//                && !StringUtils.isEmpty(authenticationModel.getFcmToken())) {
-//            List<UserPlatform> deleteUserPlatformList = userPlatformRepository.findByFcmTokenOrVoipToken(
-//                    authenticationModel.getFcmToken(),
-//                    authenticationModel.getVoipToken() == null ? "" : authenticationModel.getVoipToken());
-//
-//            UserPlatform userPlatform = new UserPlatform();
-//            userPlatform.setFcmToken(authenticationModel.getFcmToken());
-//            userPlatform.setVoipToken(authenticationModel.getVoipToken());
-//            userPlatform.setUserId(user.getId());
-//            if (authenticationModel.getPlatform().equalsIgnoreCase(Platform.ANDROID.name())) {
-//                userPlatform.setPlatform(Platform.ANDROID);
-//            } else if (authenticationModel.getPlatform().equalsIgnoreCase(Platform.WEB.name())) {
-//                userPlatform.setPlatform(Platform.WEB);
-//            } else if (authenticationModel.getPlatform().equalsIgnoreCase(Platform.IOS.name())) {
-//                userPlatform.setPlatform(Platform.IOS);
-//            }
-//            if (userPlatform.getPlatform() != null) {
-//                userPlatformRepository.deleteAll(deleteUserPlatformList);
-//                userPlatformRepository.save(userPlatform);
-//            }
-//        }
-
-        UserModel userRegisterResponse = new UserModel();
-        userRegisterResponse.setIsOTPVerified(true);
-
-        Optional<UserAgent> optUserAgent = userAgentRepository.findByUserAndUserAgent(user, request.getHeader("User-Agent"));
-        if (!optionalUser.isPresent()) {
-            return OkResponse(StatusCodes.NOT_FOUND);
-        }
-        UserAgent userAgent = optUserAgent.get();
-
-        if (!userAgent.getIsDeleted()) {
-            if (!userAgent.isVerified()) {
-                userAgent.setTokenDate(LocalDateTime.now());
-                // todo - should be uncommented to generate otp
-//                String otp = Util.otpGeneration();
-                String otp = "1234";
-//                user.setOtp(otp);
-                userRepository.save(user);
-                userAgent.setUser(user);
-                userAgentRepository.save(userAgent);
-//                smsService.sendOtp(authenticationRequest.getMobileNumber(), otp);
-                userRegisterResponse.setIsOTPVerified(false);
-                userRegisterResponse.setMobileNumber(Util.maskPhoneNumber(user.getUsername()));
+            if (!roles.contains(ERole.ROLE_CLIENT)) {
+                return UnauthorizedResponse(USER_IS_NOT_ADMIN);
             }
-        } else {
-            userAgent = new UserAgent();
-            userAgent.setUserAgent(request.getHeader("User-Agent"));
-            userAgent.setTokenDate(LocalDateTime.now());
-            userAgent.setVerified(false);
-            userRepository.save(user);
-            userAgent.setUser(user);
-            userAgentRepository.save(userAgent);
-            // todo - should be uncommented to send sms
-//            smsService.sendOtp(authenticationRequest.getMobileNumber(), otp);
-            userRegisterResponse.setIsOTPVerified(false);
-            userRegisterResponse.setMobileNumber(Util.maskPhoneNumber(user.getUsername()));
-        }
+
+            UserModel userModel = new UserModel();
+            boolean userAgentExists = userAgentService.checkIfUserAgentExists(authenticationModel.getDeviceId(), client);
 
 
-        if (userRegisterResponse.getIsOTPVerified()) {
-            userRegisterResponse.setToken(jwt);
-//            userRegisterResponse.setFaceScan(user.getClient().getFaceScan());
-//            userRegisterResponse.setDob(user.getClient().getDob().toString());
-//            userRegisterResponse.setFingerPrints(user.getClient().getFingerPrint());
-//            userRegisterResponse.setFullName(user.getClient().getFullName());
-//            userRegisterResponse.setGender(user.getClient().getGender());
-            userRegisterResponse.setMobileNumber(authenticationModel.getMobileNumber());
-            userRegisterResponse.setId(user.getId());
-            userRegisterResponse.setProfileImageUrl(user.getProfileImageUrl());
-//            userRegisterResponse.setIsActive(user.getClient().getIsActive());
-//            if (user.getAddress() != null) {
-//                userRegisterResponse.setCity(user.getAddress().getCity());
-//                userRegisterResponse.setZipCode(user.getAddress().getRegion());
-//                userRegisterResponse.setCountry(user.getAddress().getZipCode());
-//                userRegisterResponse.setLatitude(user.getuser().getLatitude());
-//                userRegisterResponse.setLongitude(user.getuser().getLongitude());
-//            }
-        } else {
-            userRegisterResponse.setMessage("please verify otp.");
+            if (userAgentExists) {
+                UserAgent userAgent = userAgentService.getUserAgentByEncodedId(authenticationModel.getDeviceId());
+
+                if (userAgent != null && userAgent.isVerified()) {
+                    userModel = userService.getUserModel(client);
+                    userModel.setToken(jwt);
+                    userModel.setIsOTPVerified(true);
+                    userModel.setDeviceId(userAgent.getEncodedId());
+                    userModel.setMessage(getNameByLanguage(USER_LOGGED_IN, client.getLanguage()));
+                } else {
+                    userModel.setIsOTPVerified(false);
+                    userModel.setMobileNumber(client.getMaskedPhoneNumber());
+                    userModel.setMessage(getNameByLanguage(USER_OTP_NOT_VERIFIED, client.getLanguage()));
+                }
+            } else {
+                UserAgent userAgent = userAgentService.saveUserAgentInfo(client, userAgentModel, header);
+                userModel.setIsOTPVerified(false);
+                userModel.setDeviceId(userAgent.getEncodedId());
+                userModel.setMobileNumber(client.getMaskedPhoneNumber());
+                userModel.setMessage(getNameByLanguage(USER_OTP_NOT_VERIFIED, client.getLanguage()));
+            }
+            return OkResponse(SUCCESS, userModel);
+        } catch (Exception e){
+            return InternalServerErrorResponse(e);
         }
-        return OkResponse(StatusCodes.USER_LOGGED_IN, userRegisterResponse);
     }
-}
+
+    }

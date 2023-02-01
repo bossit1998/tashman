@@ -102,7 +102,7 @@ public class AdminService extends HTTPUtil {
             userModel.setMessage(getNameByLanguage(USER_OTP_NOT_VERIFIED, user.getLanguage()));
 
             return OkResponse(SUCCESS, userModel);
-        } catch (Exception e) {
+        } catch  (Exception e) {
             return InternalServerErrorResponse(e);
         }
     }

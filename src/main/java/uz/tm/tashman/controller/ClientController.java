@@ -6,11 +6,15 @@ import org.springframework.web.bind.annotation.*;
 import uz.tm.tashman.enums.StatusCodes;
 import uz.tm.tashman.models.AuthenticationModel;
 import uz.tm.tashman.models.UserModel;
+import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
+import uz.tm.tashman.models.requestModels.UserRequestModel;
 import uz.tm.tashman.services.ClientService;
 import uz.tm.tashman.util.HTTPUtil;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static uz.tm.tashman.enums.StatusCodes.USER_AGENT_DETAILS_ARE_MISSING;
+import static uz.tm.tashman.enums.StatusCodes.USER_DETAILS_ARE_MISSING;
 import static uz.tm.tashman.util.Util.isBlank;
 
 @RestController
@@ -22,34 +26,40 @@ public class ClientController extends HTTPUtil {
     ClientService userService;
 
     @PostMapping("/registration")
-    public ResponseEntity<?> registration(@RequestBody UserModel userModel, HttpServletRequest request) {
-        if (isBlank(userModel.getMobileNumber())) {
+    public ResponseEntity<?> registration(@RequestBody UserRequestModel userRequestModel, HttpServletRequest request) {
+        if (isBlank(userRequestModel.getUser())) {
+            return BadRequestResponse(USER_DETAILS_ARE_MISSING);
+        }
+        if (isBlank(userRequestModel.getUserAgent())) {
+            return BadRequestResponse(USER_AGENT_DETAILS_ARE_MISSING);
+        }
+        if (isBlank(userRequestModel.getUser().getMobileNumber())) {
             return BadRequestResponse(StatusCodes.USER_PHONE_NOT_ENTERED);
         }
-        if (isBlank(userModel.getFullName())) {
+        if (isBlank(userRequestModel.getUser().getFullName())) {
             return BadRequestResponse(StatusCodes.USER_NAME_NOT_ENTERED);
         }
-        if (isBlank(userModel.getDob())) {
+        if (isBlank(userRequestModel.getUser().getDob())) {
             return BadRequestResponse(StatusCodes.USER_DOB_NOT_ENTERED);
         }
-        if (isBlank(userModel.getGender())) {
+        if (isBlank(userRequestModel.getUser().getGender())) {
             return BadRequestResponse(StatusCodes.USER_GENDER_NOT_ENTERED);
         }
-        if (isBlank(userModel.getPassword())) {
+        if (isBlank(userRequestModel.getUser().getPassword())) {
             return BadRequestResponse(StatusCodes.USER_PASSWORD_NOT_ENTERED);
         }
-        return userService.registration(userModel, request);
+        return userService.registration(userRequestModel, request);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthenticationModel authenticationModel, HttpServletRequest request) {
-        if (isBlank(authenticationModel.getMobileNumber())) {
+    public ResponseEntity<?> login(@RequestBody AuthenticationRequestModel authenticationRequestModel, HttpServletRequest request) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getMobileNumber())) {
             return BadRequestResponse(StatusCodes.USER_PHONE_NOT_ENTERED);
         }
-        if (isBlank(authenticationModel.getPassword())) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getPassword())) {
             return BadRequestResponse(StatusCodes.USER_PASSWORD_NOT_ENTERED);
         }
-        return userService.login(authenticationModel, request);
+        return userService.login(authenticationRequestModel, request);
     }
 
 //	@PreAuthorize("hasRole('PATIENT')")
