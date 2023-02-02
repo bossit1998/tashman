@@ -1,16 +1,18 @@
 Users:
-- registration; - done;
-- login; - done;
 - otp validation; - done;
 - otp resend; - done;
 - forgot password; - done;
-- change password;
+- change password; - done;
 
 Clients:
+- registration;
+- login;
 - get profile;
 - update/edit profile
 
 Admin:
+- registration; - done;
+- login; - done;
 - only selected people;
 - get users list;
 - block users;
@@ -26,10 +28,10 @@ Accounting:
 
 
 Products:
-- add product;
+- add product; - done;
 - get product;
 - update/edit product;
-- get list of products;
+- get list of products; - done;
 - add to cart;
 
 Accounts:
