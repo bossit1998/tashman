@@ -41,7 +41,7 @@ public class HTTPUtil {
     }
 
     public ResponseEntity<?> InternalServerErrorResponse(Exception e) {
-        System.out.println(exceptionAsString(e));
+        System.out.println(e);
         logService.saveToLog(e);
         Language language = Util.getLanguageFromAuthentication();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(StatusCodes.INTERNAL_ERROR, language, exceptionAsString(e)));
