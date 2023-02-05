@@ -357,6 +357,13 @@ public class UserService extends HTTPUtil {
             return InternalServerErrorResponse(e);
         }
     }
+
+    public ResponseEntity<?> setPinCode(AuthenticationRequestModel authenticationRequestModel, HttpServletRequest request) {
+        User client = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        client.setPinCode(authenticationRequestModel.getAuthentication().getPinCode());
+        userRepository.save(client);
+        return OkResponse(SUCCESS);
+    }
     /*================================================================================================================*/
 
     /*

@@ -13,8 +13,8 @@ import uz.tm.tashman.util.HTTPUtil;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static uz.tm.tashman.enums.StatusCodes.USER_AGENT_DETAILS_ARE_MISSING;
-import static uz.tm.tashman.enums.StatusCodes.USER_DETAILS_ARE_MISSING;
+import static uz.tm.tashman.enums.StatusCodes.*;
+import static uz.tm.tashman.enums.StatusCodes.USER_NAME_NOT_ENTERED;
 import static uz.tm.tashman.util.Util.isBlank;
 
 @RestController
@@ -36,8 +36,11 @@ public class ClientController extends HTTPUtil {
         if (isBlank(userRequestModel.getUser().getMobileNumber())) {
             return BadRequestResponse(StatusCodes.USER_PHONE_NOT_ENTERED);
         }
-        if (isBlank(userRequestModel.getUser().getFullName())) {
-            return BadRequestResponse(StatusCodes.USER_NAME_NOT_ENTERED);
+        if (isBlank(userRequestModel.getUser().getName())) {
+            return BadRequestResponse(USER_NAME_NOT_ENTERED);
+        }
+        if (isBlank(userRequestModel.getUser().getSurname())) {
+            return BadRequestResponse(USER_NAME_NOT_ENTERED);
         }
         if (isBlank(userRequestModel.getUser().getDob())) {
             return BadRequestResponse(StatusCodes.USER_DOB_NOT_ENTERED);

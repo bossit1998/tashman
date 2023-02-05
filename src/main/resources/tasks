@@ -3,49 +3,68 @@ Users:
 - otp resend; - done;
 - forgot password; - done;
 - change password; - done;
+- pin-code (login, set) - together
+- logout (session) - together
 
 Clients:
-- registration;
-- login;
-- get profile;
-- update/edit profile
+- registration; - done;
+- login; - done;
+- get profile; - Bunyod
+- update/edit profile -Bunyod
+ {id
+  mobileNumber -> Musked phone number
+  name
+  surname
+  fullName  -> name + surname
+  dob
+  gender
+  isActive
+  message
+  deviceId
+  email
+  profileImageUrl
+  language
+  role}
 
 Admin:
 - registration; - done;
 - login; - done;
-- only selected people;
-- get users list;
-- block users;
+- get users list; - Bunyod
+- block/unlbock users; - Bunyod isBlocked() method
 
-Monitoring:
+Monitoring: - later
 - add product;
 - get list of products;
 - update/edit product;
 
-Accounting:
+Accounting: - later
 - get list of transactions;
 - various statistics;
 
 
-Products:
+Products:  - Bosit
 - add product; - done;
 - get product;
 - update/edit product;
 - get list of products; - done;
 - add to cart;
 
-Accounts:
+Accounts: - together
 - balance;
 - cards;
+- orders;
+- cart;
+- favourites; (relation)
 
 
-Plastic cards:
+Plastic cards: - later
 - add;
+- activate;
 - update/edit;
 - get list;
 - get one;
 - delete;
 
-Payment:
+Payment: - later
 - pay;
 - get list;

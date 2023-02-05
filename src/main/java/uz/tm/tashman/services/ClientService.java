@@ -65,6 +65,7 @@ public class ClientService extends HTTPUtil {
 
     public Client createClient(UserModel userModel, User user) {
         Client client = new Client();
+        client.setUser(user);
         client.setName(userModel.getName());
         client.setSurname(userModel.getSurname());
         client.setDob(userModel.getDob());
@@ -153,7 +154,7 @@ public class ClientService extends HTTPUtil {
             List<ERole> roles = client.getRoles().stream().map(Role::getName).collect(Collectors.toList());
 
             if (!roles.contains(ERole.ROLE_CLIENT)) {
-                return UnauthorizedResponse(USER_IS_NOT_ADMIN);
+                return UnauthorizedResponse(USER_IS_NOT_CLIENT);
             }
 
             UserModel userModel = new UserModel();

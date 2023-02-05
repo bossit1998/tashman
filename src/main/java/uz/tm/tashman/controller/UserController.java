@@ -1,5 +1,6 @@
 package uz.tm.tashman.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.tm.tashman.models.BasicModel;
@@ -18,6 +19,7 @@ import static uz.tm.tashman.util.Util.isBlank;
 public class UserController extends HTTPUtil {
 
     final UserService userService;
+
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -85,6 +87,13 @@ public class UserController extends HTTPUtil {
 
         return userService.getGenderList(basicModel);
     }
+    @PostMapping("/setPinCode")
+    public ResponseEntity<?> setPinCode(@RequestBody AuthenticationRequestModel authenticationRequestModel, HttpServletRequest request) {
+        if (authenticationRequestModel.getAuthentication()==null || authenticationRequestModel.getAuthentication().getPinCode() == null) {
+            return BadRequestResponse(USER_PIN_CODE_NOT_ENTERED);
+        }
+        return userService.setPinCode(authenticationRequestModel, request);
+    }
 
     /*
 
@@ -94,13 +103,6 @@ public class UserController extends HTTPUtil {
     }
 
 
-    @PostMapping("/setPinCode")
-    public ResponseEntity<?> setPinCode(@RequestBody PinCodeRequest pinCodeRequest, HttpServletRequest request) {
-        if (pinCodeRequest.getPinCode() == null) {
-            return ResponseEntity.badRequest().body(new ErrorResponseModel(400, "Pin code not entered"));
-        }
-        return commonService.setPinCode(pinCodeRequest, request);
-    }
 
     @PostMapping("/loginWithPinCode")
     public ResponseEntity<?> loginPinCode(@RequestBody PinCodeRequest pinCodeRequest, HttpServletRequest request) {

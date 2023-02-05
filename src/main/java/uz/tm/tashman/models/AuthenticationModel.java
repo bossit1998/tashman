@@ -15,7 +15,7 @@ public class AuthenticationModel {
     private String mobileNumber;
     private String password;
     private String otp;
-    private Integer pinCode;
+    private String pinCode;
     private String fcmToken;
     private String platform;
     private String voipToken;

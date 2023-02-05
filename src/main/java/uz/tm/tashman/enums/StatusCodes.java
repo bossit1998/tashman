@@ -87,6 +87,7 @@ public enum StatusCodes {
     USER_DETAILS_ARE_MISSING(7022, "user_details_are_missing", "User details are missing", "User details are missing", "User details are missing"),
     USER_AGENT_DETAILS_ARE_MISSING(7022, "user_agent_details_are_missing", "User agent details are missing", "User agent details are missing", "User agent details are missing"),
     PRODUCT_INFO_MISSING(7023, "product_info_missing", "Product info missing", "Информация о продукте не полная", "Mahsulot ma'lumotlari to'liq emas"),
+    USER_IS_NOT_CLIENT(7024, "user_is_not_client", "User is not client", "Пользователь не является клиентом", "Foydalanuvchi mijoz emas")
     ;
 
     private final int id;
