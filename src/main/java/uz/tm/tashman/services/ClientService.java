@@ -2,13 +2,11 @@ package uz.tm.tashman.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uz.tm.tashman.config.jwt.JwtUtils;
 import uz.tm.tashman.entity.Client;
@@ -21,21 +19,13 @@ import uz.tm.tashman.enums.StatusCodes;
 import uz.tm.tashman.models.*;
 import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
 import uz.tm.tashman.models.requestModels.UserRequestModel;
-import uz.tm.tashman.models.wrapperModels.ErrorResponse;
-import uz.tm.tashman.repository.AddressRepository;
 import uz.tm.tashman.repository.RoleRepository;
-import uz.tm.tashman.repository.UserAgentRepository;
-import uz.tm.tashman.repository.UserRepository;
 import uz.tm.tashman.util.AES;
 import uz.tm.tashman.util.HTTPUtil;
-import uz.tm.tashman.util.Util;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static uz.tm.tashman.enums.StatusCodes.*;
@@ -48,19 +38,20 @@ public class ClientService extends HTTPUtil {
     private final AuthenticationManager authenticationManager;
     private final UserAgentService userAgentService;
     private final LogService logService;
-    @Autowired
-     UserService userService;
+    final
+    UserService userService;
 
     @Value("${local.file.path}")
     String filePath;
 
-    public ClientService( RoleRepository roleRepository, JwtUtils jwtUtils, AuthenticationManager authenticationManager, UserService userService, LogService logService,UserAgentService userAgentService) {
+    public ClientService(RoleRepository roleRepository, JwtUtils jwtUtils, AuthenticationManager authenticationManager, LogService logService, UserAgentService userAgentService, UserService userService) {
         this.roleRepository = roleRepository;
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.logService = logService;
         this.userAgentService = userAgentService;
+
     }
 
     public Client createClient(UserModel userModel, User user) {
@@ -76,10 +67,13 @@ public class ClientService extends HTTPUtil {
     }
 
     public UserModel getClient(UserModel userModel, User user) {
+        userModel.setName(user.getClient().getName());
+        userModel.setSurname(user.getClient().getSurname());
         userModel.setFullName(user.getClient().getFullName());
         userModel.setGender(Gender.getNameByLanguage(user.getClient().getGender(), user.getLanguage()));
         userModel.setDob(user.getClient().getDob());
         userModel.setEmail(user.getClient().getEmail());
+        userModel.setRole(ERole.ROLE_CLIENT);
 
 //        if (user.getDeletedBy() != null) {
 //            User admin = userService.getUserById(user.getDeletedBy());
@@ -95,7 +89,7 @@ public class ClientService extends HTTPUtil {
 
 
     public ResponseEntity<?> registration(UserRequestModel userRequestModel, HttpServletRequest header) {
-        try{
+        try {
             UserModel userModel = userRequestModel.getUser();
             UserAgentModel userAgentModel = userRequestModel.getUserAgent();
 
@@ -122,10 +116,11 @@ public class ClientService extends HTTPUtil {
             userModel.setMessage(getNameByLanguage(USER_OTP_NOT_VERIFIED, user.getLanguage()));
 
             return OkResponse(SUCCESS, userModel);
-        } catch (Exception e){
+        } catch (Exception e) {
             return InternalServerErrorResponse(e);
         }
     }
+
     public ResponseEntity<?> login(AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
         try {
             String jwt;
@@ -165,7 +160,7 @@ public class ClientService extends HTTPUtil {
                 UserAgent userAgent = userAgentService.getUserAgentByEncodedId(authenticationModel.getDeviceId());
 
                 if (userAgent != null && userAgent.isVerified()) {
-                    userModel = userService.getUserModel(client);
+                    userModel = userService.fromUserToUserModel(client);
                     userModel.setToken(jwt);
                     userModel.setIsOTPVerified(true);
                     userModel.setDeviceId(userAgent.getEncodedId());
@@ -183,9 +178,35 @@ public class ClientService extends HTTPUtil {
                 userModel.setMessage(getNameByLanguage(USER_OTP_NOT_VERIFIED, client.getLanguage()));
             }
             return OkResponse(SUCCESS, userModel);
-        } catch (Exception e){
+        } catch (Exception e) {
             return InternalServerErrorResponse(e);
         }
     }
 
+    public ResponseEntity<?> getProfile(BasicModel basicModel, HttpServletRequest httpRequestHeader) {
+        User client = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserModel clientModel = userService.fromUserToUserModel(client);
+
+        return OkResponse(StatusCodes.SUCCESSFULLY_FOUND, clientModel);
     }
+
+    public ResponseEntity<?> editProfile(UserModel userModel, HttpServletRequest httpRequestHeader) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (userModel.getName() != null) {
+            user.getClient().setName(userModel.getName());
+
+        }
+        user.getClient().setName(userModel.getName() == null ? user.getClient().getName() : userModel.getName());
+        user.getClient().setSurname(userModel.getSurname() == null ? user.getClient().getSurname() : userModel.getSurname());
+        user.getClient().setGender(userModel.getGender() == null ? user.getClient().getGender() : Gender.valueOf(userModel.getGender()));
+        user.getClient().setDob(userModel.getDob() == null ? user.getClient().getDob() : userModel.getDob());
+        user.getClient().setEmail(userModel.getEmail() == null ? user.getClient().getEmail() : userModel.getEmail());
+        user.getClient().setFingerPrints(userModel.getFingerPrints() == null ? user.getClient().getFingerPrints() : userModel.getFingerPrints());
+        user.getClient().setFaceScan(userModel.getFaceScan() == null ? user.getClient().getFaceScan() : userModel.getFaceScan());
+
+
+        return OkResponse(SUCCESS, user);
+
+    }
+}

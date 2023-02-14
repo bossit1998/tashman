@@ -149,7 +149,8 @@ public class UserService extends HTTPUtil {
         return userRepository.existsByUsername(AES.encrypt(username));
     }
 
-    public UserModel getUserModel(User user) {
+    //converterFunctions ->    Entity -> DTO
+    public UserModel fromUserToUserModel(User user) {
         UserModel userModel = new UserModel();
 
         userModel.setId(user.getId());
@@ -207,7 +208,7 @@ public class UserService extends HTTPUtil {
                     Boolean userAgentVerified = userAgentService.verifyUserAgent(userAgent);
 
                     if (userAgentVerified) {
-                        UserModel userModel = getUserModel(user);
+                        UserModel userModel = fromUserToUserModel(user);
 
                         userModel.setToken(jwt);
                         userModel.setIsOTPVerified(true);

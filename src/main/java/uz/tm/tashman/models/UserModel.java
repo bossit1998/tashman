@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import uz.tm.tashman.enums.ERole;
 import uz.tm.tashman.enums.Language;
 
 import java.time.LocalDate;
@@ -36,7 +37,7 @@ public class UserModel {
         private String faceScan;
         private String profileImageUrl;
         private Language language;
-        private String role;
+        private ERole role;
 
     public void clear() {
         this.id = null;

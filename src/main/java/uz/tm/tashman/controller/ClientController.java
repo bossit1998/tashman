@@ -2,9 +2,10 @@ package uz.tm.tashman.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import uz.tm.tashman.enums.StatusCodes;
-import uz.tm.tashman.models.AuthenticationModel;
+import uz.tm.tashman.models.BasicModel;
 import uz.tm.tashman.models.UserModel;
 import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
 import uz.tm.tashman.models.requestModels.UserRequestModel;
@@ -23,7 +24,7 @@ import static uz.tm.tashman.util.Util.isBlank;
 public class ClientController extends HTTPUtil {
 
     @Autowired
-    ClientService userService;
+    ClientService clientService;
 
     @PostMapping("/registration")
     public ResponseEntity<?> registration(@RequestBody UserRequestModel userRequestModel, HttpServletRequest request) {
@@ -51,7 +52,7 @@ public class ClientController extends HTTPUtil {
         if (isBlank(userRequestModel.getUser().getPassword())) {
             return BadRequestResponse(StatusCodes.USER_PASSWORD_NOT_ENTERED);
         }
-        return userService.registration(userRequestModel, request);
+        return clientService.registration(userRequestModel, request);
     }
 
     @PostMapping("/login")
@@ -62,7 +63,19 @@ public class ClientController extends HTTPUtil {
         if (isBlank(authenticationRequestModel.getAuthentication().getPassword())) {
             return BadRequestResponse(StatusCodes.USER_PASSWORD_NOT_ENTERED);
         }
-        return userService.login(authenticationRequestModel, request);
+        return clientService.login(authenticationRequestModel, request);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
+    @PostMapping(value = "/getProfile")
+    public ResponseEntity<?> getProfile(@RequestBody BasicModel basicModel, HttpServletRequest httpRequestHeader) {
+        return clientService.getProfile(basicModel, httpRequestHeader);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
+    @PostMapping(value = "/editProfile")
+    public ResponseEntity<?> editProfile(@RequestBody UserModel userModel, HttpServletRequest httpRequestHeader) {
+        return clientService.editProfile(userModel, httpRequestHeader);
     }
 
 //	@PreAuthorize("hasRole('PATIENT')")

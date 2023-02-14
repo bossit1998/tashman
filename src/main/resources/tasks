@@ -68,3 +68,10 @@ Plastic cards: - later
 Payment: - later
 - pay;
 - get list;
+
+       userModel.setId(user.getId());
+        userModel.setMobileNumber(user.getMaskedPhoneNumber());
+        userModel.setIsActive(user.getIsActive());
+        userModel.setIsDeleted(user.getIsDeleted());
+        userModel.setLanguage(user.getLanguage());
+        userModel.setProfileImageUrl(getProfileImage(user));

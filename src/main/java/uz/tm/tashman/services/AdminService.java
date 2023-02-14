@@ -67,9 +67,12 @@ public class AdminService extends HTTPUtil {
     }
 
     public UserModel getAdmin(UserModel userModel, User user) {
+        userModel.setName(user.getClient().getName());
+        userModel.setSurname(user.getClient().getSurname());
         userModel.setFullName(user.getAdmin().getFullName());
         userModel.setGender(Gender.getNameByLanguage(user.getAdmin().getGender(), user.getLanguage()));
         userModel.setDob(user.getAdmin().getDob());
+        userModel.setRole(ERole.ROLE_ADMIN);
 
         return userModel;
     }
@@ -102,7 +105,7 @@ public class AdminService extends HTTPUtil {
             userModel.setMessage(getNameByLanguage(USER_OTP_NOT_VERIFIED, user.getLanguage()));
 
             return OkResponse(SUCCESS, userModel);
-        } catch  (Exception e) {
+        } catch (Exception e) {
             return InternalServerErrorResponse(e);
         }
     }
@@ -147,7 +150,7 @@ public class AdminService extends HTTPUtil {
                 UserAgent userAgent = userAgentService.getUserAgentByEncodedId(authenticationModel.getDeviceId());
 
                 if (userAgent != null && userAgent.isVerified()) {
-                    userModel = userService.getUserModel(admin);
+                    userModel = userService.fromUserToUserModel(admin);
                     userModel.setToken(jwt);
                     userModel.setIsOTPVerified(true);
                     userModel.setDeviceId(userAgent.getEncodedId());
