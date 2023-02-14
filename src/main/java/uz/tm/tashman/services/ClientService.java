@@ -1,6 +1,5 @@
 package uz.tm.tashman.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -195,8 +194,8 @@ public class ClientService extends HTTPUtil {
 
         if (userModel.getName() != null) {
             user.getClient().setName(userModel.getName());
-
         }
+
         user.getClient().setName(userModel.getName() == null ? user.getClient().getName() : userModel.getName());
         user.getClient().setSurname(userModel.getSurname() == null ? user.getClient().getSurname() : userModel.getSurname());
         user.getClient().setGender(userModel.getGender() == null ? user.getClient().getGender() : Gender.valueOf(userModel.getGender()));
@@ -205,8 +204,9 @@ public class ClientService extends HTTPUtil {
         user.getClient().setFingerPrints(userModel.getFingerPrints() == null ? user.getClient().getFingerPrints() : userModel.getFingerPrints());
         user.getClient().setFaceScan(userModel.getFaceScan() == null ? user.getClient().getFaceScan() : userModel.getFaceScan());
 
+        userService.saveUser(user);
 
-        return OkResponse(SUCCESS, user);
-
+        userModel = userService.fromUserToUserModel(user);
+        return OkResponse(SUCCESS, userModel);
     }
 }

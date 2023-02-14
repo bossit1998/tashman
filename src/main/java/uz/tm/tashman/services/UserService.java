@@ -125,6 +125,11 @@ public class UserService extends HTTPUtil {
         return responseModel;
     }
 
+    public User saveUser(User user) {
+        user = userRepository.save(user);
+        return user;
+    }
+
     public User getUserById(Long id) {
         if (isBlank(id)) {
             return null;
