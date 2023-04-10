@@ -22,15 +22,17 @@ public class AssortmentService extends HTTPUtil {
     final
     AssortmentRepository assortmentRepository;
 
-    @Autowired
+    final
     ProductRepository productRepository;
 
-    @Autowired
+    final
     LogService logService;
 
 
-    public AssortmentService(AssortmentRepository assortmentRepository) {
+    public AssortmentService(AssortmentRepository assortmentRepository, LogService logService, ProductRepository productRepository) {
         this.assortmentRepository = assortmentRepository;
+        this.logService = logService;
+        this.productRepository = productRepository;
     }
 
 
@@ -51,12 +53,14 @@ public class AssortmentService extends HTTPUtil {
             product.setAssortments(assortmentList);
             productRepository.save(product);
 
+            List<AssortmentResponseModel> assortmentResponseModels = new ArrayList<>();
             return OkResponse(StatusCodes.SUCCESSFULLY_EDITED);
-        }
+        }else
+            return OkResponse(StatusCodes.PRODUCT_NOT_FOUND);
         }catch (Exception e){
             logService.saveToLog(exceptionAsString(e));
             return InternalServerErrorResponse(e);
         }
-        return null;
+
     }
 }
