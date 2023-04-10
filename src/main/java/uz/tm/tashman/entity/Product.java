@@ -42,6 +42,11 @@ public class Product implements Serializable {
     private Boolean isActive;
     private LocalDateTime createdDate;
     private Long createdBy;
+    private Boolean in_production;
+    private String bar_code;
+    private Integer store_temperature;
+    private LocalDateTime first_launched_date;
+    private String brand;
 
     private Integer expireDuration;
     @Enumerated(EnumType.STRING)
@@ -50,30 +55,21 @@ public class Product implements Serializable {
     private VolumeUnit volumeUnit;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private ProductCategory productCategory;
-
-    @Column(columnDefinition = "TEXT")
-    private String metaTitleEn;
-    @Column(columnDefinition = "TEXT")
-    private String metaDescriptionEn;
+    private ProductCategory category;
     @Column(columnDefinition = "TEXT")
     private String fullDescriptionEn;
     @Column(columnDefinition = "TEXT")
-    private String metaTitleRu;
-    @Column(columnDefinition = "TEXT")
-    private String metaDescriptionRu;
-    @Column(columnDefinition = "TEXT")
     private String fullDescriptionRu;
     @Column(columnDefinition = "TEXT")
-    private String metaTitleUz;
-    @Column(columnDefinition = "TEXT")
-    private String metaDescriptionUz;
-    @Column(columnDefinition = "TEXT")
     private String fullDescriptionUz;
+    @JsonBackReference
+    @OneToMany(fetch = FetchType.LAZY, cascade=CascadeType.ALL, mappedBy = "product")
+    private List<Assortment> assortments;
 
     @JsonBackReference
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
     private List<ProductImage> image;
+
 
     @Column(columnDefinition = "boolean default false")
     private Boolean isDeleted = false;
@@ -82,34 +78,6 @@ public class Product implements Serializable {
 
     private LocalDateTime deletedDate;
 
-
-    public String getMetaTitleByLanguage(Language language) {
-        language = checkLanguage(language);
-
-        switch (language) {
-            case EN:
-                return metaTitleEn;
-            case UZ:
-                return metaTitleUz;
-            case RU:
-            default:
-                return metaTitleRu;
-        }
-    }
-
-    public String getMetaDescriptionByLanguage(Language language) {
-        language = checkLanguage(language);
-
-        switch (language) {
-            case EN:
-                return metaDescriptionEn;
-            case UZ:
-                return metaDescriptionUz;
-            case RU:
-            default:
-                return metaDescriptionRu;
-        }
-    }
 
     public String getNameByLanguage(Language language) {
         language = checkLanguage(language);

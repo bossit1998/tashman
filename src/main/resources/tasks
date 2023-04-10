@@ -5,12 +5,13 @@ Users:
 - change password; - done;
 - pin-code (login, set) - together
 - logout (session) - together
+-isBlocked - tekshir default false yoki yoq -
 
 Clients:
 - registration; - done;
 - login; - done;
-- get profile; - Bunyod
-- update/edit profile -Bunyod
+- get profile; - done
+- update/edit profile -done
  {id
   mobileNumber -> Musked phone number
   name
@@ -29,7 +30,7 @@ Clients:
 Admin:
 - registration; - done;
 - login; - done;
-- get users list; - Bunyod
+- get users list; - Bunyod hammasini olib user model holatida qaytarib berish kere
 - block/unlbock users; - Bunyod isBlocked() method
 
 Monitoring: - later
@@ -42,10 +43,10 @@ Accounting: - later
 - various statistics;
 
 
-Products:  - Bosit
+Products: - Bosit
 - add product; - done;
-- get product;
-- update/edit product;
+- get product;  done
+- update/edit product; done
 - get list of products; - done;
 - add to cart;
 
@@ -69,7 +70,32 @@ Payment: - later
 - pay;
 - get list;
 
-       userModel.setId(user.getId());
+Inventory -
+
+
+
+Service: Business service(produce, sell) or// Manufacturing service(recycle)
+- produce
+- sell
+
+
+
+
+Assortment  -
+1. get product da assortment list ham qaytishi kerak
+soortmentResponseModel - id, name  list of assortmentResponseModel
+
+
+2. {    1. assortmentga yangi assortment list qoshish
+        2. edit assortment
+        3 .delete qilish }  umumiy bitta edit qilish, list of string qabul qilib oladi
+                                1. hibernate tekshirish kere birinchi
+                                2. bomasa query yozish kere table da delete qilish uchun
+
+
+
+
+        userModel.setId(user.getId());
         userModel.setMobileNumber(user.getMaskedPhoneNumber());
         userModel.setIsActive(user.getIsActive());
         userModel.setIsDeleted(user.getIsDeleted());

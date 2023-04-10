@@ -87,8 +87,15 @@ public enum StatusCodes {
     USER_DETAILS_ARE_MISSING(7022, "user_details_are_missing", "User details are missing", "User details are missing", "User details are missing"),
     USER_AGENT_DETAILS_ARE_MISSING(7022, "user_agent_details_are_missing", "User agent details are missing", "User agent details are missing", "User agent details are missing"),
     PRODUCT_INFO_MISSING(7023, "product_info_missing", "Product info missing", "Информация о продукте не полная", "Mahsulot ma'lumotlari to'liq emas"),
-    USER_IS_NOT_CLIENT(7024, "user_is_not_client", "User is not client", "Пользователь не является клиентом", "Foydalanuvchi mijoz emas")
-    ;
+    USER_IS_NOT_CLIENT(7024, "user_is_not_client", "User is not client", "Пользователь не является клиентом", "Foydalanuvchi mijoz emas"),
+    PRODUCT_CATEGORY_NOT_FOUND(7025, "product_category_not_found", "Product category not found", "Категория товара не найдена", "Mahsulot toifasi topilmadi"),
+    PRODUCT_NOT_FOUND(7026, "product_not_found", "Product not found", "Категория не найдена", "Mahsulot topilmadi"),
+    UNABLE_TO_EDIT_PRODUCT(7027, "unable_to_edit_product", "Unable to edit product", "Не удалось изменить продукт", "Mahsulotni yangilab bo'lmadi"),
+    ALREADY_DELETED(7028, "already_deleted", "Already deleted", "Уже удален ", "Allaqachon o'chirilgan"),
+    ASSORTMENT_NOT_FOUND(7029, "assortment_not_found", "Assortment not found", "assortment не найдена", "Assortment topilmadi"),
+            ;
+
+
 
     private final int id;
     private final String code;

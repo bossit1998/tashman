@@ -46,6 +46,10 @@ public class User implements UserDetails {
     private Boolean isDeleted = false;
 
     private Long deletedBy;
+    private String blockMessage;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isBlocked=false;
 
     private LocalDateTime deletedDate;
 
@@ -93,6 +97,7 @@ public class User implements UserDetails {
         }
         return false;
     }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

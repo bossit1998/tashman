@@ -1,6 +1,8 @@
 package uz.tm.tashman.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +17,7 @@ import uz.tm.tashman.enums.Language;
 import uz.tm.tashman.enums.StatusCodes;
 import uz.tm.tashman.models.*;
 import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
+import uz.tm.tashman.models.wrapperModels.ResPageable;
 import uz.tm.tashman.repository.RoleRepository;
 import uz.tm.tashman.repository.UserRepository;
 import uz.tm.tashman.util.AES;
@@ -23,10 +26,7 @@ import uz.tm.tashman.util.Util;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static uz.tm.tashman.enums.StatusCodes.*;
 import static uz.tm.tashman.util.CONSTANT.*;
@@ -70,7 +70,7 @@ public class UserService extends HTTPUtil {
             return null;
         }
 
-        Optional<User> optUser = userRepository.findByUsername(encryptedUsername);
+        Optional<User> optUser = userRepository.findByUsernameAndIsDeletedFalse(encryptedUsername);
         return optUser.orElse(null);
     }
 
@@ -93,7 +93,9 @@ public class UserService extends HTTPUtil {
 
             user.setLanguage(Util.getLanguageFromAuthentication(userModel));
 
+            user.setIsBlocked(false);
             user.setIsDeleted(false);
+
             user.setIsActive(false);
             user.setCreatedDate(LocalDateTime.now());
 
@@ -130,6 +132,7 @@ public class UserService extends HTTPUtil {
         return user;
     }
 
+
     public User getUserById(Long id) {
         if (isBlank(id)) {
             return null;
@@ -138,6 +141,53 @@ public class UserService extends HTTPUtil {
         Optional<User> optUser = userRepository.findById(id);
 
         return optUser.orElse(null);
+    }
+
+    public UserModel getUserModel(User user){
+        UserModel userModel = new UserModel();
+        userModel.setId(user.getId());
+        userModel.setMobileNumber(user.getMaskedPhoneNumber());
+        userModel.setFullName(user.getClient().getFullName());
+        userModel.setIsActive(user.getIsActive());
+        userModel.setIsDeleted(user.getIsDeleted());
+
+        if(user.getDeletedBy()!=null) {
+            Optional<User> optionalAdmin = userRepository.findById(user.getDeletedBy());
+            optionalAdmin.ifPresent(admin -> userModel.setDeletedBy(admin.getAdmin().getFullName()));
+
+        }
+        userModel.setMessage(user.getBlockMessage());
+        userModel.setProfileImageUrl(user.getProfileImageUrl());
+        userModel.setRole(ERole.ROLE_CLIENT);
+        return userModel;
+    }
+    public ResponseEntity<?> getUserList(BasicModel basicModel, HttpServletRequest header) {
+        try {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (isBlank(basicModel.getLanguage())) {
+            basicModel.setLanguage(user.getLanguage());
+        }
+        Pageable pageable = Util.getPageable(basicModel.getPage(), basicModel.getPageSize());
+
+        Page<User> userPage = userRepository.findAll(pageable);
+
+        List<UserModel> userModelList = new ArrayList<>();
+
+        userPage.getContent().forEach(eachUser -> userModelList.add(getUserModel(eachUser)));
+
+        ResPageable resPageable = new ResPageable(
+                userModelList,
+                userPage.getTotalElements(),
+                userPage.getTotalPages(),
+                basicModel.getPage(),
+                basicModel.getPageSize());
+
+
+
+        return OkResponse(SUCCESSFULLY_FOUND, resPageable);
+    }catch(Exception e){
+        return InternalServerErrorResponse(e);
+        }
     }
 
     public User getUserByEncodedId(String encodedId) {
@@ -151,7 +201,7 @@ public class UserService extends HTTPUtil {
     }
 
     public Boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(AES.encrypt(username));
+        return userRepository.existsByUsernameAndIsDeletedFalse(AES.encrypt(username));
     }
 
     //converterFunctions ->    Entity -> DTO

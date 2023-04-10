@@ -22,6 +22,7 @@ import uz.tm.tashman.util.AES;
 import uz.tm.tashman.util.HTTPUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -67,8 +68,8 @@ public class AdminService extends HTTPUtil {
     }
 
     public UserModel getAdmin(UserModel userModel, User user) {
-        userModel.setName(user.getClient().getName());
-        userModel.setSurname(user.getClient().getSurname());
+        userModel.setName(user.getAdmin().getName());
+        userModel.setSurname(user.getAdmin().getSurname());
         userModel.setFullName(user.getAdmin().getFullName());
         userModel.setGender(Gender.getNameByLanguage(user.getAdmin().getGender(), user.getLanguage()));
         userModel.setDob(user.getAdmin().getDob());
@@ -173,11 +174,42 @@ public class AdminService extends HTTPUtil {
         }
     }
 
-    public ResponseEntity<?> deleteUser(BasicModel basicModel) {
-        try {
-            User user = userService.getUserById(basicModel.getId());
+    public ResponseEntity<?> deleteUser(UserBlockOrDeleteModel userBlockOrDeleteModel) {
 
+        try {
+            User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            User user = userService.getUserById(userBlockOrDeleteModel.getUserId());
+            if (user == null) {
+                return OkResponse(USER_NOT_FOUND);
+            }
+            if(user.getIsDeleted()){
+                return OkResponse(ALREADY_DELETED);
+            }
+            if (user.getIsDeleted() != userBlockOrDeleteModel.getIsDeleted()) {
+                user.setIsDeleted(true);
+                user.setDeletedDate(LocalDateTime.now());
+                user.setDeletedBy(admin.getId());
+                userService.saveUser(user);
+            }
+            return OkResponse(SUCCESSFULLY_DELETED);
+
+        } catch (Exception e) {
+            return InternalServerErrorResponse(e);
+        }
+    }
+
+    public ResponseEntity<?> blockUser(UserBlockOrDeleteModel userBlockOrDeleteModel) {
+        try {
+            User user = userService.getUserById(userBlockOrDeleteModel.getUserId());
+            if (user == null) {
+                return OkResponse(USER_NOT_FOUND);
+            }
+            if (user.getIsBlocked() != userBlockOrDeleteModel.getIsBlocked()) {
+                user.setIsBlocked(userBlockOrDeleteModel.getIsBlocked());
+                userService.saveUser(user);
+            }
             return OkResponse(SUCCESS);
+
         } catch (Exception e) {
             return InternalServerErrorResponse(e);
         }

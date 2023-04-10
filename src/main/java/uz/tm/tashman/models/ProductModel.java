@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
+import uz.tm.tashman.entity.Assortment;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -21,7 +21,7 @@ public class ProductModel implements Serializable {
     private String slug;
     private String metaTitle;
     private String metaDescription;
-    private String productCategory;
+    private String category;
     private String name;
     private String shortDescription;
     private String fullDescription;
@@ -33,6 +33,7 @@ public class ProductModel implements Serializable {
     private String volumeUnit;
     private Integer expireDuration;
     private String expireDurationUnit;
+    private List<AssortmentResponseModel> assortments;
     private List<ProductImageModel> images;
     private Double price;
     private Boolean isActive;
@@ -42,4 +43,10 @@ public class ProductModel implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private LocalDateTime deletedDate;
     private String deletedBy;
+    private Boolean in_production;
+    private String bar_code;
+    private String flavor;
+    private Integer store_temperature;
+    private LocalDateTime first_launched_date;
+    private String brand;
 }

@@ -3,6 +3,7 @@ package uz.tm.tashman.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.tm.tashman.models.BasicModel;
+import uz.tm.tashman.models.UserBlockOrDeleteModel;
 import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
 import uz.tm.tashman.models.requestModels.UserRequestModel;
 import uz.tm.tashman.services.AdminService;
@@ -69,7 +70,11 @@ public class AdminController extends HTTPUtil {
     }
 
     @PostMapping("/deleteUser")
-        public ResponseEntity<?> deleteUser(@RequestBody BasicModel basicModel) {
-            return adminService.deleteUser(basicModel);
+        public ResponseEntity<?> deleteUser(@RequestBody UserBlockOrDeleteModel userBlockOrDeleteModel) {
+            return adminService.deleteUser(userBlockOrDeleteModel);
+        }
+        @PostMapping("/blockUser")
+        public ResponseEntity<?> blockUser(@RequestBody UserBlockOrDeleteModel userBlockOrDeleteModel){
+            return adminService.blockUser(userBlockOrDeleteModel);
         }
 }
