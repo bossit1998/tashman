@@ -1,9 +1,7 @@
 package uz.tm.tashman.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -15,7 +13,6 @@ import uz.tm.tashman.enums.VolumeUnit;
 import uz.tm.tashman.models.*;
 import uz.tm.tashman.models.requestModels.ProductRequestModel;
 import uz.tm.tashman.models.wrapperModels.ResPageable;
-import uz.tm.tashman.repository.AssortmentRepository;
 import uz.tm.tashman.repository.ProductCategoryRepository;
 import uz.tm.tashman.repository.ProductImageRepository;
 import uz.tm.tashman.repository.ProductRepository;
@@ -43,22 +40,19 @@ public class ProductService extends HTTPUtil {
     final ProductCategoryRepository productCategoryRepository;
     final ProductMetaService productMetaService;
 
-    final
-    AssortmentRepository assortmentRepository;
 
     public ProductService(
             UserService userService,
             LogService logService,
             ProductRepository productRepository,
             ProductImageRepository productImageRepository,
-            ProductCategoryRepository productCategoryRepository, ProductMetaService productMetaService, AssortmentRepository assortmentRepository) {
+            ProductCategoryRepository productCategoryRepository, ProductMetaService productMetaService) {
         this.userService = userService;
         this.logService = logService;
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
         this.productCategoryRepository = productCategoryRepository;
         this.productMetaService = productMetaService;
-        this.assortmentRepository = assortmentRepository;
     }
 
     public ResponseModel<Product> createProduct(ProductRequestModel productModel, User user) {
@@ -271,10 +265,7 @@ public class ProductService extends HTTPUtil {
         productModel.setFirst_launched_date(product.getFirst_launched_date());
         productModel.setBrand(product.getBrand());
 
-
         List<AssortmentResponseModel> assortmentResponseList = new ArrayList<>();
-
-//         = assortmentRepository.findAllByProductId(product.getId());
 
         for (Assortment assortment : product.getAssortments()) {
             AssortmentResponseModel assortmentResponseModel = new AssortmentResponseModel();

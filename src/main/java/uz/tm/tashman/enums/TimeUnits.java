@@ -12,8 +12,7 @@ public enum TimeUnits {
     DAY(0, "day", "Day", "День", "Kun"),
     WEEK(1, "week", "Week", "Неделья", "Hafta"),
     MONTH(2, "month", "Month", "Месяц", "Oy"),
-    YEAR(3, "year", "Year", "Год", "Yil")
-    ;
+    YEAR(3, "year", "Year", "Год", "Yil");
 
     private final long id;
     private final String code;

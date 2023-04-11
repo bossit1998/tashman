@@ -1,8 +1,8 @@
 package uz.tm.tashman.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import uz.tm.tashman.models.BasicModel;
 import uz.tm.tashman.models.UserBlockOrDeleteModel;
 import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
 import uz.tm.tashman.models.requestModels.UserRequestModel;
@@ -69,12 +69,15 @@ public class AdminController extends HTTPUtil {
         return adminService.login(authenticationRequestModel, request);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping("/deleteUser")
-        public ResponseEntity<?> deleteUser(@RequestBody UserBlockOrDeleteModel userBlockOrDeleteModel) {
-            return adminService.deleteUser(userBlockOrDeleteModel);
-        }
-        @PostMapping("/blockUser")
-        public ResponseEntity<?> blockUser(@RequestBody UserBlockOrDeleteModel userBlockOrDeleteModel){
-            return adminService.blockUser(userBlockOrDeleteModel);
-        }
+    public ResponseEntity<?> deleteUser(@RequestBody UserBlockOrDeleteModel userBlockOrDeleteModel) {
+        return adminService.deleteUser(userBlockOrDeleteModel);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PostMapping("/blockUser")
+    public ResponseEntity<?> blockUser(@RequestBody UserBlockOrDeleteModel userBlockOrDeleteModel) {
+        return adminService.blockUser(userBlockOrDeleteModel);
+    }
 }

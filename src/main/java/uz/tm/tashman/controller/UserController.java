@@ -1,6 +1,5 @@
 package uz.tm.tashman.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.tm.tashman.models.BasicModel;
@@ -87,9 +86,10 @@ public class UserController extends HTTPUtil {
 
         return userService.getGenderList(basicModel);
     }
+
     @PostMapping("/setPinCode")
     public ResponseEntity<?> setPinCode(@RequestBody AuthenticationRequestModel authenticationRequestModel, HttpServletRequest request) {
-        if (authenticationRequestModel.getAuthentication()==null || authenticationRequestModel.getAuthentication().getPinCode() == null) {
+        if (authenticationRequestModel.getAuthentication() == null || authenticationRequestModel.getAuthentication().getPinCode() == null) {
             return BadRequestResponse(USER_PIN_CODE_NOT_ENTERED);
         }
         return userService.setPinCode(authenticationRequestModel, request);

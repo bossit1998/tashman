@@ -16,6 +16,7 @@ public enum VolumeUnit {
     CONTAINER(4, "container", "Container", "Контейнер", "Konteyner"),
     PIECE(5, "piece", "Piece", "Штук", "Dona"),
     BOX(6, "box", "Box", "Коробка", "Korobka"),
+    TONN(7, "tonn", "Tonn", "Тонна", "Tonna"),
     ;
 
     private final long id;

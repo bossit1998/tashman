@@ -93,8 +93,7 @@ public enum StatusCodes {
     UNABLE_TO_EDIT_PRODUCT(7027, "unable_to_edit_product", "Unable to edit product", "Не удалось изменить продукт", "Mahsulotni yangilab bo'lmadi"),
     ALREADY_DELETED(7028, "already_deleted", "Already deleted", "Уже удален ", "Allaqachon o'chirilgan"),
     ASSORTMENT_NOT_FOUND(7029, "assortment_not_found", "Assortment not found", "assortment не найдена", "Assortment topilmadi"),
-            ;
-
+    ;
 
 
     private final int id;
