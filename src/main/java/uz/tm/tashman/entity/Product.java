@@ -80,20 +80,14 @@ public class Product implements Serializable {
 
 
     public String getNameByLanguage(Language language) {
-        language = checkLanguage(language);
-
-        switch (language) {
-            case EN:
-                return nameEn;
-            case UZ:
-                return nameUz;
-            case RU:
-            default:
-                return nameRu;
-        }
+        return getString(language, nameEn, nameUz, nameRu);
     }
 
     public String getShortDescriptionByLanguage(Language language) {
+        return getString(language, shortDescriptionEn, shortDescriptionUz, shortDescriptionRu);
+    }
+
+    public static String getString(Language language, String shortDescriptionEn, String shortDescriptionUz, String shortDescriptionRu) {
         language = checkLanguage(language);
 
         switch (language) {
@@ -108,16 +102,6 @@ public class Product implements Serializable {
     }
 
     public String getFullDescriptionByLanguage(Language language) {
-        language = checkLanguage(language);
-
-        switch (language) {
-            case EN:
-                return fullDescriptionEn;
-            case UZ:
-                return fullDescriptionUz;
-            case RU:
-            default:
-                return fullDescriptionRu;
-        }
+        return getString(language, fullDescriptionEn, fullDescriptionUz, fullDescriptionRu);
     }
 }

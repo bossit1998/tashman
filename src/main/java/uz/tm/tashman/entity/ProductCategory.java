@@ -8,6 +8,7 @@ import uz.tm.tashman.enums.Language;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import static uz.tm.tashman.entity.Product.getString;
 import static uz.tm.tashman.util.Util.checkLanguage;
 
 @NoArgsConstructor
@@ -42,16 +43,6 @@ public class ProductCategory {
     private LocalDateTime deletedDate;
 
     public String getProductCategoryByLanguage(Language language) {
-        language = checkLanguage(language);
-
-        switch (language) {
-            case EN:
-                return englishName;
-            case UZ:
-                return uzbekName;
-            case RU:
-            default:
-                return russianName;
-        }
+        return getString(language, englishName, uzbekName, russianName);
     }
 }
