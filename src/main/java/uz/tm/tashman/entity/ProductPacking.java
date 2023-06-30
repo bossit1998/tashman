@@ -22,7 +22,7 @@ public class ProductPacking implements Serializable {
     private Double volume;
     @Enumerated(EnumType.STRING)
     private VolumeUnit volumeUnit;
-    private Integer boxQuantity;
+    private Double boxQuantity;
     @OneToOne
     private Product product;
 

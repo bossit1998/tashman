@@ -21,8 +21,8 @@ public class Production implements Serializable {
     private Product product;
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Assortment assortment;
-    private Integer quantity;
     private LocalDateTime date;
-    private Integer boxCount;
+    private Integer quantity;
+    private Double boxCount;
     private VolumeUnit volumeUnit;
 }

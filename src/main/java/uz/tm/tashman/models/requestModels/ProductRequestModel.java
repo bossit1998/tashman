@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import uz.tm.tashman.enums.TimeUnits;
 
 import uz.tm.tashman.models.ProductMetaModel;
+import uz.tm.tashman.models.ProductPackingModel;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ public class ProductRequestModel implements Serializable {
     private String nameRu;
     private String nameUz;
     private String productCategory;
+    private ProductPackingModel productPackingModel;
     private String shortDescriptionEn;
     private String shortDescriptionRu;
     private String shortDescriptionUz;

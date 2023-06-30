@@ -3,7 +3,6 @@ package uz.tm.tashman.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import uz.tm.tashman.enums.Language;
 import uz.tm.tashman.enums.StatusCodes;
 import uz.tm.tashman.models.BasicModel;
 import uz.tm.tashman.models.requestModels.ProductRequestModel;
@@ -11,7 +10,6 @@ import uz.tm.tashman.services.ProductService;
 import uz.tm.tashman.util.HTTPUtil;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import static uz.tm.tashman.util.Util.isBlank;
 
@@ -38,9 +36,10 @@ public class ProductController extends HTTPUtil {
                 || isBlank(productModel.getShortDescriptionEn())
                 || isBlank(productModel.getShortDescriptionRu())
                 || isBlank(productModel.getShortDescriptionUz())
-                || isBlank(productModel.getPiecesPerPackage())
-                || isBlank(productModel.getVolume())
-                || isBlank(productModel.getVolumeUnit())
+
+                || isBlank(productModel.getProductPackingModel().getPiecesPerPackage())
+                || isBlank(productModel.getProductPackingModel().getVolume())
+                || isBlank(productModel.getProductPackingModel().getVolumeUnit())
                 || isBlank(productModel.getExpireDurationUnit())
                 || isBlank(productModel.getPrice())
 //                || isBlank(productModel.getMetas())
@@ -53,9 +52,9 @@ public class ProductController extends HTTPUtil {
                 || isBlank(productModel.getFullDescriptionEn())
                 || isBlank(productModel.getFullDescriptionRu())
                 || isBlank(productModel.getFullDescriptionUz())
-                || isBlank(productModel.getPackageNettoWeight())
-                || isBlank(productModel.getPackageBruttoWeight())
-                || isBlank(productModel.getPackageDimensions())
+                || isBlank(productModel.getProductPackingModel().getPackageNettoWeight())
+                || isBlank(productModel.getProductPackingModel().getPackageBruttoWeight())
+                || isBlank(productModel.getProductPackingModel().getPackageDimensions())
         ){
             return BadRequestResponse(StatusCodes.PRODUCT_INFO_MISSING);
         }
