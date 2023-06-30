@@ -101,3 +101,11 @@ soortmentResponseModel - id, name  list of assortmentResponseModel
         userModel.setIsDeleted(user.getIsDeleted());
         userModel.setLanguage(user.getLanguage());
         userModel.setProfileImageUrl(getProfileImage(user));
+
+
+
+
+Product service - CRUD -> done!
+Product Price - CRUD ->
+Production - produce() - produce and then add Inventory
+Sales - sell() - sell (sales table)and subtract from Inventory

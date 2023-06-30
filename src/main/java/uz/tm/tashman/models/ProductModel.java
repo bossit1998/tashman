@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import uz.tm.tashman.entity.Assortment;
+
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -25,12 +25,13 @@ public class ProductModel implements Serializable {
     private String name;
     private String shortDescription;
     private String fullDescription;
-    private Integer piecesPerPackage;
-    private Double packageNettoWeight;
-    private Double packageBruttoWeight;
-    private String packageDimensions;
-    private Double volume;
-    private String volumeUnit;
+//    private Integer piecesPerPackage;
+//    private Double packageNettoWeight;
+//    private Double packageBruttoWeight;
+//    private String packageDimensions;
+//    private Double volume;
+//    private String volumeUnit;
+    private ProductPackingModel productPackingModel;
     private Integer expireDuration;
     private String expireDurationUnit;
     private List<AssortmentResponseModel> assortments;

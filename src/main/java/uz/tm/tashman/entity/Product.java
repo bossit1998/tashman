@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import uz.tm.tashman.enums.Language;
 import uz.tm.tashman.enums.TimeUnits;
-import uz.tm.tashman.enums.VolumeUnit;
+
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -33,11 +33,7 @@ public class Product implements Serializable {
     private String shortDescriptionEn;
     private String shortDescriptionRu;
     private String shortDescriptionUz;
-    private Integer piecesPerPackage;
-    private Double packageNettoWeight;
-    private Double packageBruttoWeight;
-    private String packageDimensions;
-    private Double volume;
+
     private Double price;
     private Boolean isActive;
     private LocalDateTime createdDate;
@@ -51,8 +47,7 @@ public class Product implements Serializable {
     private Integer expireDuration;
     @Enumerated(EnumType.STRING)
     private TimeUnits expireDurationUnit;
-    @Enumerated(EnumType.STRING)
-    private VolumeUnit volumeUnit;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     private ProductCategory category;
@@ -65,6 +60,10 @@ public class Product implements Serializable {
     @JsonBackReference
     @OneToMany(fetch = FetchType.LAZY, cascade=CascadeType.ALL, mappedBy = "product")
     private List<Assortment> assortments;
+
+    @JsonBackReference
+    @OneToOne
+    private ProductPacking productPacking;
 
     @JsonBackReference
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")

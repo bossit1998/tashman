@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 import uz.tm.tashman.enums.TimeUnits;
-import uz.tm.tashman.enums.VolumeUnit;
+
 import uz.tm.tashman.models.ProductMetaModel;
 
 import java.io.Serializable;
@@ -32,18 +32,12 @@ public class ProductRequestModel implements Serializable {
     private String fullDescriptionEn;
     private String fullDescriptionRu;
     private String fullDescriptionUz;
-    private Integer piecesPerPackage;
-    private Double packageNettoWeight;
-    private Double packageBruttoWeight;
-    private String packageDimensions;
-    private Double volume;
     private Boolean in_production;
     private String bar_code;
     private List<String> assortments;
     private Integer storeTemperature;
     private LocalDateTime first_launched_date;
     private String brand;
-    private VolumeUnit volumeUnit;
     private Integer expireDuration;
     private TimeUnits expireDurationUnit;
     private List<MultipartFile> images;

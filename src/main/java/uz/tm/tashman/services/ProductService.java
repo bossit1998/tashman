@@ -81,15 +81,17 @@ public class ProductService extends HTTPUtil {
             product.setFullDescriptionEn(productModel.getFullDescriptionEn());
             product.setFullDescriptionRu(productModel.getFullDescriptionRu());
             product.setFullDescriptionUz(productModel.getFullDescriptionUz());
-            product.setPiecesPerPackage(productModel.getPiecesPerPackage());
-            product.setPackageNettoWeight(productModel.getPackageNettoWeight());
-            product.setPackageBruttoWeight(productModel.getPackageBruttoWeight());
-            product.setPackageDimensions(productModel.getPackageDimensions());
-            product.setVolume(productModel.getVolume());
+
+//            product.getProductPacking().setPiecesPerPackage(productModel.getPiecesPerPackage());
+//            product.getProductPacking().setPackageNettoWeight(productModel.getPackageNettoWeight());
+//            product.getProductPacking().setPackageBruttoWeight(productModel.getPackageBruttoWeight());
+//            product.getProductPacking().setPackageDimensions(productModel.getPackageDimensions());
+//            product.getProductPacking().setVolume(productModel.getVolume());
+//            product.getProductPacking().setVolumeUnit(productModel.getVolumeUnit());
+
             product.setExpireDurationUnit(productModel.getExpireDurationUnit());
             product.setExpireDuration(productModel.getExpireDuration());
             product.setPrice(productModel.getPrice());
-            product.setVolumeUnit(productModel.getVolumeUnit());
             product.setIn_production(productModel.getIn_production());
             product.setBar_code(productModel.getBar_code());
             product.setStore_temperature(productModel.getStoreTemperature());
@@ -202,15 +204,19 @@ public class ProductService extends HTTPUtil {
             product.setFullDescriptionEn(productRequestModel.getFullDescriptionEn() == null ? product.getFullDescriptionEn() : productRequestModel.getFullDescriptionEn());
             product.setFullDescriptionRu(productRequestModel.getFullDescriptionRu() == null ? product.getFullDescriptionRu() : productRequestModel.getFullDescriptionRu());
             product.setFullDescriptionUz(productRequestModel.getFullDescriptionUz() == null ? product.getFullDescriptionUz() : productRequestModel.getFullDescriptionUz());
-            product.setPiecesPerPackage(productRequestModel.getPiecesPerPackage() == null ? product.getPiecesPerPackage() : productRequestModel.getPiecesPerPackage());
-            product.setPackageNettoWeight(productRequestModel.getPackageNettoWeight() == null ? product.getPackageNettoWeight() : productRequestModel.getPackageNettoWeight());
-            product.setPackageBruttoWeight(productRequestModel.getPackageBruttoWeight() == null ? product.getPackageBruttoWeight() : productRequestModel.getPackageBruttoWeight());
-            product.setPackageDimensions(productRequestModel.getPackageDimensions() == null ? product.getPackageDimensions() : productRequestModel.getPackageDimensions());
-            product.setVolume(productRequestModel.getVolume() == null ? product.getVolume() : productRequestModel.getVolume());
+
+//            ProductPacking productPacking = new ProductPacking();
+//            productPacking.setPiecesPerPackage(productRequestModel.getPiecesPerPackage() == null ? product.getProductPacking().getPiecesPerPackage() : productRequestModel.getPiecesPerPackage());
+//            productPacking.setPackageNettoWeight(productRequestModel.getPackageNettoWeight() == null ? product.getProductPacking().getPackageNettoWeight() : productRequestModel.getPackageNettoWeight());
+//            productPacking.setPackageBruttoWeight(productRequestModel.getPackageBruttoWeight() == null ? product.getProductPacking().getPackageBruttoWeight() : productRequestModel.getPackageBruttoWeight());
+//            productPacking.setPackageDimensions(productRequestModel.getPackageDimensions() == null ? product.getProductPacking().getPackageDimensions() : productRequestModel.getPackageDimensions());
+//            productPacking.setVolume(productRequestModel.getVolume() == null ? product.getProductPacking().getVolume() : productRequestModel.getVolume());
+//            productPacking.setVolumeUnit(productRequestModel.getVolumeUnit() == null ? product.getProductPacking().getVolumeUnit() : productRequestModel.getVolumeUnit());
+            //productRepository.save(product);
+
             product.setExpireDurationUnit(productRequestModel.getExpireDurationUnit() == null ? product.getExpireDurationUnit() : productRequestModel.getExpireDurationUnit());
             product.setExpireDuration(productRequestModel.getExpireDuration() == null ? product.getExpireDuration() : productRequestModel.getExpireDuration());
             product.setPrice(productRequestModel.getPrice() == null ? product.getPrice() : productRequestModel.getPrice());
-            product.setVolumeUnit(productRequestModel.getVolumeUnit() == null ? product.getVolumeUnit() : productRequestModel.getVolumeUnit());
             product.setIn_production(productRequestModel.getIn_production() == null ? product.getIn_production() : productRequestModel.getIn_production());
             product.setBar_code(productRequestModel.getBar_code() == null ? product.getBar_code() : productRequestModel.getBar_code());
             product.setStore_temperature(productRequestModel.getStoreTemperature() == null ? product.getStore_temperature() : productRequestModel.getStoreTemperature());
@@ -250,15 +256,15 @@ public class ProductService extends HTTPUtil {
         productModel.setName(product.getNameByLanguage(language));
         productModel.setShortDescription(product.getShortDescriptionByLanguage(language));
         productModel.setFullDescription(product.getFullDescriptionByLanguage(language));
-        productModel.setPiecesPerPackage(product.getPiecesPerPackage());
-        productModel.setPackageNettoWeight(product.getPackageNettoWeight());
-        productModel.setPackageBruttoWeight(product.getPackageBruttoWeight());
-        productModel.setPackageDimensions(product.getPackageDimensions());
-        productModel.setVolume(product.getVolume());
+        productModel.getProductPackingModel().setPiecesPerPackage(product.getProductPacking().getPiecesPerPackage());
+        productModel.getProductPackingModel().setPackageNettoWeight(product.getProductPacking().getPackageNettoWeight());
+        productModel.getProductPackingModel().setPackageBruttoWeight(product.getProductPacking().getPackageBruttoWeight());
+        productModel.getProductPackingModel().setPackageDimensions(product.getProductPacking().getPackageDimensions());
+        productModel.getProductPackingModel().setVolume(product.getProductPacking().getVolume());
+        productModel.getProductPackingModel().setVolumeUnit(product.getProductPacking().getVolumeUnit().getNameByLanguage(language));
         productModel.setExpireDuration(product.getExpireDuration());
         productModel.setExpireDurationUnit(product.getExpireDurationUnit().getNameByLanguage(language));
         productModel.setPrice(product.getPrice());
-        productModel.setVolumeUnit(product.getVolumeUnit().getNameByLanguage(language));
         productModel.setIn_production(product.getIn_production());
         productModel.setBar_code(product.getBar_code());
         productModel.setStore_temperature(product.getStore_temperature());
