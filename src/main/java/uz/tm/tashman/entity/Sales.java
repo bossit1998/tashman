@@ -20,6 +20,8 @@ public class Sales implements Serializable {
     private Product product;
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Assortment assortment;
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private Client client;
     private Double amount;
     private LocalDateTime soldDate;
 
