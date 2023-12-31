@@ -16,6 +16,5 @@ public class ProductPackingModel {
     private String packageDimensions;
     private Double volume;
     private String volumeUnit;
-    private Integer boxQuantity;
-    private ProductModel productModel;
+    private Double boxQuantity;
 }

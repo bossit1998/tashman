@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Setter
 @Getter
 @NoArgsConstructor
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = "product_id, assortment_id")})
+//@Table(uniqueConstraints = {@UniqueConstraint(columnNames = "product_id, assortment_id")})
 public class CurrentProductInventory {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

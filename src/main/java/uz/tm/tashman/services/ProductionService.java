@@ -37,7 +37,6 @@ public class ProductionService extends HTTPUtil {
                 Optional<Product> optionalProduct = productRepository.findById(productionRequestModel.getProductId());
                 if(!optionalProduct.isPresent()){
                         return OkResponse(StatusCodes.PRODUCT_NOT_FOUND);
-
                 }
                 Product product = optionalProduct.get();
                 production.setProduct(product);

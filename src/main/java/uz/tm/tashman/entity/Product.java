@@ -38,10 +38,10 @@ public class Product implements Serializable {
     private Boolean isActive;
     private LocalDateTime createdDate;
     private Long createdBy;
-    private Boolean in_production;
-    private String bar_code;
-    private Integer store_temperature;
-    private LocalDateTime first_launched_date;
+    private Boolean inProduction;
+    private String barCode;
+    private String storeTemperature;
+    private LocalDateTime firstLaunchedDate;
     private String brand;
 
     private Integer expireDuration;

@@ -109,3 +109,9 @@ Product service - CRUD -> done!
 Product Price - CRUD ->
 Production - produce() - produce and then add Inventory
 Sales - sell() - sell (sales table)and subtract from Inventory
+
+
+// July 19
+
+1. expire_duration_unit change to id in product repository;
+2. Table for units

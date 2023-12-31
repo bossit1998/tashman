@@ -34,10 +34,11 @@ public enum VolumeUnit {
         this.uzbekName = uzbekName;
     }
 
-    public static VolumeUnit getByCode(String doseUnit) {
-        for (VolumeUnit doseUnits : values()) {
-            if (doseUnits.name().equals(doseUnit)) {
-                return doseUnits;
+    public static VolumeUnit getByCode(String searchVolumeUnitCode) {
+        for (VolumeUnit volumeUnit : values()) {
+            if (volumeUnit.name().equals(searchVolumeUnitCode)) {
+
+                return volumeUnit;
             }
         }
         return null;

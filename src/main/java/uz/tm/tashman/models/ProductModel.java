@@ -44,10 +44,10 @@ public class ProductModel implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private LocalDateTime deletedDate;
     private String deletedBy;
-    private Boolean in_production;
-    private String bar_code;
+    private Boolean inProduction;
+    private String barCode;
     private String flavor;
-    private Integer store_temperature;
-    private LocalDateTime first_launched_date;
+    private String storeTemperature;
+    private LocalDateTime firstLaunchedDate;
     private String brand;
 }
