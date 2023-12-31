@@ -34,11 +34,11 @@ public class ProductRequestModel implements Serializable {
     private String fullDescriptionEn;
     private String fullDescriptionRu;
     private String fullDescriptionUz;
-    private Boolean in_production;
-    private String bar_code;
+    private Boolean inProduction;
+    private String barCode;
     private List<String> assortments;
-    private Integer storeTemperature;
-    private LocalDateTime first_launched_date;
+    private String storeTemperature;
+    private LocalDateTime firstLaunchedDate;
     private String brand;
     private Integer expireDuration;
     private TimeUnits expireDurationUnit;
