@@ -15,5 +15,4 @@ public class Assortment {
     private String name;
     @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
-
 }

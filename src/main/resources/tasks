@@ -115,3 +115,10 @@ Sales - sell() - sell (sales table)and subtract from Inventory
 
 1. expire_duration_unit change to id in product repository;
 2. Table for units
+
+
+
+
+
+
+// languages should ne made non null in the controller level

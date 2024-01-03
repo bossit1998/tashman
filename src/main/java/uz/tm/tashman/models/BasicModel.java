@@ -16,4 +16,3 @@ public class BasicModel {
     private Integer page;
     private Integer pageSize;
 }
-

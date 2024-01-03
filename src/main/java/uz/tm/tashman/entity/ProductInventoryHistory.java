@@ -24,6 +24,4 @@ public class ProductInventoryHistory implements Serializable {
     private Long productId;
     private Long assortmentId;
     private Long packingId;
-
-
 }

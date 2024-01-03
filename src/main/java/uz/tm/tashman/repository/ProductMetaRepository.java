@@ -6,5 +6,4 @@ import uz.tm.tashman.entity.ProductMeta;
 
 @Repository
 public interface ProductMetaRepository extends JpaRepository<ProductMeta, Long> {
-
 }

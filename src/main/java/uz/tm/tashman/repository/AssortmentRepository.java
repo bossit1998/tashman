@@ -6,5 +6,4 @@ import uz.tm.tashman.entity.Assortment;
 
 @Repository
 public interface AssortmentRepository extends JpaRepository<Assortment,Long> {
-
 }

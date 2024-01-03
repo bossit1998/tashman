@@ -15,11 +15,8 @@ public class ProductReceipt {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private Integer quantity;
-    @OneToOne
+    @ManyToOne
     private Product product;
-    @OneToOne
+    @ManyToOne
     private RawMaterial rawMaterial;
-
-
-
 }

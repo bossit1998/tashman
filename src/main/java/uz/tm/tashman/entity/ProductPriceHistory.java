@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @NoArgsConstructor
-public class ProductPrice {
+public class ProductPriceHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

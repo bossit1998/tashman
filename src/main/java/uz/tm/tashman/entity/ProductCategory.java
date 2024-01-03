@@ -8,9 +8,6 @@ import uz.tm.tashman.enums.Language;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-import static uz.tm.tashman.entity.Product.getString;
-import static uz.tm.tashman.util.Util.checkLanguage;
-
 @NoArgsConstructor
 @Getter
 @Setter
@@ -22,27 +19,36 @@ public class ProductCategory {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String code;
-    private String englishName;
-    private String russianName;
-    private String uzbekName;
+    private String slug;
+    private String nameEn;
+    private String nameRu;
+    private String nameUz;
+
     private String definition;
     private String imageUrl;
 
-    private Long createdBy;
-    private LocalDateTime createdDate;
-
     @Column(columnDefinition = "boolean default false")
-    private Boolean isActive = false;
-
+    private Boolean isVisible = false;
     @Column(columnDefinition = "boolean default false")
     private Boolean isDeleted = false;
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isInProduction = false;
 
+    private LocalDateTime createdDate = LocalDateTime.now();
+    private Long createdBy;
+    private LocalDateTime deletedDate;
     private Long deletedBy;
 
-    private LocalDateTime deletedDate;
 
-    public String getProductCategoryByLanguage(Language language) {
-        return getString(language, englishName, uzbekName, russianName);
+    public String getName(Language language) {
+        switch (language) {
+            case EN:
+                return nameEn;
+            case UZ:
+                return nameUz;
+            case RU:
+            default:
+                return nameRu;
+        }
     }
 }

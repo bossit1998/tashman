@@ -1,7 +1,6 @@
 package uz.tm.tashman.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,5 +18,4 @@ public class ProductMetaModel implements Serializable {
     private String metaDescriptionEn;
     private String metaDescriptionRu;
     private String metaDescriptionUz;
-
 }

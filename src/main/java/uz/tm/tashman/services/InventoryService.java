@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.tm.tashman.entity.Assortment;
-import uz.tm.tashman.entity.Client;
 import uz.tm.tashman.entity.Inventory;
 import uz.tm.tashman.entity.Product;
 import uz.tm.tashman.enums.StatusCodes;
@@ -27,7 +26,7 @@ public class InventoryService extends HTTPUtil {
             Inventory inventory = new Inventory();
             inventory.setProduct(product);
             inventory.setQuantity(amount);
-            inventory.setQuantity_unit(product.getProductPacking().getVolumeUnit());
+            inventory.setQuantity_unit(product.getProductPacking().getUnit());
             inventory.setAssortmentId(assortment.getId());
             inventory.setPackingId(product.getProductPacking().getId());
             inventoryRepository.save(inventory);

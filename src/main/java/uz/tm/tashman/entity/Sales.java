@@ -24,5 +24,4 @@ public class Sales implements Serializable {
     private Client client;
     private Double amount;
     private LocalDateTime soldDate;
-
 }

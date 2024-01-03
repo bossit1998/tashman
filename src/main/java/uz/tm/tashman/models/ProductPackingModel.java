@@ -4,12 +4,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 @Setter
 @Getter
 @NoArgsConstructor
 public class ProductPackingModel {
-
     private Integer piecesPerPackage;
     private Double packageNettoWeight;
     private Double packageBruttoWeight;

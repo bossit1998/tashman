@@ -20,19 +20,10 @@ public class Producer implements Serializable {
 
     private String name;
 
-    private String address;
+    @ManyToOne
+    private Address address;
 
     private String contactNumber;
-
-    private String city;
-
-    private String region;
-
-    private String country;
-
-    private Double latitude;
-
-    private Double longitude;
 
     @Column(columnDefinition = "boolean default false")
     private Boolean isDeleted = false;

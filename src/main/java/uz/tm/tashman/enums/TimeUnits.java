@@ -5,7 +5,6 @@ import uz.tm.tashman.models.HashMapModel;
 
 import java.util.ArrayList;
 
-import static uz.tm.tashman.entity.Product.getString;
 import static uz.tm.tashman.util.Util.checkLanguage;
 
 @Getter
@@ -17,16 +16,16 @@ public enum TimeUnits {
 
     private final long id;
     private final String code;
-    private final String englishName;
-    private final String russianName;
-    private final String uzbekName;
+    private final String nameEn;
+    private final String nameRu;
+    private final String nameUz;
 
-    TimeUnits(int id, String code, String englishName, String russianName, String uzbekName) {
+    TimeUnits(int id, String code, String nameEn, String nameRu, String nameUz) {
         this.id = id;
         this.code = code;
-        this.englishName = englishName;
-        this.russianName = russianName;
-        this.uzbekName = uzbekName;
+        this.nameEn = nameEn;
+        this.nameRu = nameRu;
+        this.nameUz = nameUz;
     }
 
     public static TimeUnits getByCode(String doseUnit) {
@@ -47,8 +46,16 @@ public enum TimeUnits {
         return null;
     }
 
-    public String getNameByLanguage(Language language) {
-        return getString(language, englishName, uzbekName, russianName);
+    public String getName(Language language) {
+        switch (language) {
+            case EN:
+                return nameEn;
+            case UZ:
+                return nameUz;
+            case RU:
+            default:
+                return nameRu;
+        }
     }
 
     public static ArrayList<HashMapModel> getAllByLanguage(Language language) {
@@ -59,7 +66,7 @@ public enum TimeUnits {
             case EN:
                 for (TimeUnits unit : values()) {
                     HashMapModel timeUnit = new HashMapModel();
-                    timeUnit.setLabel(unit.englishName);
+                    timeUnit.setLabel(unit.nameEn);
                     timeUnit.setValue(unit.code);
                     timeUnits.add(timeUnit);
                 }
@@ -67,7 +74,7 @@ public enum TimeUnits {
             case UZ:
                 for (TimeUnits unit : values()) {
                     HashMapModel timeUnit = new HashMapModel();
-                    timeUnit.setLabel(unit.uzbekName);
+                    timeUnit.setLabel(unit.nameUz);
                     timeUnit.setValue(unit.code);
                     timeUnits.add(timeUnit);
                 }
@@ -76,7 +83,7 @@ public enum TimeUnits {
             default:
                 for (TimeUnits unit : values()) {
                     HashMapModel timeUnit = new HashMapModel();
-                    timeUnit.setLabel(unit.russianName);
+                    timeUnit.setLabel(unit.nameRu);
                     timeUnit.setValue(unit.code);
                     timeUnits.add(timeUnit);
                 }
