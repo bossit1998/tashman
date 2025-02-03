@@ -13,8 +13,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static uz.tm.tashman.util.Util.checkLanguage;
-
 @NoArgsConstructor
 @Getter
 @Setter
@@ -25,40 +23,51 @@ public class Product implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     @Column(nullable = false, unique = true)
     private String slug;
+
     private String nameEn;
     private String nameRu;
     private String nameUz;
     private String shortDescriptionEn;
     private String shortDescriptionRu;
     private String shortDescriptionUz;
-
-    private Double price;
-    private Boolean isActive;
-    private LocalDateTime createdDate;
-    private Long createdBy;
-    private Boolean inProduction;
-    private String barCode;
-    private String storeTemperature;
-    private LocalDateTime firstLaunchedDate;
-    private String brand;
-
-    private Integer expireDuration;
-    @Enumerated(EnumType.STRING)
-    private TimeUnits expireDurationUnit;
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private ProductCategory category;
     @Column(columnDefinition = "TEXT")
     private String fullDescriptionEn;
     @Column(columnDefinition = "TEXT")
     private String fullDescriptionRu;
     @Column(columnDefinition = "TEXT")
     private String fullDescriptionUz;
+
+    private Double currentPrice;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isVisible = false;
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isDeleted = false;
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isInProduction = false;
+
+    private LocalDateTime createdDate = LocalDateTime.now();
+    private Long createdBy;
+    private LocalDateTime deletedDate;
+    private Long deletedBy;
+
+    private String brandName;
+    private String storeTemperature;
+    private String barCode;
+
+    private Integer expireDuration;
+    @Enumerated(EnumType.STRING)
+    private TimeUnits expireDurationUnit;
+    private LocalDateTime firstLaunchedDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ProductCategory category;
+
     @JsonBackReference
-    @OneToMany(fetch = FetchType.LAZY, cascade=CascadeType.ALL, mappedBy = "product")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product")
     private List<Assortment> assortments;
 
     @JsonBackReference
@@ -67,28 +76,21 @@ public class Product implements Serializable {
 
     @JsonBackReference
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
-    private List<ProductImage> image;
+    private List<ProductImage> images;
 
-
-    @Column(columnDefinition = "boolean default false")
-    private Boolean isDeleted = false;
-
-    private Long deletedBy;
-
-    private LocalDateTime deletedDate;
-
-
-    public String getNameByLanguage(Language language) {
-        return getString(language, nameEn, nameUz, nameRu);
+    public String getName(Language language) {
+        switch (language) {
+            case EN:
+                return nameEn;
+            case UZ:
+                return nameUz;
+            case RU:
+            default:
+                return nameRu;
+        }
     }
 
-    public String getShortDescriptionByLanguage(Language language) {
-        return getString(language, shortDescriptionEn, shortDescriptionUz, shortDescriptionRu);
-    }
-
-    public static String getString(Language language, String shortDescriptionEn, String shortDescriptionUz, String shortDescriptionRu) {
-        language = checkLanguage(language);
-
+    public String getShortDescription(Language language) {
         switch (language) {
             case EN:
                 return shortDescriptionEn;
@@ -100,7 +102,15 @@ public class Product implements Serializable {
         }
     }
 
-    public String getFullDescriptionByLanguage(Language language) {
-        return getString(language, fullDescriptionEn, fullDescriptionUz, fullDescriptionRu);
+    public String getFullDescription(Language language) {
+        switch (language) {
+            case EN:
+                return fullDescriptionEn;
+            case UZ:
+                return fullDescriptionUz;
+            case RU:
+            default:
+                return fullDescriptionRu;
+        }
     }
 }

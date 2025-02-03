@@ -55,10 +55,10 @@ public class TashmanApplication {
             EProductCategory[] categories = EProductCategory.values();
             for (int i = 0; i < EProductCategory.values().length; i++) {
                 ProductCategory category = new ProductCategory();
-                category.setCode(categories[i].code);
-                category.setEnglishName(categories[i].englishName);
-                category.setRussianName(categories[i].russianName);
-                category.setUzbekName(categories[i].uzbekName);
+                category.setSlug(categories[i].code);
+                category.setNameEn(categories[i].englishName);
+                category.setNameRu(categories[i].russianName);
+                category.setNameUz(categories[i].uzbekName);
                 category.setCreatedBy(0L);
                 category.setCreatedDate(LocalDateTime.now());
 

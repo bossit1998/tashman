@@ -1,6 +1,5 @@
 package uz.tm.tashman.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import uz.tm.tashman.entity.*;
 import uz.tm.tashman.enums.EProductCategory;
 import uz.tm.tashman.enums.Language;
-import uz.tm.tashman.enums.VolumeUnit;
+import uz.tm.tashman.enums.Unit;
 import uz.tm.tashman.models.*;
 import uz.tm.tashman.models.requestModels.ProductRequestModel;
 import uz.tm.tashman.models.wrapperModels.ResPageable;
@@ -35,8 +34,7 @@ import static uz.tm.tashman.util.Util.isBlank;
 @Service
 public class ProductService extends HTTPUtil {
 
-    final
-    ProductPackingRepository productPackingRepository;
+    final ProductPackingRepository productPackingRepository;
 
     final UserService userService;
     final LogService logService;
@@ -44,7 +42,6 @@ public class ProductService extends HTTPUtil {
     final ProductImageRepository productImageRepository;
     final ProductCategoryRepository productCategoryRepository;
     final ProductMetaService productMetaService;
-
 
     public ProductService(
             UserService userService,
@@ -67,7 +64,7 @@ public class ProductService extends HTTPUtil {
         try {
             Product product = new Product();
 
-            Optional<ProductCategory> optProductCategory = productCategoryRepository.findByCodeAndIsDeletedFalse(productRequestModel.getProductCategory());
+            Optional<ProductCategory> optProductCategory = productCategoryRepository.findBySlugAndIsDeletedFalse(productRequestModel.getProductCategory());
             if (!optProductCategory.isPresent()) {
                 responseModel.setSuccess(false);
                 responseModel.setMessage("Product Category not found");
@@ -88,22 +85,15 @@ public class ProductService extends HTTPUtil {
             product.setFullDescriptionRu(productRequestModel.getFullDescriptionRu());
             product.setFullDescriptionUz(productRequestModel.getFullDescriptionUz());
 
-//            product.getProductPacking().setPiecesPerPackage(productModel.getPiecesPerPackage());
-//            product.getProductPacking().setPackageNettoWeight(productModel.getPackageNettoWeight());
-//            product.getProductPacking().setPackageBruttoWeight(productModel.getPackageBruttoWeight());
-//            product.getProductPacking().setPackageDimensions(productModel.getPackageDimensions());
-//            product.getProductPacking().setVolume(productModel.getVolume());
-//            product.getProductPacking().setVolumeUnit(productModel.getVolumeUnit());
-
             product.setExpireDurationUnit(productRequestModel.getExpireDurationUnit());
             product.setExpireDuration(productRequestModel.getExpireDuration());
-            product.setPrice(productRequestModel.getPrice());
-            product.setInProduction(productRequestModel.getInProduction());
+            product.setCurrentPrice(productRequestModel.getPrice());
+            product.setIsInProduction(productRequestModel.getInProduction());
             product.setBarCode(productRequestModel.getBarCode());
             product.setStoreTemperature(productRequestModel.getStoreTemperature());
             product.setFirstLaunchedDate(productRequestModel.getFirstLaunchedDate());
-            product.setBrand(productRequestModel.getBrand());
-            product.setIsActive(false);
+            product.setBrandName(productRequestModel.getBrand());
+            product.setIsVisible(false);
             product.setCreatedDate(LocalDateTime.now());
             product.setCreatedBy(user.getId());
             product.setIsDeleted(false);
@@ -116,11 +106,11 @@ public class ProductService extends HTTPUtil {
             productPacking.setPackageNettoWeight(productRequestModel.getProductPackingModel().getPackageNettoWeight());
             productPacking.setPackageBruttoWeight(productRequestModel.getProductPackingModel().getPackageBruttoWeight());
             productPacking.setPackageDimensions(productRequestModel.getProductPackingModel().getPackageDimensions());
-            productPacking.setVolumeUnit(VolumeUnit.getByCode(productRequestModel.getProductPackingModel().getVolumeUnit()));
+            productPacking.setUnit(Unit.getByCode(productRequestModel.getProductPackingModel().getVolumeUnit()));
             productPacking.setBoxQuantity(productRequestModel.getProductPackingModel().getBoxQuantity());
 
             productPacking = productPackingRepository.save(productPacking);
-//            productPacking.setProduct(product);
+            productPacking.setProductId(product.getId());
 
             product.setProductPacking(productPacking);
 
@@ -184,7 +174,7 @@ public class ProductService extends HTTPUtil {
                 }
                 index++;
             }
-            product.setImage(productImages);
+            product.setImages(productImages);
             product = productRepository.save(product);
 
             responseModel.setSuccess(true);
@@ -203,7 +193,7 @@ public class ProductService extends HTTPUtil {
         ResponseModel<Product> responseModel = new ResponseModel<>();
 
         try {
-            Optional<ProductCategory> optProductCategory = productCategoryRepository.findByCodeAndIsDeletedFalse(productRequestModel.getProductCategory());
+            Optional<ProductCategory> optProductCategory = productCategoryRepository.findBySlugAndIsDeletedFalse(productRequestModel.getProductCategory());
             if (!optProductCategory.isPresent()) {
                 responseModel.setSuccess(false);
                 responseModel.setMessage("Product Category not found");
@@ -224,23 +214,14 @@ public class ProductService extends HTTPUtil {
             product.setFullDescriptionRu(productRequestModel.getFullDescriptionRu() == null ? product.getFullDescriptionRu() : productRequestModel.getFullDescriptionRu());
             product.setFullDescriptionUz(productRequestModel.getFullDescriptionUz() == null ? product.getFullDescriptionUz() : productRequestModel.getFullDescriptionUz());
 
-//            ProductPacking productPacking = new ProductPacking();
-//            productPacking.setPiecesPerPackage(productRequestModel.getPiecesPerPackage() == null ? product.getProductPacking().getPiecesPerPackage() : productRequestModel.getPiecesPerPackage());
-//            productPacking.setPackageNettoWeight(productRequestModel.getPackageNettoWeight() == null ? product.getProductPacking().getPackageNettoWeight() : productRequestModel.getPackageNettoWeight());
-//            productPacking.setPackageBruttoWeight(productRequestModel.getPackageBruttoWeight() == null ? product.getProductPacking().getPackageBruttoWeight() : productRequestModel.getPackageBruttoWeight());
-//            productPacking.setPackageDimensions(productRequestModel.getPackageDimensions() == null ? product.getProductPacking().getPackageDimensions() : productRequestModel.getPackageDimensions());
-//            productPacking.setVolume(productRequestModel.getVolume() == null ? product.getProductPacking().getVolume() : productRequestModel.getVolume());
-//            productPacking.setVolumeUnit(productRequestModel.getVolumeUnit() == null ? product.getProductPacking().getVolumeUnit() : productRequestModel.getVolumeUnit());
-            //productRepository.save(product);
-
             product.setExpireDurationUnit(productRequestModel.getExpireDurationUnit() == null ? product.getExpireDurationUnit() : productRequestModel.getExpireDurationUnit());
             product.setExpireDuration(productRequestModel.getExpireDuration() == null ? product.getExpireDuration() : productRequestModel.getExpireDuration());
-            product.setPrice(productRequestModel.getPrice() == null ? product.getPrice() : productRequestModel.getPrice());
-            product.setInProduction(productRequestModel.getInProduction() == null ? product.getInProduction() : productRequestModel.getInProduction());
+            product.setCurrentPrice(productRequestModel.getPrice() == null ? product.getCurrentPrice() : productRequestModel.getPrice());
+            product.setIsInProduction(productRequestModel.getInProduction() == null ? product.getIsInProduction() : productRequestModel.getInProduction());
             product.setBarCode(productRequestModel.getBarCode() == null ? product.getBarCode() : productRequestModel.getBarCode());
             product.setStoreTemperature(productRequestModel.getStoreTemperature() == null ? product.getStoreTemperature() : productRequestModel.getStoreTemperature());
             product.setFirstLaunchedDate(productRequestModel.getFirstLaunchedDate() == null ? product.getFirstLaunchedDate() : productRequestModel.getFirstLaunchedDate());
-            product.setBrand(productRequestModel.getBrand() == null ? product.getBrand() : productRequestModel.getBrand());
+            product.setBrandName(productRequestModel.getBrand() == null ? product.getBrandName() : productRequestModel.getBrand());
 
 
             List<Assortment> listOfAssortments = new ArrayList<>();
@@ -271,10 +252,10 @@ public class ProductService extends HTTPUtil {
         ProductModel productModel = new ProductModel();
 
         productModel.setSlug(product.getSlug());
-        productModel.setCategory(product.getCategory().getProductCategoryByLanguage(language));
-        productModel.setName(product.getNameByLanguage(language));
-        productModel.setShortDescription(product.getShortDescriptionByLanguage(language));
-        productModel.setFullDescription(product.getFullDescriptionByLanguage(language));
+        productModel.setCategory(product.getCategory().getName(language));
+        productModel.setName(product.getName(language));
+        productModel.setShortDescription(product.getShortDescription(language));
+        productModel.setFullDescription(product.getFullDescription(language));
 
         ProductPackingModel productPackingModel = new ProductPackingModel();
         productPackingModel.setBoxQuantity(product.getProductPacking().getBoxQuantity());
@@ -283,18 +264,18 @@ public class ProductService extends HTTPUtil {
         productPackingModel.setPackageNettoWeight(product.getProductPacking().getPackageNettoWeight());
         productPackingModel.setPackageBruttoWeight(product.getProductPacking().getPackageBruttoWeight());
         productPackingModel.setVolume(product.getProductPacking().getVolume());
-        productPackingModel.setVolumeUnit(product.getProductPacking().getVolumeUnit().toString());
+        productPackingModel.setVolumeUnit(product.getProductPacking().getUnit().toString());
 
         productModel.setProductPackingModel(productPackingModel);
 
         productModel.setExpireDuration(product.getExpireDuration());
-        productModel.setExpireDurationUnit(product.getExpireDurationUnit().getNameByLanguage(language));
-        productModel.setPrice(product.getPrice());
-        productModel.setInProduction(product.getInProduction());
+        productModel.setExpireDurationUnit(product.getExpireDurationUnit().getName(language));
+        productModel.setPrice(product.getCurrentPrice());
+        productModel.setInProduction(product.getIsInProduction());
         productModel.setBarCode(product.getBarCode());
         productModel.setStoreTemperature(product.getStoreTemperature());
         productModel.setFirstLaunchedDate(product.getFirstLaunchedDate());
-        productModel.setBrand(product.getBrand());
+        productModel.setBrand(product.getBrandName());
 
         List<AssortmentResponseModel> assortmentResponseList = new ArrayList<>();
 
@@ -318,35 +299,9 @@ public class ProductService extends HTTPUtil {
         Optional<ProductMeta> optionalProductMeta = productMetaService.findById(product.getId());
         if (optionalProductMeta.isPresent()) {
             ProductMeta productMeta = optionalProductMeta.get();
-            productModel.setMetaTitle(productMeta.getMetaTitleByLanguage(language));
-            productModel.setMetaDescription(productMeta.getMetaDescriptionByLanguage(language));
+            productModel.setMetaTitle(productMeta.getMetaTitle(language));
+            productModel.setMetaDescription(productMeta.getMetaDescription(language));
         }
-
-        /* these properties are not necessary in product model */
-/*
-        productModel.setIsActive(product.getIsActive());
-        productModel.setCreatedDate(product.getCreatedDate());
-        productModel.setIsDeleted(product.getIsDeleted());
-
-        if (product.getDeletedBy() != null) {
-            User admin = userService.getUserById(product.getDeletedBy());
-            String adminName = "Admin profile not found";
-            if (admin != null) {
-                adminName = admin.getAdmin().getFullName();
-            }
-            productModel.setDeletedBy(adminName);
-        }
-
-        if (product.getCreatedBy() != null) {
-            User admin = userService.getUserById(product.getCreatedBy());
-            String adminName = "Admin profile not found";
-            if (admin != null) {
-                adminName = admin.getAdmin().getFullName();
-            }
-            productModel.setCreatedBy(adminName);
-        }
-*/
-
         return productModel;
     }
 
@@ -456,7 +411,7 @@ public class ProductService extends HTTPUtil {
         try {
             User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-            List<HashMapModel> volumeUnitList = VolumeUnit.getAllByLanguage(admin.getLanguage());
+            List<HashMapModel> volumeUnitList = Unit.getAllByLanguage(admin.getLanguage());
 
             return OkResponse(SUCCESS, volumeUnitList);
         } catch (Exception e) {
@@ -465,8 +420,5 @@ public class ProductService extends HTTPUtil {
     }
 
     public void setMetaData(ProductMetaModel metaData) {
-
     }
-
-
 }

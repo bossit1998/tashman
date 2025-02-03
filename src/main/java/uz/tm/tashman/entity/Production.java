@@ -3,7 +3,7 @@ package uz.tm.tashman.entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import uz.tm.tashman.enums.VolumeUnit;
+import uz.tm.tashman.enums.Unit;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -24,5 +24,5 @@ public class Production implements Serializable {
     private LocalDateTime date;
     private Integer quantity;
     private Double boxCount;
-    private VolumeUnit volumeUnit;
+    private Unit unit;
 }

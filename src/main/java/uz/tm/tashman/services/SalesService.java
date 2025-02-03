@@ -30,7 +30,6 @@ public class SalesService extends HTTPUtil {
     @Autowired
     UserService userService;
 
-
     public ResponseEntity<?> sell(SalesRequestModel sellingRequestModel) {
         Sales sale = new Sales();
 
@@ -60,13 +59,6 @@ public class SalesService extends HTTPUtil {
                 }
             }
         }
-
-
-
-
         return OkResponse(StatusCodes.SUCCESSFULLY_ADDED);
-
     }
-
-
 }

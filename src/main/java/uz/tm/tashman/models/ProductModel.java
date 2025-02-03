@@ -25,12 +25,6 @@ public class ProductModel implements Serializable {
     private String name;
     private String shortDescription;
     private String fullDescription;
-//    private Integer piecesPerPackage;
-//    private Double packageNettoWeight;
-//    private Double packageBruttoWeight;
-//    private String packageDimensions;
-//    private Double volume;
-//    private String volumeUnit;
     private ProductPackingModel productPackingModel;
     private Integer expireDuration;
     private String expireDurationUnit;

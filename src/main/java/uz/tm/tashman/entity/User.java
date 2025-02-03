@@ -66,10 +66,6 @@ public class User implements UserDetails {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<UserAgent> userAgents;
 
-    @JsonBackReference
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<Address> address;
-
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();

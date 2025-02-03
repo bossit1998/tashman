@@ -37,8 +37,7 @@ public class ClientService extends HTTPUtil {
     private final AuthenticationManager authenticationManager;
     private final UserAgentService userAgentService;
     private final LogService logService;
-    final
-    UserService userService;
+    final UserService userService;
 
     @Value("${local.file.path}")
     String filePath;
@@ -50,7 +49,6 @@ public class ClientService extends HTTPUtil {
         this.userService = userService;
         this.logService = logService;
         this.userAgentService = userAgentService;
-
     }
 
     public Client createClient(UserModel userModel, User user) {
@@ -61,7 +59,6 @@ public class ClientService extends HTTPUtil {
         client.setDob(userModel.getDob());
         client.setGender(Gender.getByCode(userModel.getGender()));
         client.setCreatedDate(user.getCreatedDate());
-
         return client;
     }
 
@@ -69,7 +66,7 @@ public class ClientService extends HTTPUtil {
         userModel.setName(user.getClient().getName());
         userModel.setSurname(user.getClient().getSurname());
         userModel.setFullName(user.getClient().getFullName());
-        userModel.setGender(Gender.getNameByLanguage(user.getClient().getGender(), user.getLanguage()));
+        userModel.setGender(Gender.getName(user.getClient().getGender(), user.getLanguage()));
         userModel.setDob(user.getClient().getDob());
         userModel.setEmail(user.getClient().getEmail());
         userModel.setRole(ERole.ROLE_CLIENT);
@@ -82,10 +79,8 @@ public class ClientService extends HTTPUtil {
 //            }
 //            userModel.setDeletedBy(adminName);
 //        }
-
         return userModel;
     }
-
 
     public ResponseEntity<?> registration(UserRequestModel userRequestModel, HttpServletRequest header) {
         try {
@@ -153,7 +148,6 @@ public class ClientService extends HTTPUtil {
 
             UserModel userModel = new UserModel();
             boolean userAgentExists = userAgentService.checkIfUserAgentExists(authenticationModel.getDeviceId(), client);
-
 
             if (userAgentExists) {
                 UserAgent userAgent = userAgentService.getUserAgentByEncodedId(authenticationModel.getDeviceId());

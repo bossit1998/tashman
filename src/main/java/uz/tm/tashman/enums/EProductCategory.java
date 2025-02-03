@@ -44,7 +44,6 @@ public enum EProductCategory {
         return null;
     }
 
-
     public static ArrayList<HashMapModel> getAllByLanguage(Language language) {
         language = checkLanguage(language);
         ArrayList<HashMapModel> result = new ArrayList<>();

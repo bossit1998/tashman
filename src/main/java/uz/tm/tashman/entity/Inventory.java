@@ -3,7 +3,7 @@ package uz.tm.tashman.entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import uz.tm.tashman.enums.VolumeUnit;
+import uz.tm.tashman.enums.Unit;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -19,7 +19,7 @@ public class Inventory {
     @OneToOne
     private Product product;
     private Double quantity;
-    private VolumeUnit quantity_unit;
+    private Unit quantity_unit;
     private LocalDateTime lastUpdatedDate;
     private Long assortmentId;
     private Long packingId;

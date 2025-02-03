@@ -3,7 +3,7 @@ package uz.tm.tashman.entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import uz.tm.tashman.enums.VolumeUnit;
+import uz.tm.tashman.enums.Unit;
 
 import javax.persistence.*;
 
@@ -18,7 +18,7 @@ public class CurrentProductInventory {
     private Long id;
     private Integer quantity;
     @Enumerated(EnumType.STRING)
-    private VolumeUnit volumeUnit;
+    private Unit unit;
     @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
     @ManyToOne(fetch = FetchType.LAZY)

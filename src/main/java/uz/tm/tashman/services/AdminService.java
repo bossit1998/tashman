@@ -41,7 +41,6 @@ public class AdminService extends HTTPUtil {
     @Autowired
     private UserService userService;
 
-
     public AdminService(
             JwtUtils jwtUtils,
             AuthenticationManager authenticationManager,
@@ -71,7 +70,7 @@ public class AdminService extends HTTPUtil {
         userModel.setName(user.getAdmin().getName());
         userModel.setSurname(user.getAdmin().getSurname());
         userModel.setFullName(user.getAdmin().getFullName());
-        userModel.setGender(Gender.getNameByLanguage(user.getAdmin().getGender(), user.getLanguage()));
+        userModel.setGender(Gender.getName(user.getAdmin().getGender(), user.getLanguage()));
         userModel.setDob(user.getAdmin().getDob());
         userModel.setRole(ERole.ROLE_ADMIN);
 

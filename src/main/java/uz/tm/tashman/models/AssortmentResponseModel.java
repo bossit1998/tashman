@@ -10,5 +10,4 @@ import lombok.Setter;
 public class AssortmentResponseModel {
     private Long id;
     private String name;
-
 }
