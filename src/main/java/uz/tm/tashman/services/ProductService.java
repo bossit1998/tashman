@@ -1,25 +1,26 @@
 package uz.tm.tashman.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import uz.tm.tashman.entity.Product;
-import uz.tm.tashman.entity.ProductImage;
-import uz.tm.tashman.entity.User;
-import uz.tm.tashman.models.BasicModel;
-import uz.tm.tashman.models.ProductModel;
-import uz.tm.tashman.models.ResponseModel;
+import uz.tm.tashman.entity.*;
+import uz.tm.tashman.enums.EProductCategory;
+import uz.tm.tashman.enums.Language;
+import uz.tm.tashman.enums.Unit;
+import uz.tm.tashman.models.*;
+import uz.tm.tashman.models.requestModels.ProductRequestModel;
 import uz.tm.tashman.models.wrapperModels.ResPageable;
+import uz.tm.tashman.repository.ProductCategoryRepository;
 import uz.tm.tashman.repository.ProductImageRepository;
+import uz.tm.tashman.repository.ProductPackingRepository;
 import uz.tm.tashman.repository.ProductRepository;
 import uz.tm.tashman.util.HTTPUtil;
 import uz.tm.tashman.util.Util;
 
 import javax.servlet.http.HttpServletRequest;
-import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,51 +28,117 @@ import java.util.Optional;
 
 import static uz.tm.tashman.enums.StatusCodes.*;
 import static uz.tm.tashman.util.CONSTANT.*;
+import static uz.tm.tashman.util.Util.getImageUrl;
+import static uz.tm.tashman.util.Util.isBlank;
 
 @Service
 public class ProductService extends HTTPUtil {
 
-    @Autowired
-    UserService userService;
-    @Autowired
-    LogService logService;
-    @Autowired
-    ProductRepository productRepository;
-    @Autowired
-    ProductImageRepository productImageRepository;
+    final ProductPackingRepository productPackingRepository;
 
-    public ResponseModel<Product> createProduct(ProductModel productModel, User user) {
+    final UserService userService;
+    final LogService logService;
+    final ProductRepository productRepository;
+    final ProductImageRepository productImageRepository;
+    final ProductCategoryRepository productCategoryRepository;
+    final ProductMetaService productMetaService;
+
+    public ProductService(
+            UserService userService,
+            LogService logService,
+            ProductRepository productRepository,
+            ProductImageRepository productImageRepository,
+            ProductCategoryRepository productCategoryRepository, ProductMetaService productMetaService, ProductPackingRepository productPackingRepository) {
+        this.userService = userService;
+        this.logService = logService;
+        this.productRepository = productRepository;
+        this.productImageRepository = productImageRepository;
+        this.productCategoryRepository = productCategoryRepository;
+        this.productMetaService = productMetaService;
+        this.productPackingRepository = productPackingRepository;
+    }
+
+    public ResponseModel<Product> createProduct(ProductRequestModel productRequestModel, User user) {
         ResponseModel<Product> responseModel = new ResponseModel<>();
 
         try {
             Product product = new Product();
 
-            product.setSlug(productModel.getSlug());
-            product.setMetaTitle(productModel.getMetaTitle());
-            product.setMetaDescription(productModel.getMetaDescription());
-            product.setProductCategory(productModel.getProductCategory());
-            product.setName(productModel.getName());
-            product.setShortDescription(productModel.getShortDescription());
-            product.setFullDescription(productModel.getFullDescription());
-            product.setPiecesPerPackage(productModel.getPiecesPerPackage());
-            product.setPackageNettoWeight(productModel.getPackageNettoWeight());
-            product.setPackageBruttoWeight(productModel.getPackageBruttoWeight());
-            product.setPackageDimensions(productModel.getPackageDimensions());
-            product.setVolume(productModel.getVolume());
-            product.setExpireDuration(productModel.getExpireDuration());
-            product.setPrice(productModel.getPrice());
-            product.setVolumeUnit(productModel.getVolumeUnit());
+            Optional<ProductCategory> optProductCategory = productCategoryRepository.findBySlugAndIsDeletedFalse(productRequestModel.getProductCategory());
+            if (!optProductCategory.isPresent()) {
+                responseModel.setSuccess(false);
+                responseModel.setMessage("Product Category not found");
+                return responseModel;
+            }
 
-            product.setIsActive(false);
+            ProductCategory productCategory = optProductCategory.get();
+
+            product.setCategory(productCategory);
+            product.setSlug(productRequestModel.getSlug());
+            product.setNameEn(productRequestModel.getNameEn());
+            product.setNameRu(productRequestModel.getNameRu());
+            product.setNameUz(productRequestModel.getNameUz());
+            product.setShortDescriptionEn(productRequestModel.getShortDescriptionEn());
+            product.setShortDescriptionRu(productRequestModel.getShortDescriptionRu());
+            product.setShortDescriptionUz(productRequestModel.getShortDescriptionUz());
+            product.setFullDescriptionEn(productRequestModel.getFullDescriptionEn());
+            product.setFullDescriptionRu(productRequestModel.getFullDescriptionRu());
+            product.setFullDescriptionUz(productRequestModel.getFullDescriptionUz());
+
+            product.setExpireDurationUnit(productRequestModel.getExpireDurationUnit());
+            product.setExpireDuration(productRequestModel.getExpireDuration());
+            product.setCurrentPrice(productRequestModel.getPrice());
+            product.setIsInProduction(productRequestModel.getInProduction());
+            product.setBarCode(productRequestModel.getBarCode());
+            product.setStoreTemperature(productRequestModel.getStoreTemperature());
+            product.setFirstLaunchedDate(productRequestModel.getFirstLaunchedDate());
+            product.setBrandName(productRequestModel.getBrand());
+            product.setIsVisible(false);
             product.setCreatedDate(LocalDateTime.now());
             product.setCreatedBy(user.getId());
             product.setIsDeleted(false);
 
             product = productRepository.save(product);
 
+            ProductPacking productPacking = new ProductPacking();
+            productPacking.setVolume(productRequestModel.getProductPackingModel().getVolume());
+            productPacking.setPiecesPerPackage(productRequestModel.getProductPackingModel().getPiecesPerPackage());
+            productPacking.setPackageNettoWeight(productRequestModel.getProductPackingModel().getPackageNettoWeight());
+            productPacking.setPackageBruttoWeight(productRequestModel.getProductPackingModel().getPackageBruttoWeight());
+            productPacking.setPackageDimensions(productRequestModel.getProductPackingModel().getPackageDimensions());
+            productPacking.setUnit(Unit.getByCode(productRequestModel.getProductPackingModel().getVolumeUnit()));
+            productPacking.setBoxQuantity(productRequestModel.getProductPackingModel().getBoxQuantity());
+
+            productPacking = productPackingRepository.save(productPacking);
+            productPacking.setProductId(product.getId());
+
+            product.setProductPacking(productPacking);
+
+            List<Assortment> assortmentList = new ArrayList<>();
+
+            for (String assortmentName : productRequestModel.getAssortments()) {
+                Assortment assortment = new Assortment();
+                assortment.setProduct(product);
+                assortment.setName(assortmentName);
+                assortmentList.add(assortment);
+            }
+            product.setAssortments(assortmentList);
+            product = productRepository.save(product);
+
+
+//            ProductMeta productMeta = new ProductMeta();
+//            productMeta.setProductId(product.getId());
+//            productMeta.setMetaTitleEn(productModel.getMetas().getMetaTitleEn());
+//            productMeta.setMetaTitleRu(productModel.getMetas().getMetaTitleRu());
+//            productMeta.setMetaTitleUz(productModel.getMetas().getMetaTitleUz());
+//            productMeta.setMetaDescriptionEn(productModel.getMetas().getMetaDescriptionEn());
+//            productMeta.setMetaDescriptionRu(productModel.getMetas().getMetaDescriptionRu());
+//            productMeta.setMetaDescriptionUz(productModel.getMetas().getMetaDescriptionUz());
+//            productMetaService.save(productMeta);
+
             List<ProductImage> productImages = new ArrayList<>();
             int index = 0;
-            for (MultipartFile image : productModel.getImages()) {
+            for (MultipartFile image : productRequestModel.getImages()) {
                 String uploadDirectory = DATA_FOLDER + PRODUCTS_FOLDER + "/" + product.getSlug();
                 String fileName = Integer.toString(index);
                 String fileExtension = ".png";
@@ -107,7 +174,7 @@ public class ProductService extends HTTPUtil {
                 }
                 index++;
             }
-            product.setImage(productImages);
+            product.setImages(productImages);
             product = productRepository.save(product);
 
             responseModel.setSuccess(true);
@@ -122,53 +189,124 @@ public class ProductService extends HTTPUtil {
         return responseModel;
     }
 
-    public ProductModel getProductModel(Product product) {
+    public ResponseModel<Product> updateProduct(ProductRequestModel productRequestModel, Product product) {
+        ResponseModel<Product> responseModel = new ResponseModel<>();
+
+        try {
+            Optional<ProductCategory> optProductCategory = productCategoryRepository.findBySlugAndIsDeletedFalse(productRequestModel.getProductCategory());
+            if (!optProductCategory.isPresent()) {
+                responseModel.setSuccess(false);
+                responseModel.setMessage("Product Category not found");
+                return responseModel;
+            }
+
+            ProductCategory productCategory = optProductCategory.get();
+
+            product.setCategory(productCategory);
+            product.setSlug(productRequestModel.getSlug() == null ? product.getSlug() : productRequestModel.getSlug());
+            product.setNameEn(productRequestModel.getNameEn() == null ? product.getNameEn() : productRequestModel.getNameEn());
+            product.setNameRu(productRequestModel.getNameRu() == null ? product.getNameRu() : productRequestModel.getNameRu());
+            product.setNameUz(productRequestModel.getNameUz() == null ? product.getNameUz() : productRequestModel.getNameUz());
+            product.setShortDescriptionEn(productRequestModel.getShortDescriptionEn() == null ? product.getFullDescriptionEn() : productRequestModel.getShortDescriptionEn());
+            product.setShortDescriptionRu(productRequestModel.getShortDescriptionRu() == null ? product.getFullDescriptionRu() : productRequestModel.getShortDescriptionRu());
+            product.setShortDescriptionUz(productRequestModel.getShortDescriptionUz() == null ? product.getFullDescriptionUz() : productRequestModel.getShortDescriptionUz());
+            product.setFullDescriptionEn(productRequestModel.getFullDescriptionEn() == null ? product.getFullDescriptionEn() : productRequestModel.getFullDescriptionEn());
+            product.setFullDescriptionRu(productRequestModel.getFullDescriptionRu() == null ? product.getFullDescriptionRu() : productRequestModel.getFullDescriptionRu());
+            product.setFullDescriptionUz(productRequestModel.getFullDescriptionUz() == null ? product.getFullDescriptionUz() : productRequestModel.getFullDescriptionUz());
+
+            product.setExpireDurationUnit(productRequestModel.getExpireDurationUnit() == null ? product.getExpireDurationUnit() : productRequestModel.getExpireDurationUnit());
+            product.setExpireDuration(productRequestModel.getExpireDuration() == null ? product.getExpireDuration() : productRequestModel.getExpireDuration());
+            product.setCurrentPrice(productRequestModel.getPrice() == null ? product.getCurrentPrice() : productRequestModel.getPrice());
+            product.setIsInProduction(productRequestModel.getInProduction() == null ? product.getIsInProduction() : productRequestModel.getInProduction());
+            product.setBarCode(productRequestModel.getBarCode() == null ? product.getBarCode() : productRequestModel.getBarCode());
+            product.setStoreTemperature(productRequestModel.getStoreTemperature() == null ? product.getStoreTemperature() : productRequestModel.getStoreTemperature());
+            product.setFirstLaunchedDate(productRequestModel.getFirstLaunchedDate() == null ? product.getFirstLaunchedDate() : productRequestModel.getFirstLaunchedDate());
+            product.setBrandName(productRequestModel.getBrand() == null ? product.getBrandName() : productRequestModel.getBrand());
+
+
+            List<Assortment> listOfAssortments = new ArrayList<>();
+
+            if (productRequestModel.getAssortments() != null) {
+                for (String assortmentName : productRequestModel.getAssortments()) {
+                    Assortment assortment = new Assortment();
+                    assortment.setProduct(product);
+                    assortment.setName(assortmentName);
+                    listOfAssortments.add(assortment);
+                }
+                product.setAssortments(listOfAssortments);
+            }
+
+            productRepository.save(product);
+            responseModel.setSuccess(true);
+            responseModel.setData(product);
+
+        } catch (Exception e) {
+            logService.saveToLog(exceptionAsString(e));
+            responseModel.setSuccess(false);
+            responseModel.setException(e);
+        }
+        return responseModel;
+    }
+
+    public ProductModel getProductModel(Product product, Language language) {
         ProductModel productModel = new ProductModel();
 
         productModel.setSlug(product.getSlug());
-        productModel.setMetaTitle(product.getMetaTitle());
-        productModel.setMetaDescription(product.getMetaDescription());
-        productModel.setProductCategory(product.getProductCategory());
-        productModel.setName(product.getName());
-        productModel.setShortDescription(product.getShortDescription());
-        productModel.setFullDescription(product.getFullDescription());
-        productModel.setPiecesPerPackage(product.getPiecesPerPackage());
-        productModel.setPackageNettoWeight(product.getPackageNettoWeight());
-        productModel.setPackageBruttoWeight(product.getPackageBruttoWeight());
-        productModel.setPackageDimensions(product.getPackageDimensions());
-        productModel.setVolume(product.getVolume());
+        productModel.setCategory(product.getCategory().getName(language));
+        productModel.setName(product.getName(language));
+        productModel.setShortDescription(product.getShortDescription(language));
+        productModel.setFullDescription(product.getFullDescription(language));
+
+        ProductPackingModel productPackingModel = new ProductPackingModel();
+        productPackingModel.setBoxQuantity(product.getProductPacking().getBoxQuantity());
+        productPackingModel.setPiecesPerPackage(product.getProductPacking().getPiecesPerPackage());
+        productPackingModel.setPackageDimensions(product.getProductPacking().getPackageDimensions());
+        productPackingModel.setPackageNettoWeight(product.getProductPacking().getPackageNettoWeight());
+        productPackingModel.setPackageBruttoWeight(product.getProductPacking().getPackageBruttoWeight());
+        productPackingModel.setVolume(product.getProductPacking().getVolume());
+        productPackingModel.setVolumeUnit(product.getProductPacking().getUnit().toString());
+
+        productModel.setProductPackingModel(productPackingModel);
+
         productModel.setExpireDuration(product.getExpireDuration());
-        productModel.setPrice(product.getPrice());
-        productModel.setVolumeUnit(product.getVolumeUnit());
-//        product.setImage(productModel.getImageUrls());
+        productModel.setExpireDurationUnit(product.getExpireDurationUnit().getName(language));
+        productModel.setPrice(product.getCurrentPrice());
+        productModel.setInProduction(product.getIsInProduction());
+        productModel.setBarCode(product.getBarCode());
+        productModel.setStoreTemperature(product.getStoreTemperature());
+        productModel.setFirstLaunchedDate(product.getFirstLaunchedDate());
+        productModel.setBrand(product.getBrandName());
 
-        productModel.setIsActive(product.getIsActive());
-        productModel.setCreatedDate(product.getCreatedDate());
-        productModel.setIsDeleted(product.getIsDeleted());
+        List<AssortmentResponseModel> assortmentResponseList = new ArrayList<>();
 
-        if (product.getDeletedBy() != null) {
-            User admin = userService.getUserById(product.getDeletedBy());
-            String adminName = "Admin profile not found";
-            if (admin != null) {
-                adminName = admin.getAdmin().getFullName();
-            }
-            productModel.setDeletedBy(adminName);
+        for (Assortment assortment : product.getAssortments()) {
+            AssortmentResponseModel assortmentResponseModel = new AssortmentResponseModel();
+            assortmentResponseModel.setId(assortment.getId());
+            assortmentResponseModel.setName(assortment.getName());
+            assortmentResponseList.add(assortmentResponseModel);
+        }
+        productModel.setAssortments(assortmentResponseList);
+
+        List<ProductImage> productImageList = productImageRepository.findAllByProduct(product);
+        if (!isBlank(productImageList)) {
+            List<ProductImageModel> imageModels = new ArrayList<>();
+
+            productImageList.forEach(productImage -> imageModels.add(getProductImageModel(productImage)));
+
+            productModel.setImages(imageModels);
         }
 
-        if (product.getCreatedBy() != null) {
-            User admin = userService.getUserById(product.getCreatedBy());
-            String adminName = "Admin profile not found";
-            if (admin != null) {
-                adminName = admin.getAdmin().getFullName();
-            }
-            productModel.setCreatedBy(adminName);
+        Optional<ProductMeta> optionalProductMeta = productMetaService.findById(product.getId());
+        if (optionalProductMeta.isPresent()) {
+            ProductMeta productMeta = optionalProductMeta.get();
+            productModel.setMetaTitle(productMeta.getMetaTitle(language));
+            productModel.setMetaDescription(productMeta.getMetaDescription(language));
         }
-
         return productModel;
     }
 
     public Product getProductBySlug(String slug) {
-        if (slug==null) {
+        if (slug == null) {
             return null;
         }
 
@@ -177,7 +315,18 @@ public class ProductService extends HTTPUtil {
         return optProduct.orElse(null);
     }
 
-    public ResponseEntity<?> addProduct(ProductModel productModel, HttpServletRequest header) {
+    public ProductImageModel getProductImageModel(ProductImage productImage) {
+        ProductImageModel productImageModel = new ProductImageModel();
+        productImageModel.setId(productImage.getId());
+        productImageModel.setSortOrder(productImage.getSortOrder());
+
+        productImageModel.setImageUrl(getImageUrl(productImage.getImageUrl()));
+        productImageModel.setThumbnailImageUrl(getImageUrl(productImage.getThumbnailImageUrl()));
+
+        return productImageModel;
+    }
+
+    public ResponseEntity<?> addProduct(ProductRequestModel productModel, HttpServletRequest header) {
         try {
             User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -191,25 +340,47 @@ public class ProductService extends HTTPUtil {
             if (product.getSuccess()) {
                 return OkResponse(SUCCESSFULLY_ADDED);
             } else {
-                return OkResponse(UNABLE_TO_ADD_PRODUCT);
+                return OkResponse(UNABLE_TO_ADD_PRODUCT, product.getMessage());
             }
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
+        }
+    }
+
+    public ResponseEntity<?> editProduct(ProductRequestModel productRequestModel, HttpServletRequest header) {
+        try {
+            User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Optional<Product> optionalProduct = productRepository.findById(productRequestModel.getId());
+            if (!optionalProduct.isPresent()) {
+                return BadRequestResponse(PRODUCT_NOT_FOUND);
+            }
+            Product product = optionalProduct.get();
+
+            ResponseModel<Product> responseProductModel = updateProduct(productRequestModel, product);
+            if (responseProductModel.getSuccess()) {
+                return OkResponse(SUCCESSFULLY_EDITED);
+            } else {
+                return OkResponse(UNABLE_TO_EDIT_PRODUCT, responseProductModel.getMessage());
+            }
+        } catch (Exception e) {
+            return InternalServerErrorResponse(e);
         }
     }
 
     public ResponseEntity<?> list(BasicModel basicModel, HttpServletRequest header) {
+
         try {
+            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (isBlank(basicModel.getLanguage())) {
+                basicModel.setLanguage(user.getLanguage());
+            }
             Pageable pageable = Util.getPageable(basicModel.getPage(), basicModel.getPageSize());
 
             Page<Product> productPage = productRepository.findAll(pageable);
 
             List<ProductModel> productModelList = new ArrayList<>();
 
-            productPage.getContent().forEach(product -> {
-                productModelList.add(getProductModel(product));
-            });
+            productPage.getContent().forEach(product -> productModelList.add(getProductModel(product, basicModel.getLanguage())));
 
             ResPageable resPageable = new ResPageable(
                     productModelList,
@@ -220,8 +391,34 @@ public class ProductService extends HTTPUtil {
 
             return OkResponse(SUCCESSFULLY_FOUND, resPageable);
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
+    }
+
+    public ResponseEntity<?> getProductCategoryList(BasicModel basicModel) {
+        try {
+            User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            List<HashMapModel> productCategoryList = EProductCategory.getAllByLanguage(admin.getLanguage());
+
+            return OkResponse(SUCCESS, productCategoryList);
+        } catch (Exception e) {
+            return InternalServerErrorResponse(e);
+        }
+    }
+
+    public ResponseEntity<?> getVolumeUnitList(BasicModel basicModel) {
+        try {
+            User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            List<HashMapModel> volumeUnitList = Unit.getAllByLanguage(admin.getLanguage());
+
+            return OkResponse(SUCCESS, volumeUnitList);
+        } catch (Exception e) {
+            return InternalServerErrorResponse(e);
+        }
+    }
+
+    public void setMetaData(ProductMetaModel metaData) {
     }
 }

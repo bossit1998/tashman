@@ -23,7 +23,8 @@ public class Client implements Serializable {
     @JsonBackReference
     private User user;
 
-    private String fullName;
+    private String name;
+    private String surname;
 
     private LocalDate dob;
 
@@ -40,13 +41,7 @@ public class Client implements Serializable {
 
     private LocalDateTime createdDate;
 
-    @Override
-    public boolean equals(Object o) {
-        return this == o;
-    }
-
-    @Override
-    public int hashCode() {
-        return 0;
+    public String getFullName() {
+        return name + " " + surname;
     }
 }

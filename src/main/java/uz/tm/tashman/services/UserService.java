@@ -1,7 +1,8 @@
 package uz.tm.tashman.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,12 +12,13 @@ import org.springframework.stereotype.Service;
 import uz.tm.tashman.config.jwt.JwtUtils;
 import uz.tm.tashman.entity.*;
 import uz.tm.tashman.enums.ERole;
+import uz.tm.tashman.enums.Gender;
+import uz.tm.tashman.enums.Language;
 import uz.tm.tashman.enums.StatusCodes;
-import uz.tm.tashman.models.AuthenticationModel;
-import uz.tm.tashman.models.ResponseModel;
-import uz.tm.tashman.models.UserModel;
+import uz.tm.tashman.models.*;
+import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
+import uz.tm.tashman.models.wrapperModels.ResPageable;
 import uz.tm.tashman.repository.RoleRepository;
-import uz.tm.tashman.repository.UserAgentRepository;
 import uz.tm.tashman.repository.UserRepository;
 import uz.tm.tashman.util.AES;
 import uz.tm.tashman.util.HTTPUtil;
@@ -24,9 +26,7 @@ import uz.tm.tashman.util.Util;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
 
 import static uz.tm.tashman.enums.StatusCodes.*;
 import static uz.tm.tashman.util.CONSTANT.*;
@@ -34,26 +34,31 @@ import static uz.tm.tashman.util.Util.isBlank;
 
 @Service
 public class UserService extends HTTPUtil {
-    @Autowired
-    private PasswordEncoder encoder;
-    @Autowired
-    private JwtUtils jwtUtils;
+    private final PasswordEncoder encoder;
+    private final JwtUtils jwtUtils;
+    private final UserAgentService userAgentService;
+    private final LogService logService;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     @Autowired
     private AdminService adminService;
     @Autowired
     private ClientService clientService;
-    @Autowired
-    private UserAgentService userAgentService;
-    @Autowired
-    private LogService logService;
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private UserAgentRepository userAgentRepository;
+    public UserService(PasswordEncoder encoder,
+                       JwtUtils jwtUtils,
+                       UserAgentService userAgentService,
+                       LogService logService,
+                       UserRepository userRepository,
+                       RoleRepository roleRepository) {
+        this.encoder = encoder;
+        this.jwtUtils = jwtUtils;
+        this.userAgentService = userAgentService;
+        this.logService = logService;
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+    }
 
     public User getUserByUsername(String username) {
         if (username == null) {
@@ -65,11 +70,11 @@ public class UserService extends HTTPUtil {
             return null;
         }
 
-        Optional<User> optUser = userRepository.findByUsername(encryptedUsername);
+        Optional<User> optUser = userRepository.findByUsernameAndIsDeletedFalse(encryptedUsername);
         return optUser.orElse(null);
     }
 
-    public ResponseModel<User> createUser(ERole eRole, UserModel userModel, HttpServletRequest header) {
+    public ResponseModel<User> createUser(ERole eRole, UserModel userModel, UserAgentModel userAgentModel, HttpServletRequest header) {
         ResponseModel<User> responseModel = new ResponseModel<>();
 
         try {
@@ -86,13 +91,15 @@ public class UserService extends HTTPUtil {
             }
             user.setRoles(new HashSet<>(Collections.singleton(role)));
 
-            user.setLanguage(Util.getLanguageWithAuth(userModel));
+            user.setLanguage(Util.getLanguageFromAuthentication(userModel));
 
+            user.setIsBlocked(false);
             user.setIsDeleted(false);
+
             user.setIsActive(false);
             user.setCreatedDate(LocalDateTime.now());
 
-            if (eRole.equals(ERole.ROLE_USER)) {
+            if (eRole.equals(ERole.ROLE_CLIENT)) {
                 Client client = clientService.createClient(userModel, user);
                 user.setClient(client);
             } else if (eRole.equals(ERole.ROLE_ADMIN)) {
@@ -106,7 +113,7 @@ public class UserService extends HTTPUtil {
 
             userRepository.save(user);
 
-            UserAgent userAgent = userAgentService.saveUserAgentInfo(user, userModel.getUserAgentModel(), header);
+            UserAgent userAgent = userAgentService.saveUserAgentInfo(user, userAgentModel, header);
 
             responseModel.setSuccess(true);
             responseModel.setDeviceId(userAgent.getEncodedId());
@@ -120,6 +127,12 @@ public class UserService extends HTTPUtil {
         return responseModel;
     }
 
+    public User saveUser(User user) {
+        user = userRepository.save(user);
+        return user;
+    }
+
+
     public User getUserById(Long id) {
         if (isBlank(id)) {
             return null;
@@ -128,6 +141,53 @@ public class UserService extends HTTPUtil {
         Optional<User> optUser = userRepository.findById(id);
 
         return optUser.orElse(null);
+    }
+
+    public UserModel getUserModel(User user){
+        UserModel userModel = new UserModel();
+        userModel.setId(user.getId());
+        userModel.setMobileNumber(user.getMaskedPhoneNumber());
+        userModel.setFullName(user.getClient().getFullName());
+        userModel.setIsActive(user.getIsActive());
+        userModel.setIsDeleted(user.getIsDeleted());
+
+        if(user.getDeletedBy()!=null) {
+            Optional<User> optionalAdmin = userRepository.findById(user.getDeletedBy());
+            optionalAdmin.ifPresent(admin -> userModel.setDeletedBy(admin.getAdmin().getFullName()));
+
+        }
+        userModel.setMessage(user.getBlockMessage());
+        userModel.setProfileImageUrl(user.getProfileImageUrl());
+        userModel.setRole(ERole.ROLE_CLIENT);
+        return userModel;
+    }
+    public ResponseEntity<?> getUserList(BasicModel basicModel, HttpServletRequest header) {
+        try {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (isBlank(basicModel.getLanguage())) {
+            basicModel.setLanguage(user.getLanguage());
+        }
+        Pageable pageable = Util.getPageable(basicModel.getPage(), basicModel.getPageSize());
+
+        Page<User> userPage = userRepository.findAll(pageable);
+
+        List<UserModel> userModelList = new ArrayList<>();
+
+        userPage.getContent().forEach(eachUser -> userModelList.add(getUserModel(eachUser)));
+
+        ResPageable resPageable = new ResPageable(
+                userModelList,
+                userPage.getTotalElements(),
+                userPage.getTotalPages(),
+                basicModel.getPage(),
+                basicModel.getPageSize());
+
+
+
+        return OkResponse(SUCCESSFULLY_FOUND, resPageable);
+    }catch(Exception e){
+        return InternalServerErrorResponse(e);
+        }
     }
 
     public User getUserByEncodedId(String encodedId) {
@@ -140,7 +200,12 @@ public class UserService extends HTTPUtil {
         return optUser.orElse(null);
     }
 
-    public UserModel getUserModel(User user) {
+    public Boolean existsByUsername(String username) {
+        return userRepository.existsByUsernameAndIsDeletedFalse(AES.encrypt(username));
+    }
+
+    //converterFunctions ->    Entity -> DTO
+    public UserModel fromUserToUserModel(User user) {
         UserModel userModel = new UserModel();
 
         userModel.setId(user.getId());
@@ -162,15 +227,17 @@ public class UserService extends HTTPUtil {
     public String getProfileImage(User user) {
         String profileImage = BASE_URL + USER_DEFAULT_IMAGE_URL;
         if (user != null) {
-            if (user.getProfileImage() != null) {
-                profileImage = user.getProfileImage().replaceAll(CONTENT, BASE_URL);
+            if (user.getProfileImageUrl() != null) {
+                profileImage = user.getProfileImageUrl().replaceAll(CONTENT, BASE_URL);
             }
         }
         return profileImage;
     }
 
-    public ResponseEntity<?> otpVerification(AuthenticationModel authenticationModel, HttpServletRequest header) {
+    public ResponseEntity<?> otpVerification(AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
         try {
+            AuthenticationModel authenticationModel = authenticationRequestModel.getAuthentication();
+
             User user = getUserByUsername(authenticationModel.getMobileNumber());
 
             if (user == null) {
@@ -196,7 +263,7 @@ public class UserService extends HTTPUtil {
                     Boolean userAgentVerified = userAgentService.verifyUserAgent(userAgent);
 
                     if (userAgentVerified) {
-                        UserModel userModel = getUserModel(user);
+                        UserModel userModel = fromUserToUserModel(user);
 
                         userModel.setToken(jwt);
                         userModel.setIsOTPVerified(true);
@@ -213,13 +280,14 @@ public class UserService extends HTTPUtil {
                 return OkResponse(NO_SUCH_DEVICE);
             }
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
     }
 
-    public ResponseEntity<?> otpResend(AuthenticationModel authenticationModel, HttpServletRequest header) {
+    public ResponseEntity<?> otpResend(AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
         try {
+            AuthenticationModel authenticationModel = authenticationRequestModel.getAuthentication();
+
             User user = getUserByUsername(authenticationModel.getMobileNumber());
 
             if (user == null) {
@@ -249,13 +317,15 @@ public class UserService extends HTTPUtil {
             }
             return OkResponse(SUCCESS, userModel);
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
     }
 
-    public ResponseEntity<?> forgotPassword(AuthenticationModel authenticationModel, HttpServletRequest header) {
+    public ResponseEntity<?> forgotPassword(AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
         try {
+            AuthenticationModel authenticationModel = authenticationRequestModel.getAuthentication();
+            UserAgentModel userAgentModel = authenticationRequestModel.getUserAgent();
+
             User user = getUserByUsername(authenticationModel.getMobileNumber());
 
             if (user == null) {
@@ -277,7 +347,7 @@ public class UserService extends HTTPUtil {
 
                 userModel.setMessage(getNameByLanguage(OTP_SENT, user.getLanguage()));
             } else {
-                userAgent = userAgentService.saveUserAgentInfo(user, authenticationModel.getUserAgentModel(), header);
+                userAgent = userAgentService.saveUserAgentInfo(user, userAgentModel, header);
 
                 userModel.setDeviceId(userAgent.getEncodedId());
                 userModel.setMessage(getNameByLanguage(USER_OTP_NOT_VERIFIED, user.getLanguage()));
@@ -287,13 +357,15 @@ public class UserService extends HTTPUtil {
 
             return OkResponse(SUCCESS, userModel);
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
     }
 
-    public ResponseEntity<?> changePassword(AuthenticationModel authenticationModel, HttpServletRequest header) {
+    public ResponseEntity<?> changePassword(AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
         try {
+            AuthenticationModel authenticationModel = authenticationRequestModel.getAuthentication();
+            UserAgentModel userAgentModel = authenticationRequestModel.getUserAgent();
+
             User user = getUserByUsername(authenticationModel.getMobileNumber());
 
             if (user == null) {
@@ -309,26 +381,45 @@ public class UserService extends HTTPUtil {
             if (userAgentExists) {
                 userAgent = userAgentService.getUserAgentByEncodedIdAndUserAndDeletedFalse(authenticationModel.getDeviceId(), user);
             } else {
-                userAgent = userAgentService.saveUserAgentInfo(user, authenticationModel.getUserAgentModel(), header);
+                userAgent = userAgentService.saveUserAgentInfo(user, userAgentModel, header);
             }
 
-        if (authenticationModel.getOtp().equals(userAgent.getOtp())) {
-            user.setPassword(encoder.encode(authenticationModel.getPassword()));
-            userRepository.save(user);
+            if (authenticationModel.getOtp().equals(userAgent.getOtp())) {
+                user.setPassword(encoder.encode(authenticationModel.getPassword()));
+                userRepository.save(user);
 
-            userModel.setIsOTPVerified(true);
-            userModel.setMessage(getNameByLanguage(PASSWORD_CHANGED_SUCCESSFULLY, user.getLanguage()));
-        } else {
-            userModel.setIsOTPVerified(false);
-            userModel.setMessage(getNameByLanguage(USER_WRONG_OTP, user.getLanguage()));
-        }
+                userModel.setIsOTPVerified(true);
+                userModel.setMessage(getNameByLanguage(PASSWORD_CHANGED_SUCCESSFULLY, user.getLanguage()));
+            } else {
+                userModel.setIsOTPVerified(false);
+                userModel.setMessage(getNameByLanguage(USER_WRONG_OTP, user.getLanguage()));
+            }
             return OkResponse(SUCCESS, userModel);
         } catch (Exception e) {
-            logService.saveToLog(exceptionAsString(e));
-            return InternalServerErrorResponse(exceptionAsString(e));
+            return InternalServerErrorResponse(e);
         }
     }
 
+    public ResponseEntity<?> getGenderList(BasicModel basicModel) {
+        try {
+            if (basicModel.getLanguage() == null) {
+                basicModel.setLanguage(Language.RU);
+            }
+
+            List<HashMapModel> genderList = Gender.getAllByLanguage(basicModel.getLanguage());
+
+            return OkResponse(SUCCESS, genderList);
+        } catch (Exception e) {
+            return InternalServerErrorResponse(e);
+        }
+    }
+
+    public ResponseEntity<?> setPinCode(AuthenticationRequestModel authenticationRequestModel, HttpServletRequest request) {
+        User client = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        client.setPinCode(authenticationRequestModel.getAuthentication().getPinCode());
+        userRepository.save(client);
+        return OkResponse(SUCCESS);
+    }
     /*================================================================================================================*/
 
     /*

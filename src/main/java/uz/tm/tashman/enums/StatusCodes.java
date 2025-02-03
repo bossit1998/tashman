@@ -5,6 +5,8 @@ import uz.tm.tashman.models.HashMapModel;
 
 import java.util.ArrayList;
 
+import static uz.tm.tashman.util.Util.checkLanguage;
+
 @Getter
 public enum StatusCodes {
     SUCCESSFULLY_FOUND(2000, "successfully_found", "Successfully found", "Найдено", "Topildi"),
@@ -82,7 +84,19 @@ public enum StatusCodes {
     PASSWORD_CHANGED_SUCCESSFULLY(7018, "password_changed_successfully", "Password changed successfully", "Пароль успешно изменен", "Parol muvaffaqiyatli o'zgartirildi"),
     UNABLE_TO_ADD_PRODUCT(7020, "unable_to_add_product", "Unable to add product", "Не удалось добавить товар", "Mahsulotni qo'shib bo'lmadi"),
     PRODUCT_ALREADY_REGISTERED(7021, "product_already_registered", "Product already registered", "Продукт уже зарегестрирован", "Mahsulot ro'yxatdan o'tgan"),
+    USER_DETAILS_ARE_MISSING(7022, "user_details_are_missing", "User details are missing", "User details are missing", "User details are missing"),
+    USER_AGENT_DETAILS_ARE_MISSING(7022, "user_agent_details_are_missing", "User agent details are missing", "User agent details are missing", "User agent details are missing"),
+    PRODUCT_INFO_MISSING(7023, "product_info_missing", "Product info missing", "Информация о продукте не полная", "Mahsulot ma'lumotlari to'liq emas"),
+    USER_IS_NOT_CLIENT(7024, "user_is_not_client", "User is not client", "Пользователь не является клиентом", "Foydalanuvchi mijoz emas"),
+    PRODUCT_CATEGORY_NOT_FOUND(7025, "product_category_not_found", "Product category not found", "Категория товара не найдена", "Mahsulot toifasi topilmadi"),
+    PRODUCT_NOT_FOUND(7026, "product_not_found", "Product not found", "Категория не найдена", "Mahsulot topilmadi"),
+    UNABLE_TO_EDIT_PRODUCT(7027, "unable_to_edit_product", "Unable to edit product", "Не удалось изменить продукт", "Mahsulotni yangilab bo'lmadi"),
+    ALREADY_DELETED(7028, "already_deleted", "Already deleted", "Уже удален ", "Allaqachon o'chirilgan"),
+    ASSORTMENT_NOT_FOUND(7029, "assortment_not_found", "Assortment not found", "assortment не найдена", "Assortment topilmadi"),
+    SELLING_REQUEST_NOT_FOUND(7030, "selling_request_not_found", "Selling request not found", "SellingRequest не найдена", "Selling Request topilmadi"),
+    SELLING_REQUEST_INFO_NOT_FOUND(7030, "selling_request_not_found", "Selling request not found", "SellingRequest не найдена", "Selling Request topilmadi")
     ;
+
 
     private final int id;
     private final String code;
@@ -116,26 +130,26 @@ public enum StatusCodes {
         return null;
     }
 
-    public static String getNameByLanguage(StatusCodes target, String language) {
-        if (language == null) {
-            language = "ru";
-        }
+    public static String getNameByLanguage(StatusCodes target, Language language) {
+        language = checkLanguage(language);
 
         switch (language) {
-            case "en":
+            case EN:
                 return target.englishName;
-            case "uz":
+            case UZ:
                 return target.uzbekName;
-            case "ru":
+            case RU:
             default:
                 return target.russianName;
         }
     }
 
-    public static ArrayList<HashMapModel> getAllByLanguage(String language) {
+    public static ArrayList<HashMapModel> getAllByLanguage(Language language) {
+        language = checkLanguage(language);
+
         ArrayList<HashMapModel> result = new ArrayList<>();
         switch (language) {
-            case "us":
+            case EN:
                 for (StatusCodes target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();
                     hashMapModel.setLabel(target.englishName);
@@ -143,7 +157,7 @@ public enum StatusCodes {
                     result.add(hashMapModel);
                 }
                 return result;
-            case "uz":
+            case UZ:
                 for (StatusCodes target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();
                     hashMapModel.setLabel(target.uzbekName);
@@ -151,7 +165,7 @@ public enum StatusCodes {
                     result.add(hashMapModel);
                 }
                 return result;
-            case "ru":
+            case RU:
             default:
                 for (StatusCodes target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();

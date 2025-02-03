@@ -10,9 +10,9 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEncodedId(String encodedId);
 
-    Optional<User> findByUsername(String username);
+    Optional<User> findByUsernameAndIsDeletedFalse(String username);
 
-    Boolean existsByUsername(String username);
+    Boolean existsByUsernameAndIsDeletedFalse(String username);
 
 //	@Query(value = "select * from users where users.id in (select ug.user_id from user_agent ug " +
 //			"where ug.user_agent=:userAgent and (current_date - CAST(cast(ug.token_date as TIMESTAMP) AS DATE) <= 7)) " +

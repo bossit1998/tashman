@@ -2,16 +2,15 @@ package uz.tm.tashman.util;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 import uz.tm.tashman.entity.User;
 import uz.tm.tashman.enums.CardType;
+import uz.tm.tashman.enums.Language;
 import uz.tm.tashman.models.ResponseModel;
 import uz.tm.tashman.models.UserModel;
 
@@ -28,17 +27,14 @@ import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
 
 import static uz.tm.tashman.util.CONSTANT.*;
 
+@SuppressWarnings(value = "unused")
 public class Util {
 
-    private static final String ABC = "bossitbossitbossit";
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
     private static final NumberFormat qtyNumberFormat = NumberFormat.getInstance();
     public static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
@@ -78,15 +74,15 @@ public class Util {
         md.reset();
         md.update(unencodedPassword);
         byte[] encodedPassword = md.digest();
-        StringBuffer buf = new StringBuffer();
+        StringBuilder stringBuilder = new StringBuilder();
         for (byte anEncodedPassword : encodedPassword) {
             if ((anEncodedPassword & 0xff) < 0x10) {
-                buf.append("0");
+                stringBuilder.append("0");
             }
 
-            buf.append(Long.toString(anEncodedPassword & 0xff, 16));
+            stringBuilder.append(Long.toString(anEncodedPassword & 0xff, 16));
         }
-        return buf.toString();
+        return stringBuilder.toString();
     }
 
     public static String makeZeroLead(long number, int len) {
@@ -129,7 +125,7 @@ public class Util {
     }
 
     public static String getCardExpireDate(String expireDate) {
-        String[] split = expireDate.length() != 5 ? AES.decrypt(expireDate).split("/")
+        String[] split = expireDate.length() != 5 ? Objects.requireNonNull(AES.decrypt(expireDate)).split("/")
                 : expireDate.split("/");
         return split[1] + split[0];
     }
@@ -164,7 +160,7 @@ public class Util {
     public static Pageable getPageable(Integer page, Integer size) {
         if (page == null) {
             page = CONSTANT.DEFAULT_PAGE_NUMBER;
-        } else if (page==0) {
+        } else if (page == 0) {
             page = 0;
         } else {
             page--;
@@ -180,17 +176,17 @@ public class Util {
         return IS_PRODUCTION ? Util.otpGeneration() : DEFAULT_OTP;
     }
 
-    public static String otpGeneration() {
+    private static String otpGeneration() {
         int randomPin = (int) (Math.random() * 9000) + 1000;
         return String.valueOf(randomPin);
     }
 
-    public static String getLanguageWithAuth(UserModel userModel) {
-        return userModel.getLanguage() == null ? "ru" : userModel.getLanguage();
+    public static Language getLanguageFromAuthentication(UserModel userModel) {
+        return userModel.getLanguage() == null ? Language.RU : userModel.getLanguage();
     }
 
-    public static String getLanguageWithAuth() {
-        String language = "ru";
+    public static Language getLanguageFromAuthentication() {
+        Language language = Language.RU;
         if (!SecurityContextHolder.getContext().getAuthentication().getPrincipal().equals("anonymousUser")) {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             language = user.getLanguage();
@@ -228,7 +224,7 @@ public class Util {
         return responseModel;
     }
 
-    public static ResponseModel<String>  createThumbnail(String uploadDirectory, String fileName, String fileExtension, MultipartFile image, Integer size) {
+    public static ResponseModel<String> createThumbnail(String uploadDirectory, String fileName, String fileExtension, MultipartFile image, Integer size) {
         ResponseModel<String> responseModel = new ResponseModel<>();
 
         try {
@@ -278,6 +274,24 @@ public class Util {
             return true;
         } catch (IOException ioe) {
             throw new IOException("Could not save file: " + fileName, ioe);
+        }
+    }
+
+    public static Language checkLanguage(Language language) {
+        if (language == null) {
+            language = DEFAULT_SYSTEM_lANGUAGE;
+        }
+
+        return language;
+    }
+
+    public static String getImageUrl(String imageUrl) {
+        if (imageUrl == null) {
+            return null;
+        } else if (imageUrl.contains("/content")) {
+            return imageUrl.replace("/content", BASE_URL);
+        } else {
+            return imageUrl;
         }
     }
 }

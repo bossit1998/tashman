@@ -4,19 +4,21 @@ import uz.tm.tashman.models.HashMapModel;
 
 import java.util.ArrayList;
 
-public enum ProductCategory {
+import static uz.tm.tashman.util.Util.checkLanguage;
+
+public enum EProductCategory {
     SHAMPOO(0, "shampoo", "Shampoo", "Шампунь", "Shampun"),
     LIQUID_SOAP(1, "liquid_soap", "Liquid soap", "Жидкое мыло", "Suyuq sovun"),
     DISHWASHING_LIQUID(2, "dishwashing_liquid", "Dishwashing liquid", "Моющее средство", "Idish yuvish vositasi"),
     KIDS_SHAMPOO(3, "kids_shampoo", "Kids shampoo", "Детский шампунь", "Bolalar shampuni");
 
-    private final long id;
-    private final String code;
-    private final String englishName;
-    private final String russianName;
-    private final String uzbekName;
+    public final long id;
+    public final String code;
+    public final String englishName;
+    public final String russianName;
+    public final String uzbekName;
 
-    ProductCategory(int id, String code, String englishName, String russianName, String uzbekName) {
+    EProductCategory(int id, String code, String englishName, String russianName, String uzbekName) {
         this.id = id;
         this.code = code;
         this.englishName = englishName;
@@ -24,8 +26,8 @@ public enum ProductCategory {
         this.uzbekName = uzbekName;
     }
 
-    public static ProductCategory getByCode(String value) {
-        for (ProductCategory target : values()) {
+    public static EProductCategory getByCode(String value) {
+        for (EProductCategory target : values()) {
             if (target.name().equals(value)) {
                 return target;
             }
@@ -33,8 +35,8 @@ public enum ProductCategory {
         return null;
     }
 
-    public static ProductCategory getById(long id) {
-        for (ProductCategory target : values()) {
+    public static EProductCategory getById(long id) {
+        for (EProductCategory target : values()) {
             if (target.id == id) {
                 return target;
             }
@@ -42,29 +44,29 @@ public enum ProductCategory {
         return null;
     }
 
-
-    public static ArrayList<HashMapModel> getAllByLanguage(String language) {
+    public static ArrayList<HashMapModel> getAllByLanguage(Language language) {
+        language = checkLanguage(language);
         ArrayList<HashMapModel> result = new ArrayList<>();
         switch (language) {
-            case "en":
-                for (ProductCategory target : values()) {
+            case EN:
+                for (EProductCategory target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();
                     hashMapModel.setLabel(target.englishName);
                     hashMapModel.setValue(target.code);
                     result.add(hashMapModel);
                 }
                 return result;
-            case "uz":
-                for (ProductCategory target : values()) {
+            case UZ:
+                for (EProductCategory target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();
                     hashMapModel.setLabel(target.uzbekName);
                     hashMapModel.setValue(target.code);
                     result.add(hashMapModel);
                 }
                 return result;
-            case "ru":
+            case RU:
             default:
-                for (ProductCategory target : values()) {
+                for (EProductCategory target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();
                     hashMapModel.setLabel(target.russianName);
                     hashMapModel.setValue(target.code);

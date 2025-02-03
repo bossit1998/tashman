@@ -26,13 +26,16 @@ public class ProductImage implements Serializable {
 
     private Integer sortOrder;
 
-    private LocalDateTime createdDate;
-    private Long createdBy;
 
     @Column(columnDefinition = "boolean default false")
+    private Boolean isVisible = false;
+    @Column(columnDefinition = "boolean default false")
     private Boolean isDeleted = false;
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isInProduction = false;
 
-    private Long deletedBy;
-
+    private LocalDateTime createdDate = LocalDateTime.now();
+    private Long createdBy;
     private LocalDateTime deletedDate;
+    private Long deletedBy;
 }

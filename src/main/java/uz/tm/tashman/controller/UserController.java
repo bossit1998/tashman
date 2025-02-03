@@ -1,12 +1,9 @@
 package uz.tm.tashman.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.View;
-import uz.tm.tashman.models.AuthenticationModel;
+import uz.tm.tashman.models.BasicModel;
+import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
 import uz.tm.tashman.services.UserService;
 import uz.tm.tashman.util.HTTPUtil;
 
@@ -20,73 +17,83 @@ import static uz.tm.tashman.util.Util.isBlank;
 @CrossOrigin(origins = "*")
 public class UserController extends HTTPUtil {
 
-    @Autowired
-    UserService userService;
+    final UserService userService;
+
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping(value = "/otpVerification")
-    public ResponseEntity<?> otpVerification(@RequestBody AuthenticationModel authenticationModel, HttpServletRequest header) {
-        if (isBlank(authenticationModel.getMobileNumber())) {
+    public ResponseEntity<?> otpVerification(@RequestBody AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getMobileNumber())) {
             return BadRequestResponse(USER_PHONE_NOT_ENTERED);
         }
-        if (isBlank(authenticationModel.getOtp())) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getOtp())) {
             return BadRequestResponse(USER_OTP_NOT_ENTERED);
         }
-        if (isBlank(authenticationModel.getDeviceId())) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getDeviceId())) {
             return BadRequestResponse(DEVICE_INFO_MISSING);
         }
-        return userService.otpVerification(authenticationModel, header);
+        return userService.otpVerification(authenticationRequestModel, header);
     }
 
     @PostMapping(value = "/otpResend")
-    public ResponseEntity<?> otpResend(@RequestBody AuthenticationModel authenticationModel, HttpServletRequest header) {
-        if (isBlank(authenticationModel.getMobileNumber())) {
+    public ResponseEntity<?> otpResend(@RequestBody AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getMobileNumber())) {
             return BadRequestResponse(USER_PHONE_NOT_ENTERED);
         }
-        if (isBlank(authenticationModel.getPassword())) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getPassword())) {
             return BadRequestResponse(USER_PASSWORD_NOT_ENTERED);
         }
-        if (isBlank(authenticationModel.getDeviceId())) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getDeviceId())) {
             return BadRequestResponse(DEVICE_INFO_MISSING);
         }
-        return userService.otpResend(authenticationModel, header);
+        return userService.otpResend(authenticationRequestModel, header);
     }
 
     @PostMapping("/forgotPassword")
-    public ResponseEntity<?> forgotPassword(@RequestBody AuthenticationModel authenticationModel, HttpServletRequest header) {
-        if (isBlank(authenticationModel.getMobileNumber())) {
+    public ResponseEntity<?> forgotPassword(@RequestBody AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getMobileNumber())) {
             return BadRequestResponse(USER_PHONE_NOT_ENTERED);
         }
-        if (isBlank(authenticationModel.getDeviceId())) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getDeviceId())) {
             return BadRequestResponse(DEVICE_INFO_MISSING);
         }
-        return userService.forgotPassword(authenticationModel, header);
+        return userService.forgotPassword(authenticationRequestModel, header);
     }
 
     @PostMapping(value = "/changePassword")
-    public ResponseEntity<?> changePassword(@RequestBody AuthenticationModel authenticationModel, HttpServletRequest header) {
-        if (isBlank(authenticationModel.getMobileNumber())) {
+    public ResponseEntity<?> changePassword(@RequestBody AuthenticationRequestModel authenticationRequestModel, HttpServletRequest header) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getMobileNumber())) {
             return BadRequestResponse(USER_PHONE_NOT_ENTERED);
         }
-        if (isBlank(authenticationModel.getPassword())) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getPassword())) {
             return BadRequestResponse(USER_PASSWORD_NOT_ENTERED);
         }
-        if (isBlank(authenticationModel.getOtp())) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getOtp())) {
             return BadRequestResponse(USER_OTP_NOT_ENTERED);
         }
-        if (isBlank(authenticationModel.getDeviceId())) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getDeviceId())) {
             return BadRequestResponse(DEVICE_INFO_MISSING);
         }
 
-        return userService.changePassword(authenticationModel, header);
+        return userService.changePassword(authenticationRequestModel, header);
     }
 
+    @PostMapping(value = "/getGenderList")
+    public ResponseEntity<?> getGenderList(@RequestBody BasicModel basicModel) {
 
+        return userService.getGenderList(basicModel);
+    }
 
-
-
-
-
-
+    @PostMapping("/setPinCode")
+    public ResponseEntity<?> setPinCode(@RequestBody AuthenticationRequestModel authenticationRequestModel, HttpServletRequest request) {
+        if (authenticationRequestModel.getAuthentication() == null || authenticationRequestModel.getAuthentication().getPinCode() == null) {
+            return BadRequestResponse(USER_PIN_CODE_NOT_ENTERED);
+        }
+        return userService.setPinCode(authenticationRequestModel, request);
+    }
 
     /*
 
@@ -96,13 +103,6 @@ public class UserController extends HTTPUtil {
     }
 
 
-    @PostMapping("/setPinCode")
-    public ResponseEntity<?> setPinCode(@RequestBody PinCodeRequest pinCodeRequest, HttpServletRequest request) {
-        if (pinCodeRequest.getPinCode() == null) {
-            return ResponseEntity.badRequest().body(new ErrorResponseModel(400, "Pin code not entered"));
-        }
-        return commonService.setPinCode(pinCodeRequest, request);
-    }
 
     @PostMapping("/loginWithPinCode")
     public ResponseEntity<?> loginPinCode(@RequestBody PinCodeRequest pinCodeRequest, HttpServletRequest request) {
@@ -144,16 +144,4 @@ public class UserController extends HTTPUtil {
         return commonService.deleteDocument(documentId);
     }
 */
-
-    @PostMapping("/redirectPostToPost")
-    public ModelAndView redirectPostToPost(HttpServletRequest request) {
-        request.setAttribute(
-                View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.FOUND);
-        return new ModelAndView("redirect:/redirectedPostToPost");
-    }
-
-    @PostMapping("/redirectedPostToPost")
-    public ModelAndView redirectedPostToPost() {
-        return new ModelAndView("redirection");
-    }
 }

@@ -2,17 +2,21 @@ package uz.tm.tashman.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import uz.tm.tashman.enums.StatusCodes;
-import uz.tm.tashman.models.AuthenticationModel;
+import uz.tm.tashman.models.BasicModel;
 import uz.tm.tashman.models.UserModel;
+import uz.tm.tashman.models.requestModels.AuthenticationRequestModel;
+import uz.tm.tashman.models.requestModels.UserRequestModel;
 import uz.tm.tashman.services.ClientService;
 import uz.tm.tashman.util.HTTPUtil;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static uz.tm.tashman.enums.StatusCodes.*;
+import static uz.tm.tashman.enums.StatusCodes.USER_NAME_NOT_ENTERED;
 import static uz.tm.tashman.util.Util.isBlank;
-
 
 @RestController
 @RequestMapping("/client")
@@ -20,37 +24,58 @@ import static uz.tm.tashman.util.Util.isBlank;
 public class ClientController extends HTTPUtil {
 
     @Autowired
-    ClientService userService;
+    ClientService clientService;
 
     @PostMapping("/registration")
-    public ResponseEntity<?> registration(@RequestBody UserModel userModel, HttpServletRequest request) {
-        if (isBlank(userModel.getMobileNumber())) {
+    public ResponseEntity<?> registration(@RequestBody UserRequestModel userRequestModel, HttpServletRequest request) {
+        if (isBlank(userRequestModel.getUser())) {
+            return BadRequestResponse(USER_DETAILS_ARE_MISSING);
+        }
+        if (isBlank(userRequestModel.getUserAgent())) {
+            return BadRequestResponse(USER_AGENT_DETAILS_ARE_MISSING);
+        }
+        if (isBlank(userRequestModel.getUser().getMobileNumber())) {
             return BadRequestResponse(StatusCodes.USER_PHONE_NOT_ENTERED);
         }
-        if (isBlank(userModel.getFullName())) {
-            return BadRequestResponse(StatusCodes.USER_NAME_NOT_ENTERED);
+        if (isBlank(userRequestModel.getUser().getName())) {
+            return BadRequestResponse(USER_NAME_NOT_ENTERED);
         }
-        if (isBlank(userModel.getDob())) {
+        if (isBlank(userRequestModel.getUser().getSurname())) {
+            return BadRequestResponse(USER_NAME_NOT_ENTERED);
+        }
+        if (isBlank(userRequestModel.getUser().getDob())) {
             return BadRequestResponse(StatusCodes.USER_DOB_NOT_ENTERED);
         }
-        if (isBlank(userModel.getGender())) {
+        if (isBlank(userRequestModel.getUser().getGender())) {
             return BadRequestResponse(StatusCodes.USER_GENDER_NOT_ENTERED);
         }
-        if (isBlank(userModel.getPassword())) {
+        if (isBlank(userRequestModel.getUser().getPassword())) {
             return BadRequestResponse(StatusCodes.USER_PASSWORD_NOT_ENTERED);
         }
-        return userService.registration(userModel, request);
+        return clientService.registration(userRequestModel, request);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthenticationModel authenticationModel, HttpServletRequest request) {
-        if (isBlank(authenticationModel.getMobileNumber())) {
+    public ResponseEntity<?> login(@RequestBody AuthenticationRequestModel authenticationRequestModel, HttpServletRequest request) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getMobileNumber())) {
             return BadRequestResponse(StatusCodes.USER_PHONE_NOT_ENTERED);
         }
-        if (isBlank(authenticationModel.getPassword())) {
+        if (isBlank(authenticationRequestModel.getAuthentication().getPassword())) {
             return BadRequestResponse(StatusCodes.USER_PASSWORD_NOT_ENTERED);
         }
-        return userService.login(authenticationModel, request);
+        return clientService.login(authenticationRequestModel, request);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
+    @PostMapping(value = "/getProfile")
+    public ResponseEntity<?> getProfile(@RequestBody BasicModel basicModel, HttpServletRequest httpRequestHeader) {
+        return clientService.getProfile(basicModel, httpRequestHeader);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
+    @PostMapping(value = "/editProfile")
+    public ResponseEntity<?> editProfile(@RequestBody UserModel userModel, HttpServletRequest httpRequestHeader) {
+        return clientService.editProfile(userModel, httpRequestHeader);
     }
 
 //	@PreAuthorize("hasRole('PATIENT')")

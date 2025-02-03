@@ -5,8 +5,10 @@ import uz.tm.tashman.models.HashMapModel;
 
 import java.util.ArrayList;
 
+import static uz.tm.tashman.util.Util.checkLanguage;
+
 @Getter
-public enum VolumeUnit {
+public enum Unit {
     ML(0, "ml", "Milliliter", "Миллилитр", "Millilitr"),
     MG(1, "mg", "Milligram", "Миллиграм", "Milligram"),
     L(2, "l", "Liter", "Литр", "Litr"),
@@ -14,33 +16,34 @@ public enum VolumeUnit {
     CONTAINER(4, "container", "Container", "Контейнер", "Konteyner"),
     PIECE(5, "piece", "Piece", "Штук", "Dona"),
     BOX(6, "box", "Box", "Коробка", "Korobka"),
+    TONN(7, "tonn", "Tonn", "Тонна", "Tonna"),
     ;
 
     private final long id;
     private final String code;
-    private final String englishName;
-    private final String russianName;
-    private final String uzbekName;
+    private final String nameEn;
+    private final String nameRu;
+    private final String nameUz;
 
-    VolumeUnit(int id, String code, String englishName, String russianName, String uzbekName) {
+    Unit(int id, String code, String nameEn, String nameRu, String nameUz) {
         this.id = id;
         this.code = code;
-        this.englishName = englishName;
-        this.russianName = russianName;
-        this.uzbekName = uzbekName;
+        this.nameEn = nameEn;
+        this.nameRu = nameRu;
+        this.nameUz = nameUz;
     }
 
-    public static VolumeUnit getByCode(String doseUnit) {
-        for (VolumeUnit doseUnits : values()) {
-            if (doseUnits.name().equals(doseUnit)) {
-                return doseUnits;
+    public static Unit getByCode(String searchVolumeUnitCode) {
+        for (Unit unit : values()) {
+            if (unit.name().equals(searchVolumeUnitCode)) {
+                return unit;
             }
         }
         return null;
     }
 
-    public static VolumeUnit getById(long id) {
-        for (VolumeUnit doseUnits : values()) {
+    public static Unit getById(long id) {
+        for (Unit doseUnits : values()) {
             if (doseUnits.id == id) {
                 return doseUnits;
             }
@@ -48,31 +51,44 @@ public enum VolumeUnit {
         return null;
     }
 
+    public String getName(Language language) {
+        switch (language) {
+            case EN:
+                return nameEn;
+            case UZ:
+                return nameUz;
+            case RU:
+            default:
+                return nameRu;
+        }
+    }
 
-    public static ArrayList<HashMapModel> getAllByLanguage(String language) {
+    public static ArrayList<HashMapModel> getAllByLanguage(Language language) {
+        language = checkLanguage(language);
+
         ArrayList<HashMapModel> volumeUnits = new ArrayList<>();
         switch (language) {
-            case "en":
-                for (VolumeUnit unit : values()) {
+            case EN:
+                for (Unit unit : values()) {
                     HashMapModel volumeUnit = new HashMapModel();
-                    volumeUnit.setLabel(unit.englishName);
+                    volumeUnit.setLabel(unit.nameEn);
                     volumeUnit.setValue(unit.code);
                     volumeUnits.add(volumeUnit);
                 }
                 return volumeUnits;
-            case "uz":
-                for (VolumeUnit unit : values()) {
+            case UZ:
+                for (Unit unit : values()) {
                     HashMapModel volumeUnit = new HashMapModel();
-                    volumeUnit.setLabel(unit.uzbekName);
+                    volumeUnit.setLabel(unit.nameUz);
                     volumeUnit.setValue(unit.code);
                     volumeUnits.add(volumeUnit);
                 }
                 return volumeUnits;
-            case "ru":
+            case RU:
             default:
-                for (VolumeUnit unit : values()) {
+                for (Unit unit : values()) {
                     HashMapModel volumeUnit = new HashMapModel();
-                    volumeUnit.setLabel(unit.russianName);
+                    volumeUnit.setLabel(unit.nameRu);
                     volumeUnit.setValue(unit.code);
                     volumeUnits.add(volumeUnit);
                 }

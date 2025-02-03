@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import uz.tm.tashman.enums.Gender;
+import uz.tm.tashman.enums.ERole;
+import uz.tm.tashman.enums.Language;
 
 import java.time.LocalDate;
 
@@ -14,30 +15,29 @@ import java.time.LocalDate;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserModel {
-    private Long id;
-    private String mobileNumber;
-    private String fullName;
+        private Long id;
+        private String mobileNumber;
+        private String name;
+        private String surname;
+        private String fullName;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
-    private LocalDate dob;
-    private String gender;
-    private String password;
-    private Boolean isActive;
-    private Boolean isDeleted;
-    private String createdBy;
-    private String deletedBy;
-    private String message;
-    private String deviceId;
-    private Boolean isOTPVerified;
-    private String fingerPrints;
-    private String token;
-    private String email;
-    private String faceScan;
-    private String profileImageUrl;
-    private String language;
-    //    @JsonBackReference
-    private UserAgentModel userAgentModel;
-    //    private Set<Role> roles;
-    private String role;
+        private LocalDate dob;
+        private String gender;
+        private String password;
+        private Boolean isActive;
+        private Boolean isDeleted;
+        private String createdBy;
+        private String deletedBy;
+        private String message;
+        private String deviceId;
+        private Boolean isOTPVerified;
+        private String fingerPrints;
+        private String token;
+        private String email;
+        private String faceScan;
+        private String profileImageUrl;
+        private Language language;
+        private ERole role;
 
     public void clear() {
         this.id = null;
@@ -58,7 +58,6 @@ public class UserModel {
         this.faceScan = null;
         this.profileImageUrl = null;
         this.language = null;
-        this.userAgentModel = null;
         this.role = null;
     }
 }

@@ -3,8 +3,8 @@ package uz.tm.tashman.models.wrapperModels;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
+import uz.tm.tashman.enums.Language;
 import uz.tm.tashman.enums.StatusCodes;
-import uz.tm.tashman.util.Util;
 
 @Getter
 @Setter
@@ -19,12 +19,12 @@ public class ErrorResponse {
         this.message = message;
     }
 
-    public ErrorResponse(StatusCodes status, String language) {
+    public ErrorResponse(StatusCodes status, Language language) {
         this.status = status.getId();
         this.message = StatusCodes.getNameByLanguage(status, language);
     }
 
-    public ErrorResponse(StatusCodes status, String language, Object error) {
+    public ErrorResponse(StatusCodes status, Language language, Object error) {
         this.status = status.getId();
         this.message = StatusCodes.getNameByLanguage(status, language);
         this.error = error;

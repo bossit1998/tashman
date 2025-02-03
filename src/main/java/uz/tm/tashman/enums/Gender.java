@@ -4,22 +4,24 @@ import uz.tm.tashman.models.HashMapModel;
 
 import java.util.ArrayList;
 
+import static uz.tm.tashman.util.Util.checkLanguage;
+
 public enum Gender {
     MALE(0, "male", "Male", "Мужчина", "Erkak"),
     FEMALE(0, "female", "Female", "Женшина", "Ayol");
 
     private final long id;
     private final String code;
-    private final String englishName;
-    private final String russianName;
-    private final String uzbekName;
+    private final String nameEn;
+    private final String nameRu;
+    private final String nameUz;
 
-    Gender(int id, String code, String englishName, String russianName, String uzbekName) {
+    Gender(int id, String code, String nameEn, String nameRu, String nameUz) {
         this.id = id;
         this.code = code;
-        this.englishName = englishName;
-        this.russianName = russianName;
-        this.uzbekName = uzbekName;
+        this.nameEn = nameEn;
+        this.nameRu = nameRu;
+        this.nameUz = nameUz;
     }
 
     public static Gender getByCode(String value) {
@@ -40,50 +42,44 @@ public enum Gender {
         return null;
     }
 
-    public static String getNameByLanguage(Gender target, String language) {
-        if (language == null) {
-            language = "ru";
-        }
-
+    public static String getName(Gender target, Language language) {
         switch (language) {
-            case "en":
-                return target.englishName;
-            case "uz":
-                return target.uzbekName;
-            case "ru":
+            case EN:
+                return target.nameEn;
+            case UZ:
+                return target.nameUz;
+            case RU:
             default:
-                return target.russianName;
+                return target.nameRu;
         }
     }
 
-    public static ArrayList<HashMapModel> getAllByLanguage(String language) {
-        if (language==null) {
-            language = "ru";
-        }
+    public static ArrayList<HashMapModel> getAllByLanguage(Language language) {
+        language = checkLanguage(language);
 
         ArrayList<HashMapModel> result = new ArrayList<>();
         switch (language) {
-            case "en":
+            case EN:
                 for (Gender target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();
-                    hashMapModel.setLabel(target.englishName);
+                    hashMapModel.setLabel(target.nameEn);
                     hashMapModel.setValue(target.code);
                     result.add(hashMapModel);
                 }
                 return result;
-            case "uz":
+            case UZ:
                 for (Gender target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();
-                    hashMapModel.setLabel(target.uzbekName);
+                    hashMapModel.setLabel(target.nameUz);
                     hashMapModel.setValue(target.code);
                     result.add(hashMapModel);
                 }
                 return result;
-            case "ru":
+            case RU:
             default:
                 for (Gender target : values()) {
                     HashMapModel hashMapModel = new HashMapModel();
-                    hashMapModel.setLabel(target.russianName);
+                    hashMapModel.setLabel(target.nameRu);
                     hashMapModel.setValue(target.code);
                     result.add(hashMapModel);
                 }

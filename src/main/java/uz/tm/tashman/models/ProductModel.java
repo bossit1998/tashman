@@ -5,10 +5,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
-import uz.tm.tashman.enums.ProductCategory;
-import uz.tm.tashman.enums.VolumeUnit;
 
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,26 +15,21 @@ import java.util.List;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProductModel {
+public class ProductModel implements Serializable {
     private Long id;
     private String encodedId;
     private String slug;
     private String metaTitle;
     private String metaDescription;
-    private ProductCategory productCategory;
+    private String category;
     private String name;
     private String shortDescription;
     private String fullDescription;
-    private Integer piecesPerPackage;
-    private Double packageNettoWeight;
-    private Double packageBruttoWeight;
-    private String packageDimensions;
-    private Double volume;
-    private VolumeUnit volumeUnit;
-    private String expireDuration;
-    private List<MultipartFile> images;
-    private List<String> imageUrls;
-    private List<String> thumbnailImageUrls;
+    private ProductPackingModel productPackingModel;
+    private Integer expireDuration;
+    private String expireDurationUnit;
+    private List<AssortmentResponseModel> assortments;
+    private List<ProductImageModel> images;
     private Double price;
     private Boolean isActive;
     private LocalDateTime createdDate;
@@ -44,4 +38,10 @@ public class ProductModel {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private LocalDateTime deletedDate;
     private String deletedBy;
+    private Boolean inProduction;
+    private String barCode;
+    private String flavor;
+    private String storeTemperature;
+    private LocalDateTime firstLaunchedDate;
+    private String brand;
 }
