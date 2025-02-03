@@ -15,10 +15,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class Client implements Serializable {
+public class Admin implements Serializable {
 
     @Id
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "id")
     @JsonBackReference
     private User user;
@@ -29,14 +29,6 @@ public class Client implements Serializable {
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
-
-    private String email;
-
-    private String fingerPrints;
-
-    private String faceScan;
-
-    private String qrCode;
 
     private LocalDateTime createdDate;
 

@@ -1,31 +1,20 @@
-package uz.tm.tashman.entity;
+package uz.tm.tashman.models;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import uz.tm.tashman.enums.Platform;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity
-public class UserAgent implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class UserAgentModel implements Serializable {
     private Long id;
-
-    private String encodedId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
-
-    private String otp;
-
     private String userAgent;
     private String ip;
     private String referer;
@@ -37,28 +26,15 @@ public class UserAgent implements Serializable {
     private String city;
     private String region;
     private String country;
-
     private String location;
     private String org;
     private String timezone;
     private String readme;
-    private String hostname;
-
-    @Column(columnDefinition = "boolean default false")
-    private boolean isVerified = false;
-
+    private Boolean isVerified;
     private LocalDateTime tokenDate;
-
-    @Column(columnDefinition = "boolean default false")
-    private Boolean isDeleted = false;
-
-    private Long deletedBy;
-
+    private Boolean isDeleted;
     private LocalDateTime deletedDate;
-
     private String fcmToken;
     private String voipToken;
-
-    @Enumerated(EnumType.STRING)
     private Platform platform;
 }

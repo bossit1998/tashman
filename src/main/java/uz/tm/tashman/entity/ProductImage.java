@@ -12,31 +12,27 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class Address implements Serializable {
+public class ProductImage implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
+    private Product product;
 
-    private String street;
+    private String imageUrl;
+    private String thumbnailImageUrl;
 
-    private String district;
+    private Integer sortOrder;
 
-    private String city;
-
-    private String region;
-
-    private String country;
-
-    private Double latitude;
-
-    private Double longitude;
+    private LocalDateTime createdDate;
+    private Long createdBy;
 
     @Column(columnDefinition = "boolean default false")
     private Boolean isDeleted = false;
+
+    private Long deletedBy;
 
     private LocalDateTime deletedDate;
 }

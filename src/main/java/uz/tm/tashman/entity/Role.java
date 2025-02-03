@@ -1,23 +1,28 @@
 package uz.tm.tashman.entity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import uz.tm.tashman.enums.ERole;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
+@NoArgsConstructor
+@Getter
+@Setter
 @Entity
-@Data
-@Table(name = "roles")
 public class Role implements Serializable {
-
-    private static final long serialVersionUID = -3597858031350917558L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-	@Enumerated(EnumType.STRING)
-	@Column(length = 20)
+    @Enumerated(EnumType.STRING)
+    @Column(length = 25)
     private ERole name;
+
+    public Role(ERole eRole) {
+        this.name = eRole;
+    }
 }

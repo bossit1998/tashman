@@ -15,17 +15,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import uz.tm.tashman.config.jwt.AuthEntryPointJwt;
 import uz.tm.tashman.config.jwt.AuthTokenFilter;
-import uz.tm.tashman.service.UserDetailsServiceImpl;
+import uz.tm.tashman.services.UserDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(
-        // securedEnabled = true,
-        // jsr250Enabled = true,
-        prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
-    UserDetailsServiceImpl userDetailsService;
+    private UserDetailsServiceImpl userDetailsService;
 
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
@@ -55,10 +52,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-                .antMatchers("/html/**", "/ws/**", "/content/**",
-                        "/user/registration", "/user/login")
+                .antMatchers(
+                        "/html/**", "/ws/**", "/content/**",
+                        "/client/registration", "/client/login",
+                        "/admin/registration", "/admin/login",
+                        "/user/otpVerification", "/user/forgotPassword", "/user/otpResend", "/user/changePassword",
+                        "/common/getGenderList"
+                )
                 .permitAll().anyRequest().authenticated();
-
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 }
